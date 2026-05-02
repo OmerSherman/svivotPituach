@@ -1,0 +1,11 @@
+[
+    {
+        "city_id": 1,
+        "country_id": 1,
+        "city_name":"buenos aires",
+        "city_name_he": "בואנוס איירס",
+        "summery":"Buenos Aires is the vibrant, cosmopolitan capital of Argentina, often referred to as the \"Paris of South America\" due to its elegant European-style architecture, wide boulevards, and rich cultural heritage.",
+        "summery_he":"בואנוס איירס היא בירתה התוססת והקוסמופוליטית של ארגנטינה, המכונה לעיתים קרובות \"פריז של דרום אמריקה\" בזכות האדריכלות האלגנטית שלה בסגנון אירופאי, השדרות הרחבות והמורשת"
+
+    }
+]
