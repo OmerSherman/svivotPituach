@@ -7,5 +7,13 @@
         "updateDate": "05-02-2026",
         "userRole": "admin"
     }
-    
+    ,
+    {
+        "userId": 2,
+        "firstName": "omer",
+        "lastName": "sherman",
+        "createDate": "05-02-2026",
+        "updateDate": "05-02-2026",
+        "userRole": "admin"
+    }
 ]
