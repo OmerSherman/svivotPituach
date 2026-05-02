@@ -13,7 +13,12 @@ const attractions_router = require('./routes/attractions_r')
 
 //define routers
 app.use('/api/auth' , auth_router)
-app.use('api/profile' , profiles_router)
+app.use('/api/profile' , profiles_router)
 app.use('/api/cities', cities_router)
 app.use('/api/favorites' , favorites_router)
 app.use('/api/recommendations' , attractions_router)
+
+app.listen(port, () => {
+console.log(`Server running
+at http://localhost:${port}`);
+});

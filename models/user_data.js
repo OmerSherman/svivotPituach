@@ -1,17 +1,18 @@
-
+const path = "./mock_data/users.json";
 
 let users = [];
-const path = "/mock_data/users.json";
 
-function loadUsers() { 
-    //load the users from the mock data
-    const response = await fetch(path);
-    const data = await response.json();
-    users = data;
+try {
+    users = require(path);
+} catch (e) {
+    console.error("Error loading JSON:", e);
 }
 
 function getUsers() {
     return users;
 }
 
-loadUsers()
+// export the function 
+module.exports = {
+    getUsers
+};
