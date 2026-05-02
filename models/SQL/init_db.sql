@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS Countries(
     c_name VARCHAR(32) UNIQUE,
     code VARCHAR(2) UNIQUE
 );
+
 INSERT IGNORE INTO Countries (c_name, code) VALUES
 ('Argentina', 'AR'),
 ('Belize', 'BZ'),
