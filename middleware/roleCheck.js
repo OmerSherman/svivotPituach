@@ -1,3 +1,4 @@
+// takes a list of allowed roles (admin,manager) returns a middleware function
 const roleCheck = (...allowedRoles) => {
     return (req, res, next) => {
         // read the role from the request header
@@ -15,7 +16,7 @@ const roleCheck = (...allowedRoles) => {
                 }
             });
         }
-        // if the role is valid — pass control to the next middleware or route handler
+        // if the role is valid - pass control to the next middleware or route handler
         next();
     };
 };
