@@ -2,7 +2,6 @@ const logger = (req, res, next) => {
     // record the time the request arrived
     const start = Date.now();
     
-
     // fires after the response is sent to the client so we can log the final status code and how long it took
     res.on('finish', () => {
         const duration = Date.now() - start;
