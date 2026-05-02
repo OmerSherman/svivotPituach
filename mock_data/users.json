@@ -1,0 +1,11 @@
+[
+    {
+        "userId": 1,
+        "firstName": "michal",
+        "lastName": "adam",
+        "createDate": "05-02-2026",
+        "updateDate": "05-02-2026",
+        "userRole": "admin"
+    }
+    
+]
