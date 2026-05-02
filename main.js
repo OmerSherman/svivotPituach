@@ -24,7 +24,7 @@ app.use('/api/auth' , auth_router)
 app.use('/api/profile' , profiles_router)
 app.use('/api/cities', cities_router)
 app.use('/api/favorites' , favorites_router)
-app.use('/api/recommendations' , attractions_router)
+app.use('/api/attractions' , attractions_router)
 
 // start the server
 app.listen(port, () => {
