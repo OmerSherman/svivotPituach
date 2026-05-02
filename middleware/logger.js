@@ -7,7 +7,7 @@ const logger = (req, res, next) => {
         const duration = Date.now() - start;
 
         // log format exemple: [2024-11-01T10:23:01.000Z] method:GET path:/api/recommendations status:200 duration:12ms
-        console.log(`[${new Date().toISOString()}] method:${req.method} path:${req.url} status:${res.statusCode} duration:${duration}ms`);
+        console.log(`[${new Date().toISOString()}] method:${req.method} path:${req.originalUrl} status:${res.statusCode} duration:${duration}ms`);
     });
 
     // pass control to the next middleware or route handler
