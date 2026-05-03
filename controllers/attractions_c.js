@@ -100,7 +100,7 @@ function create(req, res) {
         image_url: req.body.image_url || null,
         popularity_score: req.body.popularity_score || 0,
         audience_scores: req.body.audience_scores || {},
-        best_mo: req.body.best_mo || []
+        best_months: req.body.best_months || []
     };
 
     attractions.push(newAttraction);
@@ -125,7 +125,7 @@ function update(req, res) {
     }
 
     // update only the fields that were sent in the request
-    const allowedFields = ["name", "name_he", "type", "description_he", "tags", "image_url", "popularity_score", "audience_scores", "best_mo"];
+    const allowedFields = ["name", "name_he", "type", "description_he", "tags", "image_url", "popularity_score", "audience_scores", "best_months"];
 
     for (let i = 0; i < allowedFields.length; i++) {
         const field = allowedFields[i];

@@ -24,8 +24,12 @@ app.use('/api/auth' , auth_router)
 app.use('/api/profile' , profiles_router)
 app.use('/api/cities', cities_router)
 app.use('/api/favorites' , favorites_router)
+<<<<<<< HEAD
 app.use('/api/recommendations' , attractions_router)
 
+=======
+app.use('/api/attractions' , attractions_router)
+>>>>>>> 476357ca1023b3a67ce4c9c9dbe3d0a9802bb001
 
 // start the server
 app.listen(port, () => {

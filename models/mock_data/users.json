@@ -3,17 +3,30 @@
         "userId": 1,
         "firstName": "michal",
         "lastName": "adam",
-        "createDate": "05-02-2026",
-        "updateDate": "05-02-2026",
-        "userRole": "admin"
-    }
-    ,
+        "email": "michal@example.com",
+        "password": "1234",
+        "userRole": "admin",
+        "createDate": "2026-05-02T00:00:00.000Z",
+        "updateDate": "2026-05-02T00:00:00.000Z"
+    },
     {
         "userId": 2,
         "firstName": "omer",
         "lastName": "sherman",
-        "createDate": "05-02-2026",
-        "updateDate": "05-02-2026",
-        "userRole": "admin"
+        "email": "omer@example.com",
+        "password": "1234",
+        "userRole": "admin",
+        "createDate": "2026-05-02T00:00:00.000Z",
+        "updateDate": "2026-05-02T00:00:00.000Z"
+    },
+    {
+        "userId": 3,
+        "firstName": "test",
+        "lastName": "user",
+        "email": "user@hotmail.com",
+        "password": "12345",
+        "userRole": "user",
+        "createDate": "2026-05-02T00:00:00.000Z",
+        "updateDate": "2026-05-02T00:00:00.000Z"
     }
 ]
