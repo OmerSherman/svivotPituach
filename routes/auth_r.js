@@ -11,6 +11,6 @@ router.post('/register', checkRequiredFields(REGISTER_FIELDS), authController.re
 // POST /api/auth/login 
 // open to everyone
 const LOGIN_FIELDS = ['email', 'password']
-router.post('/login', checkRequiredFields(REGISTER_FIELDS), authController.login);
+router.post('/login', checkRequiredFields(LOGIN_FIELDS), authController.login);
 
 module.exports = router;
