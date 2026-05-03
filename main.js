@@ -26,14 +26,8 @@ app.use('/api/cities', cities_router)
 app.use('/api/favorites' , favorites_router)
 app.use('/api/recommendations' , attractions_router)
 
-<<<<<<< HEAD
 
 // start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
-=======
-app.listen(port, () => {
-console.log(`Server running
-at http://localhost:${port}`);
->>>>>>> controllers_omer
 });
