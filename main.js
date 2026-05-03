@@ -20,11 +20,10 @@ const profiles_router = require('./routes/profile_r')
 const attractions_router = require('./routes/attractions_r')
 
 // define routers
-app.use('/api/auth' , auth_router)
+//app.use('/api/auth' , auth_router)
 app.use('/api/profile' , profiles_router)
 app.use('/api/cities', cities_router)
 app.use('/api/favorites' , favorites_router)
-
 app.use('/api/attractions' , attractions_router)
 
 // start the server
