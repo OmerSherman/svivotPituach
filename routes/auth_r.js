@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth_c');
 
+const checkRequiredFields = require("../middleware/checkFields")
 // POST /api/auth/register 
 // open to everyone
-router.post('/register', authController.register);
+const REGISTER_FIELDS = [ 'firstName', 'lastName', 'email', 'password'];
+router.post('/register', checkRequiredFields(REGISTER_FIELDS), authController.register);
 
 // POST /api/auth/login 
 // open to everyone
-router.post('/login', authController.login);
+const LOGIN_FIELDS = ['email', 'password']
+router.post('/login', checkRequiredFields(REGISTER_FIELDS), authController.login);
 
 module.exports = router;

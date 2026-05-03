@@ -8,17 +8,18 @@ function register(req, res) {
     const password = req.body.password;
 
     // validate required fields
-    if (!firstName || !lastName || !email || !password) {
-        return res.status(400).json({
-            success: false,
-            data: null,
-            error: {
-                code: "VALIDATION_ERROR",
-                message: "please fill in all fields",
-                details: {}
-            }
-        });
-    }
+    //Already validated in middleware
+    // if (!firstName || !lastName || !email || !password) {
+    //     return res.status(400).json({
+    //         success: false,
+    //         data: null,
+    //         error: {
+    //             code: "VALIDATION_ERROR",
+    //             message: "please fill in all fields",
+    //             details: {}
+    //         }
+    //     });
+    // }
 
     // check email not already taken
     const emailTaken = users.find(function(u) {
@@ -64,17 +65,19 @@ function login(req, res) {
     const password = req.body.password;
 
     // validate required fields
-    if (!email || !password) {
-        return res.status(400).json({
-            success: false,
-            data: null,
-            error: {
-                code: "VALIDATION_ERROR",
-                message: "please fill in all fields",
-                details: {}
-            }
-        });
-    }
+    //Already validated in middleware
+
+    // if (!email || !password) {
+    //     return res.status(400).json({
+    //         success: false,
+    //         data: null,
+    //         error: {
+    //             code: "VALIDATION_ERROR",
+    //             message: "please fill in all fields",
+    //             details: {}
+    //         }
+    //     });
+    // }
 
     // find user by email and passwors
     const user = users.find(function(u) {
