@@ -1,25 +1,11 @@
 const users = require('../models/mock_data/users.json');
 
-// POST - register
+// POST - create a new account
 function register(req, res) {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const email = req.body.email;
     const password = req.body.password;
-
-    // validate required fields
-    //Already validated in middleware
-    // if (!firstName || !lastName || !email || !password) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         data: null,
-    //         error: {
-    //             code: "VALIDATION_ERROR",
-    //             message: "please fill in all fields",
-    //             details: {}
-    //         }
-    //     });
-    // }
 
     // check email not already taken
     const emailTaken = users.find(function(u) {
@@ -38,7 +24,6 @@ function register(req, res) {
         });
     }
 
-    // create new user
     const newUser = {
         userId: users.length + 1,
         firstName: firstName,
@@ -59,32 +44,16 @@ function register(req, res) {
     });
 }
 
-// POST - login
+// POST - login with existing account
 function login(req, res) {
     const email = req.body.email;
     const password = req.body.password;
 
-    // validate required fields
-    //Already validated in middleware
-
-    // if (!email || !password) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         data: null,
-    //         error: {
-    //             code: "VALIDATION_ERROR",
-    //             message: "please fill in all fields",
-    //             details: {}
-    //         }
-    //     });
-    // }
-
-    // find user by email and passwors
+    // find user by email and password
     const user = users.find(function(u) {
         return u.email === email && u.password === password;
     });
 
-    // wrong email or password
     if (!user) {
         return res.status(401).json({
             success: false,
@@ -108,4 +77,4 @@ function login(req, res) {
     });
 }
 
-module.exports = {register, login};
+module.exports = { register, login };

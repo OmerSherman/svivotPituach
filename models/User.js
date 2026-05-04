@@ -5,12 +5,10 @@ class User {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.userRole = userRole; // admin/manager/user
+        this.userRole = userRole; // admin, manager, user
         this.createDate = new Date().toISOString();
         this.updateDate = new Date().toISOString();
     }
-
-    
 
     getFullName() {
         return this.firstName + ' ' + this.lastName;

@@ -1,40 +1,38 @@
-// import mock data
 const attractions = require('../models/mock_data/attractions.json');
 
-// helper function to find attraction by id
+// helper to find attraction by id
 function findById(id) {
     return attractions.find(function(attraction) {
         return attraction.id === parseInt(id);
     });
 }
 
-// GET all
+// GET - all attractions, with optional filters by type or city
 function getAll(req, res) {
     const type = req.query.type;
     const city_id = req.query.city_id;
     let result = attractions;
 
-    // filter by type if provided (site/tour for example)
     if (type) {
         result = result.filter(function(attraction) {
             return attraction.type === type;
         });
     }
 
-    // filter by city if provided
     if (city_id) {
         result = result.filter(function(attraction) {
             return attraction.city_id === parseInt(city_id);
         });
     }
 
-    res.status(200).json({ 
-        success: true, 
-        data: result, 
-        error: null });
+    res.status(200).json({
+        success: true,
+        data: result,
+        error: null
+    });
 }
 
-// GET by id
+// GET - one attraction by id
 function getById(req, res) {
     const id = req.params.id;
     const attraction = findById(id);
@@ -45,7 +43,7 @@ function getById(req, res) {
             data: null,
             error: {
                 code: "NOT_FOUND",
-                message: "Attraction " + id + " not found",
+                message: "attraction " + id + " not found",
                 details: {}
             }
         });
@@ -54,7 +52,7 @@ function getById(req, res) {
     res.status(200).json({ success: true, data: attraction, error: null });
 }
 
-// POST
+// POST - create a new attraction
 function create(req, res) {
     const city_id = req.body.city_id;
     const name = req.body.name;
@@ -62,20 +60,19 @@ function create(req, res) {
     const type = req.body.type;
     const description_he = req.body.description_he;
 
-    // validate required fields
     if (!city_id || !name || !name_he || !type || !description_he) {
         return res.status(400).json({
             success: false,
             data: null,
             error: {
                 code: "VALIDATION_ERROR",
-                message: "Missing required fields",
+                message: "missing required fields",
                 details: { required: ["city_id", "name", "name_he", "type", "description_he"] }
             }
         });
     }
 
-    // validate type value
+    // make sure type is one of the valid options
     const validTypes = ["site", "tour", "route"];
     if (!validTypes.includes(type)) {
         return res.status(400).json({
@@ -107,7 +104,7 @@ function create(req, res) {
     res.status(201).json({ success: true, data: { id: newAttraction.id }, error: null });
 }
 
-// PUT
+// PUT - update an existing attraction (only the fields that were sent)
 function update(req, res) {
     const id = req.params.id;
     const attraction = findById(id);
@@ -118,13 +115,12 @@ function update(req, res) {
             data: null,
             error: {
                 code: "NOT_FOUND",
-                message: "Attraction " + id + " not found",
+                message: "attraction " + id + " not found",
                 details: {}
             }
         });
     }
 
-    // update only the fields that were sent in the request
     const allowedFields = ["name", "name_he", "type", "description_he", "tags", "image_url", "popularity_score", "audience_scores", "best_months"];
 
     for (let i = 0; i < allowedFields.length; i++) {
@@ -137,7 +133,7 @@ function update(req, res) {
     res.status(200).json({ success: true, data: { id: parseInt(id) }, error: null });
 }
 
-// DELETE
+// DELETE - remove an attraction
 function remove(req, res) {
     const id = req.params.id;
     const index = attractions.findIndex(function(attraction) {
@@ -150,7 +146,7 @@ function remove(req, res) {
             data: null,
             error: {
                 code: "NOT_FOUND",
-                message: "Attraction " + id + " not found",
+                message: "attraction " + id + " not found",
                 details: {}
             }
         });

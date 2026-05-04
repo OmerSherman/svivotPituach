@@ -7,7 +7,7 @@ function findById(id) {
     });
 }
 
-// GET /api/users
+// GET - all users
 function getAll(req, res) {
     return res.status(200).json({
         success: true,
@@ -16,7 +16,7 @@ function getAll(req, res) {
     });
 }
 
-// GET /api/users/:id
+// GET - one user by id
 function getById(req, res) {
     const id = req.params.id;
     const user = findById(id);
@@ -40,7 +40,7 @@ function getById(req, res) {
     });
 }
 
-// POST /api/users
+// POST - create a new user
 function create(req, res) {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
@@ -76,7 +76,7 @@ function create(req, res) {
     });
 }
 
-// PUT /api/users/:id
+// PUT - update a user (only the fields that were sent)
 function update(req, res) {
     const id = req.params.id;
     const user = findById(id);
@@ -93,7 +93,6 @@ function update(req, res) {
         });
     }
 
-    // update only the fields that were sent
     if (req.body.firstName) user.firstName = req.body.firstName;
     if (req.body.lastName) user.lastName = req.body.lastName;
     if (req.body.userRole) user.userRole = req.body.userRole;
@@ -106,7 +105,7 @@ function update(req, res) {
     });
 }
 
-// DELETE /api/users/:id
+// DELETE - remove a user
 function remove(req, res) {
     const id = req.params.id;
     const index = users.findIndex(function(u) {
@@ -135,7 +134,6 @@ function remove(req, res) {
 }
 
 module.exports = { getAll, getById, create, update, remove };
-
 
 
 // const userData = require("../models/user_data.js");

@@ -4,31 +4,31 @@ class Attraction {
         this.city_id = city_id;
         this.name = name;
         this.name_he = name_he;
-        this.type = type; // 'site', 'tour', or 'route'
-        this.tags = tags; // Array of tags (e.g., ['nature', 'history'])
+        this.type = type; // site, tour, or route
+        this.tags = tags;
         this.description_he = description_he;
         this.image_url = image_url;
         this.popularity_score = popularity_score;
-        this.audience_scores = audience_scores; // Object: { family: 9, couple: 10, solo: 7 }
-        this.best_months = best_months; // Array of recommended months (e.g., [3, 4, 5])
-        this.avoid_months = avoid_months; // Array of months to avoid (e.g., [1, 2])
-        this.seasonal_note_he = seasonal_note_he; // Short explanation about seasonality in Hebrew
-        this.source_article_ids = source_article_ids; // Array of source article IDs from source_articles table
+        this.audience_scores = audience_scores; // e.g { family: 9, couple: 10, solo: 7 }
+        this.best_months = best_months;
+        this.avoid_months = avoid_months;
+        this.seasonal_note_he = seasonal_note_he;
+        this.source_article_ids = source_article_ids;
     }
 
     displaySummary() {
         return `${this.name_he} (${this.type}) - ציון כללי: ${this.popularity_score}`;
     }
 
-    // method to get rate by type of travelers e.g: {family:10}
+    // returns the score for a given traveler type e.g getScoreForAudience('family')
     getScoreForAudience(travelerType) {
         if (this.audience_scores && this.audience_scores[travelerType]) {
             return this.audience_scores[travelerType];
         }
-        return "No score for this traveler type";
+        return null;
     }
 
-    // returns true if the given month number is recommended for this attraction
+    // returns true if the given month is in the recommended months list
     isRecommendedMonth(month) {
         return this.best_months.includes(month);
     }

@@ -1,6 +1,6 @@
 const favorites = [];
 
-// GET - get all saved items for a specific user
+// GET - all saved items for a specific user
 function getFavorites(req, res) {
     const userId = req.query.userId;
 
@@ -27,11 +27,11 @@ function getFavorites(req, res) {
     });
 }
 
-// POST - save an item to the users favorites list
+// POST - save an item to the user's favorites list
 function addFavorite(req, res) {
     const userId = req.body.userId;
     const itemId = req.body.itemId;
-    const itemType = req.body.itemType; // (attraction, restaurant, hotel..)
+    const itemType = req.body.itemType; // attraction, restaurant, hotel
 
     if (!userId || !itemId || !itemType) {
         return res.status(400).json({
@@ -45,7 +45,7 @@ function addFavorite(req, res) {
         });
     }
 
-    // check if user already saved this item
+    // no duplicates allowed
     const alreadySaved = favorites.find(function(f) {
         return f.userId === userId && f.itemId === itemId;
     });
@@ -78,4 +78,4 @@ function addFavorite(req, res) {
     });
 }
 
-module.exports = {getFavorites, addFavorite};
+module.exports = { getFavorites, addFavorite };

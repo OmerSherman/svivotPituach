@@ -9,7 +9,7 @@ function getAll(req, res) {
     });
 }
 
-// GET - search cities by name
+// GET - search cities by name, used for the search bar on the homepage
 function search(req, res) {
     const q = req.query.q;
 
@@ -25,6 +25,7 @@ function search(req, res) {
         });
     }
 
+    // search works in both english and hebrew
     const results = cities.filter(function(city) {
         return city.name.toLowerCase().includes(q.toLowerCase()) ||
                city.name_he.includes(q);
@@ -37,7 +38,7 @@ function search(req, res) {
     });
 }
 
-// GET - search cities by id
+// GET - one city by id
 function getById(req, res) {
     const id = req.params.id;
 
@@ -64,4 +65,4 @@ function getById(req, res) {
     });
 }
 
-module.exports = {getAll, search, getById};
+module.exports = { getAll, search, getById };
