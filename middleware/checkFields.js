@@ -10,7 +10,9 @@ const checkRequiredFields = (requiredFields) => {
 
         if (missingFields.length > 0) {
             return res.status(400).json({
-                error: `Missing required fields: ${missingFields.join(', ')}`
+                success: false,
+                data: null,
+                error: { code: "VALIDATION_ERROR", message: "please fill in all fields", details: {} }
             });
         }
 

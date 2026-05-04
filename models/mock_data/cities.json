@@ -2,11 +2,41 @@
     {
         "id": 1,
         "country_id": 1,
+        "name": "Lima",
+        "name_he": "לימה",
+        "summary_he": "בירת פרו, עיר של קוויצ'ה מעולה, שכונות קולוניאליות וחופי האוקיינוס השקט. שער הכניסה לפרו ומרכז גסטרונומי עולמי.",
+        "banner_image_url": "https://example.com/images/lima.jpg",
+        "latitude": -12.046374,
+        "longitude": -77.042793
+    },
+    {
+        "id": 2,
+        "country_id": 2,
         "name": "Buenos Aires",
         "name_he": "בואנוס איירס",
         "summary_he": "בירתה התוססת של ארגנטינה, המכונה פריז של דרום אמריקה בזכות האדריכלות האירופאית והתרבות העשירה.",
         "banner_image_url": "https://example.com/images/buenosaires.jpg",
         "latitude": -34.603722,
         "longitude": -58.381592
+    },
+    {
+        "id": 3,
+        "country_id": 3,
+        "name": "Rio de Janeiro",
+        "name_he": "ריו דה ז'ניירו",
+        "summary_he": "עיר החופים והקרנבל המפורסם בברזיל. ביתם של פסל הישו, גבעת הסוכר וחופי קופקבאנה ואיפאנמה.",
+        "banner_image_url": "https://example.com/images/rio.jpg",
+        "latitude": -22.906847,
+        "longitude": -43.172897
+    },
+    {
+        "id": 4,
+        "country_id": 1,
+        "name": "Cusco",
+        "name_he": "קוסקו",
+        "summary_he": "עיר עתיקה בלב הרי האנדים, שהייתה בירת האימפריה האינקאית. שער הכניסה למאצ'ו פיצ'ו ומרכז תרבותי עשיר.",
+        "banner_image_url": "https://example.com/images/cusco.jpg",
+        "latitude": -13.531950,
+        "longitude": -71.967462
     }
 ]

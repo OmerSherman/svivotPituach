@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "userId": 1,
+        "travelerType": "couple",
+        "interests": ["history", "food", "art"],
+        "budgetLevel": "medium"
+    },
+    {
+        "id": 2,
+        "userId": 2,
+        "travelerType": "solo",
+        "interests": ["adventure", "nature", "hiking"],
+        "budgetLevel": "low"
+    },
+    {
+        "id": 3,
+        "userId": 4,
+        "travelerType": "family",
+        "interests": ["culture", "beaches", "food"],
+        "budgetLevel": "high"
+    }
+]

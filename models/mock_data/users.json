@@ -21,10 +21,20 @@
     },
     {
         "userId": 3,
+        "firstName": "hillel",
+        "lastName": "zilberman",
+        "email": "hillel@example.com",
+        "password": "1234",
+        "userRole": "manager",
+        "createDate": "2026-05-02T00:00:00.000Z",
+        "updateDate": "2026-05-02T00:00:00.000Z"
+    },
+    {
+        "userId": 4,
         "firstName": "test",
         "lastName": "user",
-        "email": "user@hotmail.com",
-        "password": "12345",
+        "email": "user@example.com",
+        "password": "1234",
         "userRole": "user",
         "createDate": "2026-05-02T00:00:00.000Z",
         "updateDate": "2026-05-02T00:00:00.000Z"

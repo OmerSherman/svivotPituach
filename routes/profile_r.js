@@ -1,11 +1,8 @@
-const express=require("express")
-const router=express.Router()
+const express = require('express');
+const router = express.Router();
+const profileController = require('../controllers/profile_c');
 
-//todo: router.get(), router.put().....
-//pass to controllers
-const userController = require("../controllers/User_controller.js") //get the conroller
+// POST /api/profile - save traveler preferences (used for personalized recommendations)
+router.post('/', profileController.saveProfile);
 
-router.get("/:id", userController.getById);
-
-
-module.exports = router
+module.exports = router;

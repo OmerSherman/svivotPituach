@@ -1,0 +1,362 @@
+{
+  "info": {
+    "name": "Shvil HaTahina",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST register - success",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/auth/register",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"dana\",\n  \"lastName\": \"levi\",\n  \"email\": \"dana@example.com\",\n  \"password\": \"1234\"\n}"}
+          }
+        },
+        {
+          "name": "POST register - missing fields",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/auth/register",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"dana\"\n}"}
+          }
+        },
+        {
+          "name": "POST login - success",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/auth/login",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"1234\"\n}"}
+          }
+        },
+        {
+          "name": "POST login - wrong password",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/auth/login",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"wrong\"\n}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET all users - admin",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/users",
+            "header": [{"key": "x-user-role", "value": "admin"}]
+          }
+        },
+        {
+          "name": "GET all users - forbidden",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/users",
+            "header": [{"key": "x-user-role", "value": "user"}]
+          }
+        },
+        {
+          "name": "GET user by id",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/users/1",
+            "header": []
+          }
+        },
+        {
+          "name": "GET user not found",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/users/999",
+            "header": []
+          }
+        },
+        {
+          "name": "POST create user - admin",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/users",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
+            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"}
+          }
+        },
+        {
+          "name": "PUT update user - manager",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/api/users/4",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "manager"}],
+            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"updated\"\n}"}
+          }
+        },
+        {
+          "name": "DELETE user - admin",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/users/4",
+            "header": [{"key": "x-user-role", "value": "admin"}]
+          }
+        },
+        {
+          "name": "DELETE user - forbidden",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/users/3",
+            "header": [{"key": "x-user-role", "value": "user"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attractions",
+      "item": [
+        {
+          "name": "GET all attractions",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/attractions",
+            "header": []
+          }
+        },
+        {
+          "name": "GET filter by type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/attractions?type=site",
+              "query": [{"key": "type", "value": "site"}],
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "attractions"]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET filter by city",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/attractions?city_id=2",
+              "query": [{"key": "city_id", "value": "2"}],
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "attractions"]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET attraction by id",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/attractions/1",
+            "header": []
+          }
+        },
+        {
+          "name": "GET attraction not found",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/attractions/999",
+            "header": []
+          }
+        },
+        {
+          "name": "POST create attraction - admin",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/attractions",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
+            "body": {"mode": "raw", "raw": "{\n  \"city_id\": 2,\n  \"name\": \"Palermo Soho\",\n  \"name_he\": \"פאלרמו סוהו\",\n  \"type\": \"site\",\n  \"description_he\": \"שכונת הבוטיקים של בואנוס איירס\"\n}"}
+          }
+        },
+        {
+          "name": "POST missing fields",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/attractions",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"test\"\n}"}
+          }
+        },
+        {
+          "name": "POST invalid type",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/attractions",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
+            "body": {"mode": "raw", "raw": "{\n  \"city_id\": 2,\n  \"name\": \"test\",\n  \"name_he\": \"טסט\",\n  \"type\": \"invalid\",\n  \"description_he\": \"תיאור\"\n}"}
+          }
+        },
+        {
+          "name": "PUT update attraction - manager",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/api/attractions/1",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "manager"}],
+            "body": {"mode": "raw", "raw": "{\n  \"popularity_score\": 99\n}"}
+          }
+        },
+        {
+          "name": "DELETE attraction - admin",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/attractions/2",
+            "header": [{"key": "x-user-role", "value": "admin"}]
+          }
+        },
+        {
+          "name": "DELETE attraction - forbidden",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/attractions/3",
+            "header": [{"key": "x-user-role", "value": "user"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cities",
+      "item": [
+        {
+          "name": "GET all cities",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cities",
+            "header": []
+          }
+        },
+        {
+          "name": "GET search by name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/cities/search?q=buenos",
+              "query": [{"key": "q", "value": "buenos"}],
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "cities", "search"]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET search in Hebrew",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/cities/search?q=ריו",
+              "query": [{"key": "q", "value": "ריו"}],
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "cities", "search"]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET search - no query",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cities/search",
+            "header": []
+          }
+        },
+        {
+          "name": "GET city by id",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cities/1",
+            "header": []
+          }
+        },
+        {
+          "name": "GET city not found",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/cities/999",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "POST add favorite",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/favorites",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"itemId\": 3,\n  \"itemType\": \"attraction\"\n}"}
+          }
+        },
+        {
+          "name": "POST duplicate favorite",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/favorites",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"itemId\": 3,\n  \"itemType\": \"attraction\"\n}"}
+          }
+        },
+        {
+          "name": "GET favorites by user",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/favorites?userId=1",
+              "query": [{"key": "userId", "value": "1"}],
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "favorites"]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET favorites - missing userId",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/favorites",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "POST save profile - success",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/profile",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"travelerType\": \"couple\",\n  \"interests\": [\"history\", \"food\"],\n  \"budgetLevel\": \"medium\"\n}"}
+          }
+        },
+        {
+          "name": "POST save profile - missing fields",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/profile",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1\n}"}
+          }
+        }
+      ]
+    }
+  ]
+}
