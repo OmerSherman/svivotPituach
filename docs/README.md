@@ -177,6 +177,7 @@ No permission (403):
 | POST | /api/attractions | create a new attraction | admin |
 | PUT | /api/attractions/:id | update an attraction | admin, manager |
 | DELETE | /api/attractions/:id | delete an attraction | admin |
+| GET | /api/attractions/map | get map pins for a city | ?city_id |
 
 Query parameters for GET /api/attractions:
 - `type` — filter by type. values: `site`, `tour`, `route`. example: `?type=site`
@@ -243,6 +244,7 @@ Missing query (400):
 |--------|------|-------------|
 | GET | /api/favorites | get all favorites for a user |
 | POST | /api/favorites | add an item to favorites |
+| DELETE | /api/favorites/:id | remove item from favorites |
 
 Query parameter for GET: `userId` (required). example: `?userId=1`
 
@@ -315,3 +317,25 @@ To test protected routes in Postman, add this header:
 Key:   x-user-role
 Value: admin
 ```
+
+## Map feature
+
+Based on feedback received on the project spec, we added basic map support.
+
+Each attraction includes `latitude` and `longitude` fields in the mock data.
+We also added a dedicated endpoint that returns only the fields needed to display map pins:
+
+GET /api/attractions/map?city_id=2
+
+Response:
+```json
+{
+  "success": true,
+  "data": [
+    { "id": 1, "name_he": "לה בוקה", "type": "site", "latitude": -34.6345, "longitude": -58.3631 }
+  ],
+  "error": null
+}
+```
+
+In the next stage this data will be used by the frontend map component

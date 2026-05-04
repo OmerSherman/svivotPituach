@@ -156,4 +156,41 @@ function remove(req, res) {
     res.status(200).json({ success: true, data: { id: parseInt(id) }, error: null });
 }
 
-module.exports = { getAll, getById, create, update, remove };
+// GET - map pins for a city, returns only the fields needed for the map
+function getMapData(req, res) {
+    const city_id = req.query.city_id;
+
+    if (!city_id) {
+        return res.status(400).json({
+            success: false,
+            data: null,
+            error: {
+                code: "VALIDATION_ERROR",
+                message: "city_id is required",
+                details: {}
+            }
+        });
+    }
+
+    const pins = attractions
+        .filter(function(a) {
+            return a.city_id === parseInt(city_id);
+        })
+        .map(function(a) {
+            return {
+                id: a.id,
+                name_he: a.name_he,
+                type: a.type,
+                latitude: a.latitude,
+                longitude: a.longitude
+            };
+        });
+
+    return res.status(200).json({
+        success: true,
+        data: pins,
+        error: null
+    });
+}
+
+module.exports = { getAll, getById, create, update, remove, getMapData };

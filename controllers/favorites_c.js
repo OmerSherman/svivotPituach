@@ -78,4 +78,31 @@ function addFavorite(req, res) {
     });
 }
 
-module.exports = { getFavorites, addFavorite };
+// DELETE - remove an item from favorites
+function removeFavorite(req, res) {
+    const id = req.params.id;
+    const index = favorites.findIndex(function(f) {
+        return f.id === parseInt(id);
+    });
+
+    if (index === -1) {
+        return res.status(404).json({
+            success: false,
+            data: null,
+            error: {
+                code: "NOT_FOUND",
+                message: "favorite " + id + " not found",
+                details: {}
+            }
+        });
+    }
+
+    favorites.splice(index, 1);
+    return res.status(200).json({
+        success: true,
+        data: { id: parseInt(id) },
+        error: null
+    });
+}
+
+module.exports = { getFavorites, addFavorite, removeFavorite };

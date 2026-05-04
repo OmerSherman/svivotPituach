@@ -8,4 +8,7 @@ router.get('/', favoritesController.getFavorites);
 // add item to favorites
 router.post('/', favoritesController.addFavorite);
 
+// delete item from favorites
+router.delete('/:id', favoritesController.removeFavorite);
+
 module.exports = router;

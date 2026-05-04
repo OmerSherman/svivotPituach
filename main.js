@@ -9,7 +9,6 @@ const port = 3000
 const logger = require('./middleware/logger');
 const roleCheck = require('./middleware/roleCheck')
 
-// parse incoming JSON request bodies automatically
 app.use(logger);
 
 // import routers

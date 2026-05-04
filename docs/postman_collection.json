@@ -120,6 +120,28 @@
       "name": "Attractions",
       "item": [
         {
+        "name": "GET map pins by city",
+        "request": {
+            "method": "GET",
+            "url": {
+            "raw": "http://localhost:3000/api/attractions/map?city_id=2",
+            "query": [{"key": "city_id", "value": "2"}],
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["api", "attractions", "map"]
+            },
+            "header": []
+        }
+        },
+        {
+        "name": "GET map pins - missing city_id",
+        "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/attractions/map",
+            "header": []
+        }
+        },
+        {
           "name": "GET all attractions",
           "request": {
             "method": "GET",

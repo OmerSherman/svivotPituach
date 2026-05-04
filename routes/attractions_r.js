@@ -15,4 +15,7 @@ router.put('/:id', roleCheck('admin', 'manager'), attractionsController.update);
 // admin only
 router.delete('/:id', roleCheck('admin'), attractionsController.remove);
 
+// map pins for a city - used by the map component in the frontend
+router.get('/map', attractionsController.getMapData);
+
 module.exports = router;
