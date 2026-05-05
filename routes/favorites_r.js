@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const favoritesController = require('../controllers/favorites_c');
+const checkRequiredFields = require('../middleware/checkFields');
+
 
 // get all favorites for a user
 router.get('/', favoritesController.getFavorites);
