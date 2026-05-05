@@ -33,18 +33,6 @@ function addFavorite(req, res) {
     const itemId = req.body.itemId;
     const itemType = req.body.itemType; // attraction, restaurant, hotel
 
-    if (!userId || !itemId || !itemType) {
-        return res.status(400).json({
-            success: false,
-            data: null,
-            error: {
-                code: "VALIDATION_ERROR",
-                message: "please fill in all fields",
-                details: {}
-            }
-        });
-    }
-
     // no duplicates allowed
     const alreadySaved = favorites.find(function(f) {
         return f.userId === userId && f.itemId === itemId;
@@ -70,6 +58,7 @@ function addFavorite(req, res) {
     };
 
     favorites.push(newFavorite);
+    //todo later: push on db 
 
     return res.status(201).json({
         success: true,
@@ -98,6 +87,8 @@ function removeFavorite(req, res) {
     }
 
     favorites.splice(index, 1);
+    //todo later update db
+
     return res.status(200).json({
         success: true,
         data: { id: parseInt(id) },

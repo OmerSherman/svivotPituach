@@ -1,4 +1,7 @@
-const users = require('../models/mock_data/users.json');
+
+
+const users = require("../models/mock_data/users.json")
+//const userdata = require(./userdata)
 
 // helper to find user by id
 function findById(id) {
@@ -59,7 +62,7 @@ function create(req, res) {
     }
 
     const newUser = {
-        userId: users.length + 1,
+        userId: users.length + 1, //todo delete when moving to real db. id automitically increment 
         firstName: firstName,
         lastName: lastName,
         userRole: userRole,
@@ -68,7 +71,7 @@ function create(req, res) {
     };
 
     users.push(newUser);
-
+    
     return res.status(201).json({
         success: true,
         data: { userId: newUser.userId },
@@ -107,7 +110,20 @@ function update(req, res) {
 
 // DELETE - remove a user
 function remove(req, res) {
-    const id = req.params.id;
+    const userRole = req.headers['x-user-role'];
+    if(userRole == "admin" ){
+        const id = req.params.id;
+        return remove_inner(id, req, res)
+    }
+    else{ // not admin. can only remove is own id 
+        //todo check how to constraint to delte just himself. for now we use the header 
+        const id = req.headers['x-user-id']
+        return remove_inner(id, req, res)
+    }
+    
+}
+
+function remove_inner(id , req, res){
     const index = users.findIndex(function(u) {
         return u.userId === parseInt(id);
     });
@@ -125,7 +141,7 @@ function remove(req, res) {
     }
 
     users.splice(index, 1);
-
+    //todo, also delete from users db / json
     return res.status(200).json({
         success: true,
         data: { userId: parseInt(id) },

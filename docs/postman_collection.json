@@ -5,7 +5,7 @@
   },
   "item": [
     {
-      "name": "Auth",
+      "name": "Users",
       "item": [
         {
           "name": "POST register - success",
@@ -42,12 +42,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"wrong\"\n}"}
           }
-        }
-      ]
-    },
-    {
-      "name": "Users",
-      "item": [
+        },
         {
           "name": "GET all users - admin",
           "request": {

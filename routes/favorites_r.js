@@ -8,9 +8,12 @@ const checkRequiredFields = require('../middleware/checkFields');
 router.get('/', favoritesController.getFavorites);
 
 // add item to favorites
-router.post('/', favoritesController.addFavorite);
+const REQUIRED_ADDTOFAVORITE = ["userId" ,"itemId", "itemType"]
+router.post('/', checkRequiredFields(REQUIRED_ADDTOFAVORITE)  ,favoritesController.addFavorite);
 
 // delete item from favorites
+//recives queryParameter userid
+//example remove attraction 1 from userid 2 : ".../api/favories/1?userid=2"
 router.delete('/:id', favoritesController.removeFavorite);
 
 module.exports = router;

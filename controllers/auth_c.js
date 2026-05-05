@@ -1,6 +1,7 @@
 const { json } = require('express');
 const users = require('../models/mock_data/users.json');
 const user_data = require("../models/user_data")
+
 // POST - create a new account
 function register(req, res) {
     const firstName = req.body.firstName;
@@ -35,16 +36,19 @@ function register(req, res) {
         createDate: new Date().toISOString(),
         updateDate: new Date().toISOString()
     };
+
+    //todo: add record to db
+    // write_status = user_data.writeUser(newUser) //write the new user to the JSon.
+    // if(write_status == false){
+    //     return res.status(400).json({
+    //         success:false, 
+    //         message:"Failed to save the user.",
+    //         user_to_save: newUser,
+    //         error: true
+    //     })
+    // }
     
-    write_status = user_data.writeUser(newUser) //write the new user to the JSon.
-    if(write_status == false){
-        return res.status(400).json({
-            success:false, 
-            message:"Failed to save the user.",
-            user_to_save: newUser,
-            error: true
-        })
-    }
+    
     users.push(newUser);
 
 
