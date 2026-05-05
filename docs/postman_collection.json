@@ -102,11 +102,19 @@
           }
         },
         {
+          "name": "DELETE user",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/users/4",
+            "header": [{"key": "x-user-role", "value": "user"},{"key": "x-user-id", "value": 4}]
+          }
+        },
+        {
           "name": "DELETE user - forbidden",
           "request": {
             "method": "DELETE",
             "url": "http://localhost:3000/api/users/3",
-            "header": [{"key": "x-user-role", "value": "user"}]
+            "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": 1}]
           }
         }
       ]
