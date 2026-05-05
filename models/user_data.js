@@ -12,12 +12,13 @@ function getUsers() {
     return users;
 }
 
-//save the json object to the users 
+//save the json object to the users. return status boolean.
 function writeUser(json) {
     return utils.addObjectToJsonFile(path, json)
 }
 
 // export the function 
 module.exports = {
-    getUsers
+    getUsers,
+    writeUser
 };
