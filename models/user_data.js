@@ -16,6 +16,7 @@ function getUsers() {
 function writeUser(json) {
     return utils.addObjectToJsonFile(path, json)
 }
+//todo delete from data a row. 
 
 // export the function 
 module.exports = {
