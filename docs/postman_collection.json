@@ -403,7 +403,7 @@
             "method": "POST",
             "url": "http://localhost:3000/api/profile",
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"travelerType\": \"couple\",\n  \"interests\": [\"history\", \"food\"],\n  \"budgetLevel\": \"medium\"\n}"}
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 3,\n  \"travelerType\": \"couple\",\n  \"interests\": [\"history\", \"food\"],\n  \"budgetLevel\": \"medium\"\n}"}
           }
         },
         {
