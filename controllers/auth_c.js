@@ -1,6 +1,4 @@
-const { json } = require('express');
 const users = require('../models/mock_data/users.json');
-const user_data = require("../models/user_data")
 
 // POST - create a new account
 function register(req, res) {
