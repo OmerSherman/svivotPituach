@@ -105,7 +105,7 @@
           "name": "DELETE user - self",
           "request": {
             "method": "DELETE",
-            "url": "http://localhost:3000/api/users/4",
+            "url": "http://localhost:3000/api/users/3",
             "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": "4"}]
           }
         },
@@ -116,7 +116,25 @@
             "url": "http://localhost:3000/api/users/3",
             "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": "1"}]
           }
+        },
+        {
+        "name": "POST create user - admin",
+        "request": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/users",
+          "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
+          "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"}
         }
+      },
+      {
+        "name": "POST create user - forbidden",
+        "request": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/users",
+          "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "user"}],
+          "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"}
+        }
+      }
       ]
     },
     {

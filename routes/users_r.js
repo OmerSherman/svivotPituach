@@ -19,7 +19,6 @@ router.post('/', roleCheck('admin'), usersController.create);
 router.get('/', roleCheck('admin'), usersController.getAll);
 router.get('/:id', usersController.getById);
 
-
 // admin and manager
 router.put('/:id', roleCheck('admin', 'manager'), usersController.update);
 

@@ -107,16 +107,24 @@ function update(req, res) {
 
 // DELETE - remove a user
 function remove(req, res) {
-    const userRole = req.headers['x-user-role'];
-    if(userRole == "admin" ){
-        const id = req.params.id;
-        return remove_inner(id, req, res)
+    const requestingRole = req.headers['x-user-role'];
+    const requestingId = req.headers['x-user-id'];
+    const targetId = req.params.id;
+
+    // if not admin, check that user is deleting themselves
+    if (requestingRole !== 'admin' && parseInt(requestingId) !== parseInt(targetId)) {
+        return res.status(403).json({
+            success: false,
+            data: null,
+            error: {
+                code: "FORBIDDEN",
+                message: "you can only delete your own account",
+                details: {}
+            }
+        });
     }
-    else{ // not admin - can only delete themselves, id comes from request header 
-        const id = req.headers['x-user-id']
-        return remove_inner(id, req, res)
-    }
-    
+
+    return remove_inner(targetId, req, res);
 }
 
 function remove_inner(id , req, res){
