@@ -97,6 +97,7 @@ Wrong password (401):
 | GET | /api/users/:id | get one user | open |
 | PUT | /api/users/:id | update user | admin, manager |
 | DELETE | /api/users/:id | delete user | admin deletes anyone, user deletes themselves |
+| POST | /api/users | create a new user | admin |
 
 **PUT /api/users/:id**
 
@@ -132,6 +133,14 @@ Not found (404):
 ```json
 { "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "user 99 not found", "details": {} } }
 ```
+
+**POST /api/users**
+
+Request body:
+{ "firstName": "yael", "lastName": "cohen", "userRole": "user" }
+
+Success (201):
+{ "success": true, "data": { "userId": 5 }, "error": null }
 
 ---
 
