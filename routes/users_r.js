@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const roleCheck = require('../middleware/roleCheck');
-const usersController = require('../controllers/User_controller');
+const usersController = require('../controllers/user_controller');
 const authController = require('../controllers/auth_c');
 const checkRequiredFields = require('../middleware/checkFields');
 
@@ -12,6 +12,8 @@ router.post('/register', checkRequiredFields(REGISTER_FIELDS), authController.re
 const LOGIN_FIELDS = ['email', 'password'];
 router.post('/login', checkRequiredFields(LOGIN_FIELDS), authController.login);
 
+// POST /api/users - admin only
+router.post('/', roleCheck('admin'), usersController.create);
 
 // admin only
 router.get('/', roleCheck('admin'), usersController.getAll);
