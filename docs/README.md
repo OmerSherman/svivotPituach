@@ -11,7 +11,7 @@ npm install
 node main.js
 ```
 
-The server runs on port 3000.
+Server runs on port 3000.
 Base URL: `http://localhost:3000`
 API base path: `/api`
 
@@ -19,62 +19,45 @@ API base path: `/api`
 
 ## Assumptions
 
-- No database is used in this assignment. All data is stored in JSON files and loaded into memory when the server starts. Any changes made via POST, PUT or DELETE will be lost when the server restarts.
-- Authentication is simulated using a request header called `x-user-role`. To access protected routes, add this header to the request with one of these values: `admin`, `manager`, `user`.
-- IDs are generated using `array.length + 1`. This works fine for mock data but would be replaced with auto-increment in a real database.
-- The base URL for all endpoints is `http://localhost:3000`.
+- No database is used in this assignment. All data is loaded from JSON files into memory when the server starts. Any changes made via POST, PUT or DELETE will reset when the server restarts.
+- Authentication is simulated using a request header called `x-user-role`. To access protected routes, add this header with one of these values: `admin`, `manager`, `user`.
+- For delete operations, a second header `x-user-id` is used to identify the requesting user.
+- IDs are generated using `array.length + 1`.
 
 ---
 
 ## Response format
 
-All responses follow the same structure:
+Every response follows this structure:
 
-Success response:
+Success:
 ```json
-{
-  "success": true,
-  "data": {},
-  "error": null
-}
+{ "success": true, "data": {}, "error": null }
 ```
 
-Error response:
+Error:
 ```json
-{
-  "success": false,
-  "data": null,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "description of what went wrong",
-    "details": {}
-  }
-}
+{ "success": false, "data": null, "error": { "code": "...", "message": "...", "details": {} } }
 ```
 
 ---
 
 ## API Reference
 
-### Auth
+### Users — Auth
 
-No authentication required for these routes.
+No authentication required.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | /api/auth/register | create a new account |
-| POST | /api/auth/login | login with an existing account |
+| Method | Path | Body |
+|--------|------|------|
+| POST | /api/users/register | `{ firstName, lastName, email, password }` |
+| POST | /api/users/login | `{ email, password }` |
 
-**POST /api/auth/register**
+**POST /api/users/register**
 
 Request body:
 ```json
-{
-  "firstName": "dana",
-  "lastName": "levi",
-  "email": "dana@example.com",
-  "password": "1234"
-}
+{ "firstName": "dana", "lastName": "levi", "email": "dana@example.com", "password": "1234" }
 ```
 
 Success (201):
@@ -82,19 +65,16 @@ Success (201):
 { "success": true, "data": { "userId": 5 }, "error": null }
 ```
 
-Missing fields (400):
+Email already taken (400):
 ```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "please fill in all fields", "details": {} } }
+{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "this email is already registered", "details": {} } }
 ```
 
-**POST /api/auth/login**
+**POST /api/users/login**
 
 Request body:
 ```json
-{
-  "email": "michal@example.com",
-  "password": "1234"
-}
+{ "email": "michal@example.com", "password": "1234" }
 ```
 
 Success (200):
@@ -109,39 +89,21 @@ Wrong password (401):
 
 ---
 
-### Users
+### Users — Management
 
-Protected routes require the `x-user-role` header.
-
-| Method | Path | Description | Auth required |
-|--------|------|-------------|---------------|
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
 | GET | /api/users | get all users | admin |
-| GET | /api/users/:id | get one user by id | open |
+| GET | /api/users/:id | get one user | open |
+| PUT | /api/users/:id | update user | admin, manager |
+| DELETE | /api/users/:id | delete user | admin deletes anyone, user deletes themselves |
 | POST | /api/users | create a new user | admin |
-| PUT | /api/users/:id | update a user | admin, manager |
-| DELETE | /api/users/:id | delete a user | admin |
-
-**POST /api/users**
-
-Request body:
-```json
-{
-  "firstName": "yael",
-  "lastName": "cohen",
-  "userRole": "user"
-}
-```
-
-Success (201):
-```json
-{ "success": true, "data": { "userId": 5 }, "error": null }
-```
 
 **PUT /api/users/:id**
 
-Request body (only send the fields you want to update):
+Request body (send only the fields you want to update):
 ```json
-{ "firstName": "updated name" }
+{ "firstName": "updated", "userRole": "manager" }
 ```
 
 Success (200):
@@ -151,6 +113,17 @@ Success (200):
 
 **DELETE /api/users/:id**
 
+Headers for admin:
+```
+x-user-role: admin
+```
+
+Headers for user deleting themselves:
+```
+x-user-role: user
+x-user-id: 4
+```
+
 Success (200):
 ```json
 { "success": true, "data": { "userId": 4 }, "error": null }
@@ -158,34 +131,38 @@ Success (200):
 
 Not found (404):
 ```json
-{ "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "user 999 not found", "details": {} } }
+{ "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "user 99 not found", "details": {} } }
 ```
 
-No permission (403):
-```json
-{ "success": false, "data": null, "error": { "code": "FORBIDDEN", "message": "You do not have permission to perform this action.", "details": {} } }
-```
+**POST /api/users**
+
+Request body:
+{ "firstName": "yael", "lastName": "cohen", "userRole": "user" }
+
+Success (201):
+{ "success": true, "data": { "userId": 5 }, "error": null }
 
 ---
 
 ### Attractions
 
-| Method | Path | Description | Auth required |
-|--------|------|-------------|---------------|
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
 | GET | /api/attractions | get all attractions | open |
-| GET | /api/attractions/:id | get one attraction by id | open |
-| POST | /api/attractions | create a new attraction | admin |
-| PUT | /api/attractions/:id | update an attraction | admin, manager |
-| DELETE | /api/attractions/:id | delete an attraction | admin |
-| GET | /api/attractions/map | get map pins for a city | ?city_id |
+| GET | /api/attractions/:id | get one attraction | open |
+| GET | /api/attractions/map | get map pins for a city | open |
+| POST | /api/attractions | create attraction | admin |
+| PUT | /api/attractions/:id | update attraction | admin, manager |
+| DELETE | /api/attractions/:id | delete attraction | admin |
 
-Query parameters for GET /api/attractions:
-- `type` — filter by type. values: `site`, `tour`, `route`. example: `?type=site`
-- `city_id` — filter by city id. example: `?city_id=2`
+Query params for GET /api/attractions:
+- `?type=site` — filter by type (site / tour / route)
+- `?city_id=2` — filter by city
 
-**POST /api/attractions**
+Query param for GET /api/attractions/map:
+- `?city_id=2` — required
 
-Required fields: `city_id`, `name`, `name_he`, `type`, `description_he`
+**POST /api/attractions** — required fields: `city_id`, `name`, `name_he`, `type`, `description_he`
 
 Request body:
 ```json
@@ -205,12 +182,12 @@ Success (201):
 
 Missing fields (400):
 ```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "Missing required fields", "details": {} } }
+{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "missing required fields", "details": {} } }
 ```
 
-Invalid type (400):
+No permission (403):
 ```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "type must be one of: site, tour, route", "details": { "field": "type" } } }
+{ "success": false, "data": null, "error": { "code": "FORBIDDEN", "message": "You do not have permission to perform this action.", "details": {} } }
 ```
 
 ---
@@ -220,11 +197,10 @@ Invalid type (400):
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | /api/cities | get all cities |
-| GET | /api/cities/search | search cities by name |
-| GET | /api/cities/:id | get one city by id |
+| GET | /api/cities/search | search by name |
+| GET | /api/cities/:id | get one city |
 
-Query parameter for search: `q` (required). example: `?q=buenos`
-Search works in both English and Hebrew.
+Query param for search: `?q=buenos` — works in English and Hebrew.
 
 Search success (200):
 ```json
@@ -242,21 +218,17 @@ Missing query (400):
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/favorites | get all favorites for a user |
-| POST | /api/favorites | add an item to favorites |
+| GET | /api/favorites | get favorites for a user |
+| POST | /api/favorites | add item to favorites |
 | DELETE | /api/favorites/:id | remove item from favorites |
 
-Query parameter for GET: `userId` (required). example: `?userId=1`
+Query param for GET: `?userId=1` — required.
 
 **POST /api/favorites**
 
 Request body:
 ```json
-{
-  "userId": 1,
-  "itemId": 3,
-  "itemType": "attraction"
-}
+{ "userId": 1, "itemId": 3, "itemType": "attraction" }
 ```
 
 Success (201):
@@ -277,16 +249,11 @@ Already saved (400):
 |--------|------|-------------|
 | POST | /api/profile | save or update traveler preferences |
 
-If a profile already exists for the user, it gets updated. Otherwise a new one is created.
+If a profile already exists for the user it gets updated, otherwise a new one is created.
 
 Request body:
 ```json
-{
-  "userId": 1,
-  "travelerType": "couple",
-  "interests": ["history", "food", "art"],
-  "budgetLevel": "medium"
-}
+{ "userId": 1, "travelerType": "couple", "interests": ["history", "food"], "budgetLevel": "medium" }
 ```
 
 Created (201):
@@ -303,39 +270,35 @@ Updated (200):
 
 ## Middleware
 
-**logger** — runs automatically on every request. logs the HTTP method, path, status code and response time to the console.
+**logger** — runs on every request and logs method, path, status code and duration to the console.
 
-Example output:
+Example:
 ```
 [2026-05-02T14:48:15.000Z] method:GET path:/api/attractions status:200 duration:5ms
 ```
 
-**roleCheck** — checks the `x-user-role` header on protected routes. if the role is missing or not allowed, returns 403.
+**roleCheck** — checks the `x-user-role` header on protected routes. Returns 403 if the role is not allowed.
 
 To test protected routes in Postman, add this header:
 ```
-Key:   x-user-role
-Value: admin
+x-user-role: admin
 ```
+
+---
 
 ## Map feature
 
-Based on feedback received on the project spec, we added basic map support.
+Based on feedback on the project spec, we added basic map support.
 
-Each attraction includes `latitude` and `longitude` fields in the mock data.
-We also added a dedicated endpoint that returns only the fields needed to display map pins:
+Each attraction includes `latitude` and `longitude` fields. We added a dedicated endpoint that returns only the fields needed to display map pins:
 
+```
 GET /api/attractions/map?city_id=2
-
-Response:
-```json
-{
-  "success": true,
-  "data": [
-    { "id": 1, "name_he": "לה בוקה", "type": "site", "latitude": -34.6345, "longitude": -58.3631 }
-  ],
-  "error": null
-}
 ```
 
-In the next stage this data will be used by the frontend map component
+Success:
+```json
+{ "success": true, "data": [ { "id": 1, "name_he": "לה בוקה", "type": "site", "latitude": -34.6345, "longitude": -58.3631 } ], "error": null }
+```
+
+In the next stage this data will connect to the frontend map component (e.g. Leaflet.js or Google Maps).

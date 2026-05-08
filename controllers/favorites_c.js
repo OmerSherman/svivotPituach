@@ -58,7 +58,7 @@ function addFavorite(req, res) {
     };
 
     favorites.push(newFavorite);
-    //todo later: push on db 
+    //todo next stage: push on db 
 
     return res.status(201).json({
         success: true,

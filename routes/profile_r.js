@@ -7,6 +7,4 @@ const checkFields = require("../middleware/checkFields")
 const PROFILE_REQ = ["userId","travelerType","interests", "budgetLevel"  ]
 router.post('/', checkFields(PROFILE_REQ), profileController.saveProfile);
 
-//todo delete profile 
-
 module.exports = router;

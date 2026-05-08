@@ -11,7 +11,7 @@
           "name": "POST register - success",
           "request": {
             "method": "POST",
-            "url": "http://localhost:3000/api/auth/register",
+            "url": "http://localhost:3000/api/users/register",
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"dana\",\n  \"lastName\": \"levi\",\n  \"email\": \"dana@example.com\",\n  \"password\": \"1234\"\n}"}
           }
@@ -20,7 +20,7 @@
           "name": "POST register - missing fields",
           "request": {
             "method": "POST",
-            "url": "http://localhost:3000/api/auth/register",
+            "url": "http://localhost:3000/api/users/register",
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"dana\"\n}"}
           }
@@ -29,7 +29,7 @@
           "name": "POST login - success",
           "request": {
             "method": "POST",
-            "url": "http://localhost:3000/api/auth/login",
+            "url": "http://localhost:3000/api/users/login",
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"1234\"\n}"}
           }
@@ -38,7 +38,7 @@
           "name": "POST login - wrong password",
           "request": {
             "method": "POST",
-            "url": "http://localhost:3000/api/auth/login",
+            "url": "http://localhost:3000/api/users/login",
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"wrong\"\n}"}
           }
@@ -76,20 +76,20 @@
           }
         },
         {
-          "name": "POST create user - admin",
-          "request": {
-            "method": "POST",
-            "url": "http://localhost:3000/api/users",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
-            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"}
-          }
-        },
-        {
           "name": "PUT update user - manager",
           "request": {
             "method": "PUT",
             "url": "http://localhost:3000/api/users/4",
             "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "manager"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userRole\": \"manager\"\n}"}
+          }
+        },
+        {
+          "name": "PUT update user - admin",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/api/users/4",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
             "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"updated\"\n}"}
           }
         },
@@ -102,11 +102,11 @@
           }
         },
         {
-          "name": "DELETE user",
+          "name": "DELETE user - self",
           "request": {
             "method": "DELETE",
-            "url": "http://localhost:3000/api/users/4",
-            "header": [{"key": "x-user-role", "value": "user"},{"key": "x-user-id", "value": 4}]
+            "url": "http://localhost:3000/api/users/3",
+            "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": "4"}]
           }
         },
         {
@@ -114,41 +114,59 @@
           "request": {
             "method": "DELETE",
             "url": "http://localhost:3000/api/users/3",
-            "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": 1}]
+            "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": "1"}]
           }
+        },
+        {
+        "name": "POST create user - admin",
+        "request": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/users",
+          "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "admin"}],
+          "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"}
         }
+      },
+      {
+        "name": "POST create user - forbidden",
+        "request": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/users",
+          "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "x-user-role", "value": "user"}],
+          "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"}
+        }
+      }
       ]
     },
     {
       "name": "Attractions",
       "item": [
         {
-        "name": "GET map pins by city",
-        "request": {
-            "method": "GET",
-            "url": {
-            "raw": "http://localhost:3000/api/attractions/map?city_id=2",
-            "query": [{"key": "city_id", "value": "2"}],
-            "host": ["localhost"],
-            "port": "3000",
-            "path": ["api", "attractions", "map"]
-            },
-            "header": []
-        }
-        },
-        {
-        "name": "GET map pins - missing city_id",
-        "request": {
-            "method": "GET",
-            "url": "http://localhost:3000/api/attractions/map",
-            "header": []
-        }
-        },
-        {
           "name": "GET all attractions",
           "request": {
             "method": "GET",
             "url": "http://localhost:3000/api/attractions",
+            "header": []
+          }
+        },
+        {
+          "name": "GET map pins by city",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/attractions/map?city_id=2",
+              "query": [{"key": "city_id", "value": "2"}],
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "attractions", "map"]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET map pins - missing city_id",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/api/attractions/map",
             "header": []
           }
         },
@@ -357,6 +375,22 @@
             "url": "http://localhost:3000/api/favorites",
             "header": []
           }
+        },
+        {
+          "name": "DELETE favorite",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/favorites/1",
+            "header": []
+          }
+        },
+        {
+          "name": "DELETE favorite - not found",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/api/favorites/999",
+            "header": []
+          }
         }
       ]
     },
@@ -369,7 +403,16 @@
             "method": "POST",
             "url": "http://localhost:3000/api/profile",
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"travelerType\": \"couple\",\n  \"interests\": [\"history\", \"food\"],\n  \"budgetLevel\": \"medium\"\n}"}
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 3,\n  \"travelerType\": \"couple\",\n  \"interests\": [\"history\", \"food\"],\n  \"budgetLevel\": \"medium\"\n}"}
+          }
+        },
+        {
+          "name": "POST update profile - existing user",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/profile",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"travelerType\": \"solo\",\n  \"interests\": [\"hiking\"],\n  \"budgetLevel\": \"low\"\n}"}
           }
         },
         {

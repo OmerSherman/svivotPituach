@@ -1,7 +1,4 @@
-
-
 const users = require("../models/mock_data/users.json")
-//const userdata = require(./userdata)
 
 // helper to find user by id
 function findById(id) {
@@ -62,7 +59,7 @@ function create(req, res) {
     }
 
     const newUser = {
-        userId: users.length + 1, //todo delete when moving to real db. id automitically increment 
+        userId: users.length + 1, // next stage: id will be auto-incremented by MySQL
         firstName: firstName,
         lastName: lastName,
         userRole: userRole,
@@ -110,17 +107,24 @@ function update(req, res) {
 
 // DELETE - remove a user
 function remove(req, res) {
-    const userRole = req.headers['x-user-role'];
-    if(userRole == "admin" ){
-        const id = req.params.id;
-        return remove_inner(id, req, res)
+    const requestingRole = req.headers['x-user-role'];
+    const requestingId = req.headers['x-user-id'];
+    const targetId = req.params.id;
+
+    // if not admin, check that user is deleting themselves
+    if (requestingRole !== 'admin' && parseInt(requestingId) !== parseInt(targetId)) {
+        return res.status(403).json({
+            success: false,
+            data: null,
+            error: {
+                code: "FORBIDDEN",
+                message: "you can only delete your own account",
+                details: {}
+            }
+        });
     }
-    else{ // not admin. can only remove is own id 
-        //todo check how to constraint to delte just himself. for now we use the header 
-        const id = req.headers['x-user-id']
-        return remove_inner(id, req, res)
-    }
-    
+
+    return remove_inner(targetId, req, res);
 }
 
 function remove_inner(id , req, res){
@@ -141,7 +145,7 @@ function remove_inner(id , req, res){
     }
 
     users.splice(index, 1);
-    //todo, also delete from users db / json
+    // todo next stage: delete from MySQL
     return res.status(200).json({
         success: true,
         data: { userId: parseInt(id) },
@@ -150,25 +154,3 @@ function remove_inner(id , req, res){
 }
 
 module.exports = { getAll, getById, create, update, remove };
-
-
-// const userData = require("../models/user_data.js");
-
-// function getById(req, res) {
-//     const id = parseInt(req.params.id); //parse id parameter from url of user
-    
-//     const allUsers = userData.getUsers(); //get all users 
-//     console.log(allUsers)
-//     const user = allUsers.find((u) => u.userId === id); //find user
-
-//     if (!user) { //if user id not exsist
-//         return res.status(404).json({
-//             error: `User with id ${id} not found`
-//         });
-//     }
-//     return res.json(user);
-// }
-
-// module.exports = {
-//     getById
-// };
