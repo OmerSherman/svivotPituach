@@ -17,6 +17,10 @@ function writeUser(json) {
     return utils.addObjectToJsonFile(path, json)
 }
 
+function deleteUSer(userId){
+    return utils.deleteObjectFromJsonFile(path, "userId", userId)
+}
+
 // export the function 
 module.exports = {
     getUsers,
