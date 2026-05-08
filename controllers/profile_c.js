@@ -8,17 +8,6 @@ function saveProfile(req, res) {
     const interests = req.body.interests; // history, food, nature (for example)
     const budgetLevel = req.body.budgetLevel;  // low, medium, high
 
-    if (!userId || !travelerType || !interests || !budgetLevel) {
-        return res.status(400).json({
-            success: false,
-            data: null,
-            error: {
-                code: "VALIDATION_ERROR",
-                message: "please fill in all fields",
-                details: {}
-            }
-        });
-    }
 
     // check if this user already has a profile
     const existing = profiles.find(function(p) {
