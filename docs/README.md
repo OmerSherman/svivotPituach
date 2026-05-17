@@ -8,7 +8,7 @@ Assignment 2 | Omer Sherman, Hillel Zilberman, Michal Adam
 
 ```bash
 npm install
-node main.js
+node app.js
 ```
 
 Server runs on port 3000.
