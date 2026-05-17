@@ -105,8 +105,8 @@
           "name": "DELETE user - self",
           "request": {
             "method": "DELETE",
-            "url": "http://localhost:3000/api/users/3",
-            "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": "4"}]
+            "url": "http://localhost:3000/api/users/2",
+            "header": [{"key": "x-user-role", "value": "user"}, {"key": "x-user-id", "value": "2"}]
           }
         },
         {
