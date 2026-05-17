@@ -1,29 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const roleCheck = require('../middleware/roleCheck');
-const usersController = require('../controllers/user_controller');
+const checkFields = require('../middleware/checkFields');
+const usersController = require('../controllers/User_controller');
 const authController = require('../controllers/auth_c');
-const checkRequiredFields = require('../middleware/checkFields');
+
+const REGISTER_FIELDS = ['firstName', 'lastName', 'email', 'password'];
+const LOGIN_FIELDS = ['email', 'password'];
+const CREATE_USER_FIELDS = ['firstName', 'lastName', 'userRole'];
 
 // open to everyone
-const REGISTER_FIELDS = ['firstName', 'lastName', 'email', 'password'];
-router.post('/register', checkRequiredFields(REGISTER_FIELDS), authController.register);
-
-const LOGIN_FIELDS = ['email', 'password'];
-router.post('/login', checkRequiredFields(LOGIN_FIELDS), authController.login);
-
-// POST /api/users - admin only
-router.post('/', roleCheck('admin'), usersController.create);
+router.post('/register', checkFields(REGISTER_FIELDS), authController.register);
+router.post('/login', checkFields(LOGIN_FIELDS), authController.login);
 
 // admin only
+router.post('/', roleCheck('admin'), checkFields(CREATE_USER_FIELDS), usersController.create);
 router.get('/', roleCheck('admin'), usersController.getAll);
 router.get('/:id', usersController.getById);
 
 // admin and manager
 router.put('/:id', roleCheck('admin', 'manager'), usersController.update);
 
-//admin can delete anyone, users can onlu delete himselfe
-router.delete('/:id', usersController.remove); //delete user
-
+// admin can delete anyone, user can only delete themselves
+router.delete('/:id', usersController.remove);
 
 module.exports = router;
