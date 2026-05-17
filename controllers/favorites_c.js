@@ -7,8 +7,7 @@ function getFavorites(req, res, next) {
 
         if (!userId) {
             return res.status(400).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "VALIDATION_ERROR", message: "userId is required", details: {} }
             });
         }
@@ -24,6 +23,7 @@ function getFavorites(req, res, next) {
 }
 
 // POST - save an item to the user's favorites list
+// required fields validated by checkFields middleware in the route
 function addFavorite(req, res, next) {
     try {
         const userId = req.body.userId;
@@ -37,8 +37,7 @@ function addFavorite(req, res, next) {
 
         if (alreadySaved) {
             return res.status(400).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "VALIDATION_ERROR", message: "this item is already in favorites", details: {} }
             });
         }
@@ -63,14 +62,21 @@ function addFavorite(req, res, next) {
 function removeFavorite(req, res, next) {
     try {
         const id = req.params.id;
+
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const index = favorites.findIndex(function(f) {
             return f.id === parseInt(id);
         });
 
         if (index === -1) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "favorite " + id + " not found", details: {} }
             });
         }

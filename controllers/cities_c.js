@@ -16,8 +16,7 @@ function search(req, res, next) {
 
         if (!q) {
             return res.status(400).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "VALIDATION_ERROR", message: "search query is required", details: {} }
             });
         }
@@ -39,14 +38,20 @@ function getById(req, res, next) {
     try {
         const id = req.params.id;
 
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const city = cities.find(function(c) {
             return c.id === parseInt(id);
         });
 
         if (!city) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "city " + id + " not found", details: {} }
             });
         }

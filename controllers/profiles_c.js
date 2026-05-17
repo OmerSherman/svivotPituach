@@ -1,6 +1,7 @@
 const profiles = require('../models/mock_data/profiles.json');
 
 // POST - save traveler preferences for a user
+// required fields validated by checkFields middleware in the route
 // if profile already exists, update it. otherwise create a new one
 function saveProfile(req, res, next) {
     try {

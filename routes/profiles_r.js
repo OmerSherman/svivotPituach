@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const profileController = require('../controllers/profile_c');
+const profileController = require('../controllers/profiles_c');
 const checkFields = require("../middleware/checkFields")
 
 // save traveler preferences (used for personalized recommendations)

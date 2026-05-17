@@ -8,7 +8,7 @@ Assignment 2 | Omer Sherman, Hillel Zilberman, Michal Adam
 
 ```bash
 npm install
-node app.js
+node main.js
 ```
 
 Server runs on port 3000.
@@ -39,6 +39,18 @@ Error:
 ```json
 { "success": false, "data": null, "error": { "code": "...", "message": "...", "details": {} } }
 ```
+
+---
+
+## Error codes
+
+| Code | Status | When |
+|------|--------|------|
+| `VALIDATION_ERROR` | 400 | missing required fields or invalid id |
+| `UNAUTHORIZED` | 401 | wrong email or password |
+| `FORBIDDEN` | 403 | role not allowed for this action |
+| `NOT_FOUND` | 404 | id does not exist |
+| `INTERNAL_SERVER_ERROR` | 500 | unexpected server error |
 
 ---
 
@@ -95,9 +107,21 @@ Wrong password (401):
 |--------|------|-------------|------|
 | GET | /api/users | get all users | admin |
 | GET | /api/users/:id | get one user | open |
+| POST | /api/users | create a new user | admin |
 | PUT | /api/users/:id | update user | admin, manager |
 | DELETE | /api/users/:id | delete user | admin deletes anyone, user deletes themselves |
-| POST | /api/users | create a new user | admin |
+
+**POST /api/users**
+
+Request body:
+```json
+{ "firstName": "yael", "lastName": "cohen", "userRole": "user" }
+```
+
+Success (201):
+```json
+{ "success": true, "data": { "userId": 5 }, "error": null }
+```
 
 **PUT /api/users/:id**
 
@@ -134,13 +158,10 @@ Not found (404):
 { "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "user 99 not found", "details": {} } }
 ```
 
-**POST /api/users**
-
-Request body:
-{ "firstName": "yael", "lastName": "cohen", "userRole": "user" }
-
-Success (201):
-{ "success": true, "data": { "userId": 5 }, "error": null }
+Invalid id (400):
+```json
+{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "id must be a number", "details": {} } }
+```
 
 ---
 
@@ -149,8 +170,8 @@ Success (201):
 | Method | Path | Description | Auth |
 |--------|------|-------------|------|
 | GET | /api/attractions | get all attractions | open |
-| GET | /api/attractions/:id | get one attraction | open |
 | GET | /api/attractions/map | get map pins for a city | open |
+| GET | /api/attractions/:id | get one attraction | open |
 | POST | /api/attractions | create attraction | admin |
 | PUT | /api/attractions/:id | update attraction | admin, manager |
 | DELETE | /api/attractions/:id | delete attraction | admin |
@@ -182,7 +203,12 @@ Success (201):
 
 Missing fields (400):
 ```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "missing required fields", "details": {} } }
+{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "please fill in all fields", "details": {} } }
+```
+
+Invalid type (400):
+```json
+{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "type must be one of: site, tour, route", "details": { "field": "type" } } }
 ```
 
 No permission (403):
@@ -210,6 +236,11 @@ Search success (200):
 Missing query (400):
 ```json
 { "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "search query is required", "details": {} } }
+```
+
+Not found (404):
+```json
+{ "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "city 99 not found", "details": {} } }
 ```
 
 ---
@@ -278,6 +309,10 @@ Example:
 ```
 
 **roleCheck** — checks the `x-user-role` header on protected routes. Returns 403 if the role is not allowed.
+
+**checkFields** — validates required fields in request body before reaching the controller. Returns 400 if any field is missing.
+
+**errorHandler** — catches any unexpected error from controllers and returns 500.
 
 To test protected routes in Postman, add this header:
 ```

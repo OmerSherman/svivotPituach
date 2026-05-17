@@ -1,6 +1,7 @@
 const users = require('../models/mock_data/users.json');
 
 // POST - create a new account
+// required fields validated by checkFields middleware in the route
 function register(req, res, next) {
     try {
         const email = req.body.email;

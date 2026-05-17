@@ -36,12 +36,19 @@ function getAll(req, res, next) {
 function getById(req, res, next) {
     try {
         const id = req.params.id;
+
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const attraction = findById(id);
 
         if (!attraction) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "attraction " + id + " not found", details: {} }
             });
         }
@@ -53,6 +60,7 @@ function getById(req, res, next) {
 }
 
 // POST - create a new attraction
+// required fields validated by checkFields middleware in the route
 function create(req, res, next) {
     try {
         const { city_id, name, name_he, type, description_he } = req.body;
@@ -61,8 +69,7 @@ function create(req, res, next) {
         const validTypes = ["site", "tour", "route"];
         if (!validTypes.includes(type)) {
             return res.status(400).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "VALIDATION_ERROR", message: "type must be one of: site, tour, route", details: { field: "type" } }
             });
         }
@@ -92,12 +99,19 @@ function create(req, res, next) {
 function update(req, res, next) {
     try {
         const id = req.params.id;
+
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const attraction = findById(id);
 
         if (!attraction) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "attraction " + id + " not found", details: {} }
             });
         }
@@ -121,14 +135,21 @@ function update(req, res, next) {
 function remove(req, res, next) {
     try {
         const id = req.params.id;
+
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const index = attractions.findIndex(function(attraction) {
             return attraction.id === parseInt(id);
         });
 
         if (index === -1) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "attraction " + id + " not found", details: {} }
             });
         }
@@ -147,8 +168,7 @@ function getMapData(req, res, next) {
 
         if (!city_id) {
             return res.status(400).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "VALIDATION_ERROR", message: "city_id is required", details: {} }
             });
         }

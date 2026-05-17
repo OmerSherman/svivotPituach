@@ -20,12 +20,19 @@ function getAll(req, res, next) {
 function getById(req, res, next) {
     try {
         const id = req.params.id;
+
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const user = findById(id);
 
         if (!user) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "user " + id + " not found", details: {} }
             });
         }
@@ -37,6 +44,7 @@ function getById(req, res, next) {
 }
 
 // POST - create a new user
+// required fields validated by checkFields middleware in the route
 function create(req, res, next) {
     try {
         const newUser = {
@@ -61,12 +69,19 @@ function update(req, res, next) {
     try {
         const id = req.params.id;
         const requestingRole = req.headers['x-user-role'];
+
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         const user = findById(id);
 
         if (!user) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "user " + id + " not found", details: {} }
             });
         }
@@ -98,10 +113,16 @@ function remove(req, res, next) {
         const requestingId = req.headers['x-user-id'];
         const targetId = req.params.id;
 
+        if (isNaN(parseInt(targetId))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: "VALIDATION_ERROR", message: "id must be a number", details: {} }
+            });
+        }
+
         if (requestingRole !== 'admin' && parseInt(requestingId) !== parseInt(targetId)) {
             return res.status(403).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "FORBIDDEN", message: "you can only delete your own account", details: {} }
             });
         }
@@ -112,8 +133,7 @@ function remove(req, res, next) {
 
         if (index === -1) {
             return res.status(404).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "NOT_FOUND", message: "user " + targetId + " not found", details: {} }
             });
         }
