@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const roleCheck = require('../middleware/roleCheck');
 const checkFields = require('../middleware/checkFields');
-const usersController = require('../controllers/users_co');
+const usersController = require('../controllers/users_c');
 const authController = require('../controllers/auth_c');
 
 const REGISTER_FIELDS = ['firstName', 'lastName', 'email', 'password'];
