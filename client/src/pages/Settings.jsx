@@ -1,29 +1,22 @@
-// pages/Settings.jsx
-// Settings page (Assignment 3 requirement #4).
-// - loads the current settings from GET /api/settings
-// - lets the user edit them in a form
-// - validates and sends a PUT /api/settings on submit
-// - shows loading / success / error states
-
 import { useEffect, useState } from "react";
 import settingsService from "../services/settingsService";
 import "./Settings.css";
 
 function Settings() {
-    // form values (controlled inputs)
+    // form fields
     const [firstName,    setFirstName]    = useState("");
     const [lastName,     setLastName]     = useState("");
     const [email,        setEmail]        = useState("");
     const [theme,        setTheme]        = useState("light");
     const [budgetLevel,  setBudgetLevel]  = useState("medium");
 
-    // ui states - the assignment specifically asks for loading/success/error
+    // ui states
     const [initialLoading, setInitialLoading] = useState(true);
     const [saving,         setSaving]         = useState(false);
     const [error,          setError]          = useState("");
     const [success,        setSuccess]        = useState("");
 
-    // 1) load current settings on mount
+    // load current settings on mount
     useEffect(function() {
         async function loadSettings() {
             try {
@@ -42,7 +35,6 @@ function Settings() {
         loadSettings();
     }, []);
 
-    // simple email format check ("a@b.c"-ish)
     function isValidEmail(value) {
         if (!value) return false;
         const trimmed = value.trim();
@@ -51,13 +43,12 @@ function Settings() {
         return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < trimmed.length - 1;
     }
 
-    // 2) on submit - validate, then PUT to backend
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
         setSuccess("");
 
-        // client-side validation
+        // validate
         if (!firstName.trim()) {
             setError("חובה למלא שם פרטי");
             return;
@@ -160,7 +151,6 @@ function Settings() {
                     </select>
                 </label>
 
-                {/* feedback messages */}
                 {error   && <p className="settings-error">{error}</p>}
                 {success && <p className="settings-success">{success}</p>}
 

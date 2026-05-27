@@ -1,8 +1,5 @@
 // Layout component - wraps every page with Navbar + Footer.
-// (Matches the pattern from lecture 7: <Layout>{children}</Layout>.)
-// NOTE: this is a minimal version added so the app compiles. The full styled
-// version with greeting, settings link, logout etc. is being built on the
-// dedicated login branch.
+// this is a minimal version added so the app compiles. The full styled
 
 import Navbar from "./Navbar";
 import Footer from "./Footer";

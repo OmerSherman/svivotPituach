@@ -1,8 +1,3 @@
-// pages/Home.jsx
-// Dashboard / Home page (Assignment 3 requirement #5).
-// Fetches cities and attractions from the backend and shows them as cards.
-// Demonstrates: loading state, error state, empty state, and reuse of ItemCard.
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ItemCard from "../components/ItemCard";
@@ -13,21 +8,18 @@ import "./Home.css";
 
 function Home() {
     const navigate = useNavigate();
-
-    // who is logged in (just for the greeting)
     const currentUser = authService.getStoredUser();
 
-    // section 1 - cities
+    // cities section state
     const [cities, setCities] = useState([]);
     const [citiesLoading, setCitiesLoading] = useState(true);
     const [citiesError, setCitiesError] = useState("");
 
-    // section 2 - top attractions
+    // top attractions section state
     const [topAttractions, setTopAttractions] = useState([]);
     const [attractionsLoading, setAttractionsLoading] = useState(true);
     const [attractionsError, setAttractionsError] = useState("");
 
-    // fetch cities once on mount
     useEffect(function() {
         async function fetchCities() {
             try {
@@ -42,12 +34,11 @@ function Home() {
         fetchCities();
     }, []);
 
-    // fetch attractions once on mount
     useEffect(function() {
         async function fetchAttractions() {
             try {
                 const data = await attractionsService.getAll();
-                // sort by popularity (highest first) and take top 6
+                // sort by popularity, take top 6
                 const sorted = data
                     .slice()
                     .sort(function(a, b) { return b.popularity_score - a.popularity_score; })
@@ -64,7 +55,6 @@ function Home() {
 
     return (
         <div className="home-page">
-            {/* greeting */}
             <header className="home-hero">
                 <h1>
                     {currentUser
@@ -76,7 +66,7 @@ function Home() {
                 </p>
             </header>
 
-            {/* SECTION 1 - cities grid (ItemCard reuse #1) */}
+            {/* cities */}
             <section className="home-section">
                 <h2>ערים שכדאי להכיר</h2>
 
@@ -111,7 +101,7 @@ function Home() {
                 )}
             </section>
 
-            {/* SECTION 2 - top attractions (ItemCard reuse #2) */}
+            {/* top attractions */}
             <section className="home-section">
                 <h2>האטרקציות המובילות</h2>
 
@@ -150,7 +140,7 @@ function Home() {
     );
 }
 
-// little helper - turn the english type into a Hebrew label
+// english type -> hebrew label
 function translateType(type) {
     if (type === "site")  return "אתר";
     if (type === "tour")  return "סיור";

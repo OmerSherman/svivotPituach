@@ -1,7 +1,4 @@
-// PLACEHOLDER - the full Login page is being implemented on the dedicated
-// login branch. This stub lets the rest of the application compile and run
-// in the meantime. It also offers a quick "mock login" so the other pages
-// (Home, Settings, CityAttractions) can be tested end-to-end.
+// temporary login form for testing - real version coming on the login branch
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -33,10 +30,7 @@ function Login() {
         <div style={{ maxWidth: 380, margin: "60px auto", padding: 24,
                       background: "#fff", borderRadius: 12,
                       border: "1px solid #e0e0e0" }}>
-            <h1 style={{ marginTop: 0 }}>התחברות (גרסת בדיקה)</h1>
-            <p style={{ color: "#777", fontSize: "0.9rem" }}>
-                גרסת הלוגין הסופית נבנית בענף נפרד. זוהי גרסת בדיקה זמנית.
-            </p>
+            <h1 style={{ marginTop: 0 }}>התחברות</h1>
 
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <label>
