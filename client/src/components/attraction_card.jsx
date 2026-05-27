@@ -30,3 +30,5 @@ function attraction_card(attraction){
 
     )
 }
+
+export default attraction_card
