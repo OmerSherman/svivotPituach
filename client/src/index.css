@@ -1,13 +1,34 @@
-body {
+/* RTL + Hebrew font support for the whole app */
+
+html, body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+  direction: rtl;
+  text-align: right;
+  background: #f8fafc;
+  color: #1a202c;
+}
+
+body {
+  font-family: 'Rubik', 'Segoe UI', 'Heebo', system-ui, -apple-system, BlinkMacSystemFont,
+    'Roboto', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Courier New', monospace;
+  direction: ltr;          /* code stays LTR even in RTL pages */
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
