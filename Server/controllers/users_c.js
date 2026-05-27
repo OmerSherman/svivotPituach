@@ -147,4 +147,41 @@ function remove(req, res, next) {
     }
 }
 
-module.exports = { getAll, getById, create, update, remove };
+// GET /me - returns the currently logged-in user (based on x-user-id header).
+// Required by Assignment 3 ("GET /api/users/me").
+function getMe(req, res, next) {
+    try {
+        const id = parseInt(req.headers['x-user-id']);
+        if (isNaN(id)) {
+            return res.status(401).json({
+                success: false, data: null,
+                error: { code: "UNAUTHORIZED", message: "not logged in", details: {} }
+            });
+        }
+
+        const user = findById(id);
+        if (!user) {
+            return res.status(404).json({
+                success: false, data: null,
+                error: { code: "NOT_FOUND", message: "user " + id + " not found", details: {} }
+            });
+        }
+
+        // never send the password back to the client
+        const safeUser = {
+            userId: user.userId,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            userRole: user.userRole,
+            createDate: user.createDate,
+            updateDate: user.updateDate
+        };
+
+        return res.status(200).json({ success: true, data: safeUser, error: null });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { getAll, getById, create, update, remove, getMe };
