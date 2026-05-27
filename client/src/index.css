@@ -1,5 +1,3 @@
-/* RTL + Hebrew font support for the whole app */
-
 html, body {
   margin: 0;
   padding: 0;
@@ -23,7 +21,7 @@ body {
 
 code {
   font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Courier New', monospace;
-  direction: ltr;          /* code stays LTR even in RTL pages */
+  direction: ltr;
 }
 
 button,

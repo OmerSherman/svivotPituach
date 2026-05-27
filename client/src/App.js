@@ -1,6 +1,3 @@
-// App.js - root routing.
-// Follows the Layout-wraps-Routes pattern from lecture 7.
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";

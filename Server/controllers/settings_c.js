@@ -1,23 +1,15 @@
-// controllers/settings_c.js
-// the Assignment 3 spec asks for GET /api/settings and PUT /api/settings.
-// "Settings" here means the editable preferences of the logged-in user:
-//   - firstName, lastName, email   (from users.json)
-//   - travelerType, budgetLevel, theme  (from profiles.json + a new field)
-//
-// the user is identified by the x-user-id header (the same mock auth the
-// rest of the app uses).
+// settings combine fields from users.json and profiles.json
 
 const users = require('../models/mock_data/users.json');
 const profiles = require('../models/mock_data/profiles.json');
 
-// helper - find current user from headers
 function getCurrentUser(req) {
     const id = parseInt(req.headers['x-user-id']);
     if (isNaN(id)) return null;
     return users.find(function(u) { return u.userId === id; }) || null;
 }
 
-// helper - find or initialize the profile for a user
+// some users don't have a profile yet - create a default one
 function getOrCreateProfile(userId) {
     let profile = profiles.find(function(p) { return p.userId === userId; });
     if (!profile) {
@@ -34,7 +26,6 @@ function getOrCreateProfile(userId) {
     return profile;
 }
 
-// GET /api/settings -> all editable fields for the current user, in one object
 function getSettings(req, res, next) {
     try {
         const user = getCurrentUser(req);
@@ -62,7 +53,6 @@ function getSettings(req, res, next) {
     }
 }
 
-// PUT /api/settings -> partial update of the current user's settings
 function updateSettings(req, res, next) {
     try {
         const user = getCurrentUser(req);
@@ -73,7 +63,7 @@ function updateSettings(req, res, next) {
             });
         }
 
-        // basic validation - email must look like an email if provided
+        // simple email check
         if (req.body.email !== undefined) {
             const emailLooksOk = typeof req.body.email === "string" &&
                                  req.body.email.indexOf("@") > 0 &&
@@ -86,19 +76,17 @@ function updateSettings(req, res, next) {
             }
         }
 
-        // update user fields
+        // only update fields that were sent
         if (req.body.firstName !== undefined) user.firstName = req.body.firstName;
         if (req.body.lastName  !== undefined) user.lastName  = req.body.lastName;
         if (req.body.email     !== undefined) user.email     = req.body.email;
         user.updateDate = new Date().toISOString();
 
-        // update profile fields
         const profile = getOrCreateProfile(user.userId);
         if (req.body.travelerType !== undefined) profile.travelerType = req.body.travelerType;
         if (req.body.budgetLevel  !== undefined) profile.budgetLevel  = req.body.budgetLevel;
         if (req.body.theme        !== undefined) profile.theme        = req.body.theme;
 
-        // return the new full settings object
         const updated = {
             firstName: user.firstName,
             lastName: user.lastName,

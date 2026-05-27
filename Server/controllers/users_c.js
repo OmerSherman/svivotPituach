@@ -147,8 +147,7 @@ function remove(req, res, next) {
     }
 }
 
-// GET /me - returns the currently logged-in user (based on x-user-id header).
-// Required by Assignment 3 ("GET /api/users/me").
+// returns the current user from the x-user-id header
 function getMe(req, res, next) {
     try {
         const id = parseInt(req.headers['x-user-id']);
@@ -167,7 +166,7 @@ function getMe(req, res, next) {
             });
         }
 
-        // never send the password back to the client
+        // strip password
         const safeUser = {
             userId: user.userId,
             firstName: user.firstName,
