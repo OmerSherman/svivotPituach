@@ -16,14 +16,13 @@ function Register_forum(){
         const res = await fetch("http://localhost:3000/api/users/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                "mode": "raw",
-                "raw":{
+            body: JSON.stringify(
+               {
                     "firstName": first_name,
                     "lastName": last_name,
                     "email": email,
                     "password": password
-                }
+                
             })
         });
     const data_res = await res.json();
