@@ -14,7 +14,7 @@ app.use(logger);
 // import routers
 const cities_router =  require('./routes/cities_r')
 const favorites_router = require('./routes/favorites_r')
-const profiles_router = require('./routes/profile_r')
+const profiles_router = require('./routes/profiles_r')
 const attractions_router = require('./routes/attractions_r')
 const users_router = require('./routes/users_r');
 const errorHandler = require('./middleware/errorHandler');
