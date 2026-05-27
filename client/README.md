@@ -1,70 +1,145 @@
-# Getting Started with Create React App
+# שביל הטחינה — Frontend (Assignment 3)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React frontend connecting to the Assignment 2 backend.
 
-## Available Scripts
+**Team:** Omer Sherman, Hillel Zilberman, Michal Adam
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## How to install and run
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The backend (Assignment 2) must be running first.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. Start the backend
+```bash
+cd Server
+npm install
+node app.js
+```
+The backend runs on **`http://localhost:3000`**.
 
-### `npm test`
+### 2. Start the frontend (in a separate terminal)
+```bash
+cd client
+npm install
+npm start
+```
+The frontend runs on **`http://localhost:3001`** (configured in `.env`).
+The browser should open automatically — if not, navigate to `http://localhost:3001`.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+> **Note:** The backend's CORS is configured to accept requests from
+> `http://localhost:3001`, so the frontend must run on port 3001.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Configuration
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`.env` (already included in the project):
+```
+PORT=3001
+REACT_APP_API_URL=http://localhost:3000/api
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**API Base URL:** `http://localhost:3000`
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Test accounts
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The backend ships with four mock users (all have password `1234`):
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+| Email                | Role    |
+|----------------------|---------|
+| michal@example.com   | admin   |
+| omer@example.com     | admin   |
+| hillel@example.com   | manager |
+| user@example.com     | user    |
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## Project structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Follows the structure required by the assignment:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+client/src/
+├── App.js                    Main entry & routing
+├── components/               Reusable UI elements
+│   ├── Navbar.jsx
+│   ├── Footer.jsx
+│   ├── Layout.jsx
+│   ├── ItemCard.jsx          Reusable card  (used 3+ times)
+│   ├── DataTable.jsx         Reusable table (required)
+│   └── attraction_card.jsx
+├── pages/                    Route views
+│   ├── Login.jsx
+│   ├── Home.jsx              Dashboard
+│   ├── Settings.jsx
+│   └── CityAttractions.jsx
+└── services/                 API communication
+    ├── api.js
+    ├── authService.js
+    ├── usersService.js
+    ├── attractionsService.js
+    ├── citiesService.js
+    └── settingsService.js
+```
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## How requirements map to the code
 
-### Analyzing the Bundle Size
+| # | Requirement                          | Files                                         |
+|---|--------------------------------------|-----------------------------------------------|
+| 1 | Login Page                           | `pages/Login.jsx`                             |
+| 2 | Navbar & Layout                      | `components/Navbar.jsx`, `components/Layout.jsx` |
+| 3 | Footer                               | `components/Footer.jsx`                       |
+| 4 | Settings Page                        | `pages/Settings.jsx` + `services/settingsService.js` |
+| 5 | Dashboard / Home                     | `pages/Home.jsx`                              |
+| 6 | Reusable Card (used 3+ times)        | `components/ItemCard.jsx` — used in Home (cities), Home (top attractions), and CityAttractions |
+| 7 | Data Table                           | `components/DataTable.jsx` — used in `CityAttractions.jsx` |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Routes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+| Path                | Page              | Notes                            |
+|---------------------|-------------------|----------------------------------|
+| `/login`            | Login             | Public                           |
+| `/register`         | Register          | Public                           |
+| `/`                 | Home / Dashboard  | Requires login                   |
+| `/settings`         | Settings          | Requires login                   |
+| `/cities/:id`       | CityAttractions   | DataTable + Card grid for a city |
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Backend endpoints used
 
-### Deployment
+| Method | Path                        | Used by                  |
+|--------|-----------------------------|--------------------------|
+| POST   | `/api/auth/login`           | Login                    |
+| POST   | `/api/auth/logout`          | Navbar logout            |
+| POST   | `/api/users/register`       | Register                 |
+| GET    | `/api/users/me`             | Navbar / current user    |
+| GET    | `/api/settings`             | Settings load            |
+| PUT    | `/api/settings`             | Settings save            |
+| GET    | `/api/cities`               | Home                     |
+| GET    | `/api/cities/:id`           | CityAttractions          |
+| GET    | `/api/attractions`          | Home                     |
+| GET    | `/api/attractions?city_id=` | CityAttractions          |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+The `/auth/*`, `/users/me` and `/settings` endpoints were added in this assignment.
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Authentication (mock)
+
+The backend has no JWT yet (planned for the next assignment). For now, the
+app simulates auth via two HTTP headers, set automatically by
+`services/api.js` based on what's stored in `localStorage`:
+
+- `x-user-role` — one of `admin`, `manager`, `user`
+- `x-user-id`   — the user's id (used by routes like `/users/me` and `/settings`)
+
+After a successful login, the user object is stored in `localStorage` under
+the key `user`. Logout clears it.
