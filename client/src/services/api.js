@@ -1,13 +1,8 @@
-// services/api.js
-// Tiny fetch wrapper used by all the service files.
-// We use the native fetch (the course teaches fetch, not axios).
+// fetch helper - all services go through here
 
-// base URL comes from .env (REACT_APP_API_URL). If missing, we fall back to
-// the default address of the Assignment 2 backend.
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
 
-// reads the logged-in user from localStorage and builds the auth headers
-// the backend expects: x-user-role and x-user-id (mock auth from Assignment 2)
+// build auth headers from localStorage
 function buildAuthHeaders() {
     const stored = localStorage.getItem("user");
     if (!stored) {
@@ -21,15 +16,11 @@ function buildAuthHeaders() {
             "x-user-id": String(user.userId)
         };
     } catch (err) {
-        // corrupted localStorage - clear it and continue without auth headers
         localStorage.removeItem("user");
         return {};
     }
 }
 
-// the actual request function. Every service file goes through here.
-// it returns the parsed JSON on success and throws an Error on failure,
-// so callers can use a normal try/catch around it.
 async function request(path, options = {}) {
     const url = API_URL + path;
 
@@ -50,7 +41,7 @@ async function request(path, options = {}) {
 
     const response = await fetch(url, config);
 
-    // try to parse the body even on errors (the server always returns JSON)
+    // try to parse json even on error - server always returns json
     let payload;
     try {
         payload = await response.json();
@@ -59,7 +50,6 @@ async function request(path, options = {}) {
     }
 
     if (!response.ok) {
-        // backend wraps errors as { success:false, data:null, error:{ code, message, details } }
         const message = payload && payload.error && payload.error.message
             ? payload.error.message
             : "Request failed (" + response.status + ")";
@@ -72,7 +62,7 @@ async function request(path, options = {}) {
     return payload;
 }
 
-// small wrappers so service files read nicely
+// shortcuts
 export const api = {
     get: (path) => request(path),
     post: (path, body) => request(path, { method: "POST", body: body }),
