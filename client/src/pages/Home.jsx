@@ -20,6 +20,7 @@ function Home() {
     const [attractionsLoading, setAttractionsLoading] = useState(true);
     const [attractionsError, setAttractionsError] = useState("");
 
+    //UseEffect for fetching cities
     useEffect(function() {
         async function fetchCities() {
             try {
@@ -33,7 +34,8 @@ function Home() {
         }
         fetchCities();
     }, []);
-
+    
+    //useEffect for fetching cities 
     useEffect(function() {
         async function fetchAttractions() {
             try {
