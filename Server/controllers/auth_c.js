@@ -72,4 +72,12 @@ function login(req, res, next) {
     }
 }
 
+function logout(req ,res, next){
+     return res.status(200).json({
+        success: true,
+        data: { message: "logged out" },
+        error: null
+    });
+}
+
 module.exports = { register, login };

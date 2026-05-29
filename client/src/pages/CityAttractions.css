@@ -1,0 +1,86 @@
+.city-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+}
+
+.city-header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.city-back-link {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: #3b4cca;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.city-back-link:hover {
+    text-decoration: underline;
+}
+
+.city-header h1 {
+    margin: 0 0 4px;
+    font-size: 2rem;
+    color: #1a202c;
+}
+
+.city-subtitle {
+    margin: 0 0 12px;
+    color: #777;
+    font-size: 1rem;
+}
+
+.city-summary {
+    margin: 0;
+    color: #444;
+    line-height: 1.6;
+    max-width: 800px;
+}
+
+.city-section {
+    margin-top: 36px;
+}
+
+.city-section h2 {
+    margin: 0 0 16px;
+    font-size: 1.35rem;
+    color: #2d3748;
+    border-right: 4px solid #3b4cca;
+    padding-right: 12px;
+}
+
+.city-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.city-loading,
+.city-empty,
+.city-error {
+    padding: 18px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.city-loading {
+    background: #f4f6fb;
+    color: #555;
+}
+
+.city-empty {
+    background: #fefcf3;
+    color: #816800;
+    border: 1px dashed #e6c75d;
+}
+
+.city-error {
+    background: #fdecec;
+    color: #a32525;
+    border: 1px solid #f3b8b8;
+    margin-bottom: 12px;
+}

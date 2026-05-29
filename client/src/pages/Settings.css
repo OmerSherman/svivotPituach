@@ -1,0 +1,116 @@
+.settings-page {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+}
+
+.settings-header {
+    margin-bottom: 24px;
+}
+
+.settings-header h1 {
+    margin: 0 0 6px;
+    font-size: 1.8rem;
+    color: #1a202c;
+}
+
+.settings-header p {
+    margin: 0;
+    color: #666;
+}
+
+.settings-form {
+    background: #ffffff;
+    border: 1px solid #e3e3e3;
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.settings-field span {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.settings-field input,
+.settings-field select {
+    padding: 10px 12px;
+    border: 1px solid #d0d6e2;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #fafbfd;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.settings-field input:focus,
+.settings-field select:focus {
+    outline: none;
+    border-color: #3b4cca;
+    background: #ffffff;
+}
+
+.settings-field input:disabled,
+.settings-field select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.settings-submit {
+    margin-top: 8px;
+    padding: 12px 18px;
+    background: #3b4cca;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.settings-submit:hover:not(:disabled) {
+    background: #2d3aa6;
+}
+
+.settings-submit:disabled {
+    background: #a0a8d8;
+    cursor: not-allowed;
+}
+
+.settings-error,
+.settings-success,
+.settings-loading {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.settings-error {
+    background: #fdecec;
+    color: #a32525;
+    border: 1px solid #f3b8b8;
+}
+
+.settings-success {
+    background: #e9f7ee;
+    color: #1e6b3a;
+    border: 1px solid #b6e1c5;
+}
+
+.settings-loading {
+    background: #f4f6fb;
+    color: #555;
+    text-align: center;
+}

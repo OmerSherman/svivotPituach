@@ -13,6 +13,9 @@ const CREATE_USER_FIELDS = ['firstName', 'lastName', 'userRole'];
 router.post('/register', checkFields(REGISTER_FIELDS), authController.register);
 router.post('/login', checkFields(LOGIN_FIELDS), authController.login);
 
+// /me must come before /:id (otherwise "me" is treated as id)
+router.get('/me', usersController.getMe);
+
 // admin only
 router.post('/', roleCheck('admin'), checkFields(CREATE_USER_FIELDS), usersController.create);
 router.get('/', roleCheck('admin'), usersController.getAll);

@@ -60,7 +60,6 @@ function getById(req, res, next) {
 }
 
 // POST - create a new attraction
-// required fields validated by checkFields middleware in the route
 function create(req, res, next) {
     try {
         const { city_id, name, name_he, type, description_he } = req.body;
