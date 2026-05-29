@@ -7,8 +7,8 @@ import authService from "../services/authService";
 function Login() {
     const navigate = useNavigate();
 
-    const [email, setEmail]       = useState("michal@example.com");
-    const [password, setPassword] = useState("1234");
+    const [email, setEmail]       = useState("");
+    const [password, setPassword] = useState("");
     const [loading, setLoading]   = useState(false);
     const [error, setError]       = useState("");
 
