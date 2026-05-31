@@ -216,3 +216,77 @@
     "longitude": -77.0631
   }
 ]
+[
+  {
+    "id": 13,
+    "city_id": 1,
+    "name": "Magic Water Circuit",
+    "name_he": "פארק המים הקסום",
+    "type": "site",
+    "tags": ["לילה", "פארק", "משפחה", "צילום"],
+    "description_he": "פארק מזרקות מים מרהיב בלימה המחזיק בשיא גינס. מומלץ להגיע בערב כדי ליהנות ממופעי מים, אורות ומוזיקה.",
+    "image_url": "https://loremflickr.com/800/600/magicwatercircuit,lima/all",
+    "popularity_score": 86,
+    "audience_scores": { "family": 95, "couple": 85, "solo": 70, "group": 88 },
+    "best_months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "avoid_months": [],
+    "seasonal_note_he": "פתוח כל השנה, אך כדאי להביא ז'קט קל לערבים הקרירים בחורף הפרואני.",
+    "source_article_ids": [5],
+    "latitude": -12.0708,
+    "longitude": -77.0336
+  },
+  {
+    "id": 14,
+    "city_id": 2,
+    "name": "Palermo Soho",
+    "name_he": "פאלרמו סוהו",
+    "type": "route",
+    "tags": ["קניות", "אוכל", "אמנות רחוב", "צעירים"],
+    "description_he": "השכונה הטרנדית והאופנתית ביותר בבואנוס איירס. מסלול הליכה בין בוטיקים, בתי קפה, ברים ואמנות רחוב צבעונית.",
+    "image_url": "https://loremflickr.com/800/600/palermosoho,buenosaires/all",
+    "popularity_score": 92,
+    "audience_scores": { "family": 75, "couple": 95, "solo": 90, "group": 95 },
+    "best_months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "avoid_months": [],
+    "seasonal_note_he": "שוקק חיים במיוחד בסופי שבוע, מומלץ לסיורי יום ובילוי לילי.",
+    "source_article_ids": [2, 3],
+    "latitude": -34.5883,
+    "longitude": -58.4299
+  },
+  {
+    "id": 15,
+    "city_id": 3,
+    "name": "Sugarloaf Mountain",
+    "name_he": "הר הסוכר (פאו דה אסוקר)",
+    "type": "site",
+    "tags": ["נוף", "טבע", "רכבל", "אייקוני"],
+    "description_he": "עלייה בשני רכבלים אל פסגת הר הסוכר המפורסם, המציע נוף פנורמי עוצר נשימה של מפרץ גואנברה, חופי ריו והעיר כולה.",
+    "image_url": "https://loremflickr.com/800/600/sugarloaf,rio/all",
+    "popularity_score": 96,
+    "audience_scores": { "family": 92, "couple": 95, "solo": 85, "group": 90 },
+    "best_months": [5, 6, 7, 8, 9],
+    "avoid_months": [1, 2],
+    "seasonal_note_he": "כדאי להגיע לקראת השקיעה כדי לראות את העיר באור יום ובלילה.",
+    "source_article_ids": [4, 5],
+    "latitude": -22.9492,
+    "longitude": -43.1563
+  },
+  {
+    "id": 16,
+    "city_id": 4,
+    "name": "Sacsayhuamán",
+    "name_he": "סקסייוואמן",
+    "type": "site",
+    "tags": ["היסטוריה", "אינקה", "ארכיאולוגיה", "נוף"],
+    "description_he": "מתחם מבוצר ענק של האינקה, הבנוי מאבני ענק שהותאמו זו לזו בדיוק מדהים ללא מלט, המשקיף על העיר קוסקו.",
+    "image_url": "https://loremflickr.com/800/600/sacsayhuaman,cusco/all",
+    "popularity_score": 89,
+    "audience_scores": { "family": 80, "couple": 85, "solo": 90, "group": 85 },
+    "best_months": [4, 5, 6, 7, 8, 9, 10],
+    "avoid_months": [1, 2],
+    "seasonal_note_he": "מצוין כהכנה והסתגלות לגובה בימים הראשונים לפני הטרק למאצ'ו פיצ'ו.",
+    "source_article_ids": [1],
+    "latitude": -13.5097,
+    "longitude": -71.9817
+  }
+]
