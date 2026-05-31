@@ -6,18 +6,21 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .trip-form {
     background: #fff;
     border-radius: 14px;
     padding: 28px;
-    width: 90%;
-    max-width: 480px;
+    width: 100%;
+    max-width: 520px;
     display: flex;
     flex-direction: column;
     gap: 14px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    margin: auto;
 }
 
 .trip-form h2 {
@@ -32,7 +35,7 @@
     gap: 4px;
 }
 
-.trip-form-field span {
+.trip-form-field > span {
     font-weight: 600;
     font-size: 0.9rem;
     color: #2d3748;
@@ -62,6 +65,41 @@
     flex: 1;
 }
 
+/* interests chips */
+.trip-form-interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.interest-chip {
+    padding: 6px 14px;
+    border: 1px solid #d0d6e2;
+    border-radius: 16px;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+}
+
+.interest-chip:hover {
+    background: #f4f6fb;
+    border-color: #3b4cca;
+}
+
+.interest-chip-active {
+    background: #3b4cca;
+    color: #fff;
+    border-color: #3b4cca;
+}
+
+.interest-chip-active:hover {
+    background: #2d3aa6;
+}
+
 .trip-form-error {
     margin: 0;
     color: #a32525;
@@ -88,9 +126,7 @@
     cursor: pointer;
 }
 
-.trip-form-save:hover {
-    background: #2d3aa6;
-}
+.trip-form-save:hover { background: #2d3aa6; }
 
 .trip-form-cancel {
     flex: 1;
@@ -103,6 +139,4 @@
     cursor: pointer;
 }
 
-.trip-form-cancel:hover {
-    background: #e8e8e8;
-}
+.trip-form-cancel:hover { background: #e8e8e8; }

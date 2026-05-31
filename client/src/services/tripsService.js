@@ -1,6 +1,5 @@
 import authService from "./authService";
 
-// each user gets their own trips list in localStorage
 function getStorageKey() {
     var user = authService.getStoredUser();
     return user ? "trips_" + user.userId : null;
@@ -31,6 +30,7 @@ function create(tripData) {
         endMonth: Number(tripData.endMonth),
         travelStyle: tripData.travelStyle,
         budget: tripData.budget,
+        interests: tripData.interests || [],
         favorites: [],
         createdAt: new Date().toISOString()
     };
@@ -53,7 +53,6 @@ function remove(tripId) {
     save(trips);
 }
 
-// toggle an attraction in favorites
 function toggleFavorite(tripId, attractionId) {
     var trip = getById(tripId);
     if (!trip) return null;
