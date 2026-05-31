@@ -1,0 +1,121 @@
+.my-trips-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+}
+
+.my-trips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.my-trips-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #1a202c;
+}
+
+.my-trips-add-btn {
+    padding: 10px 20px;
+    background: #3b4cca;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.my-trips-add-btn:hover {
+    background: #2d3aa6;
+}
+
+.my-trips-empty {
+    text-align: center;
+    padding: 50px 20px;
+    background: #fafbfd;
+    border: 2px dashed #d6d6d6;
+    border-radius: 14px;
+    color: #777;
+}
+
+.my-trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.trip-card {
+    background: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+
+.trip-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.trip-card-body {
+    padding: 18px;
+    cursor: pointer;
+}
+
+.trip-card-body h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    color: #1a202c;
+}
+
+.trip-card-dest, .trip-card-dates {
+    margin: 0 0 6px;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.trip-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.trip-tag {
+    padding: 3px 10px;
+    background: #eef2ff;
+    color: #3b4cca;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.trip-tag-fav {
+    background: #fde8e8;
+    color: #c53030;
+}
+
+.trip-card-actions {
+    display: flex;
+    border-top: 1px solid #f0f0f0;
+}
+
+.trip-card-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: #555;
+}
+
+.trip-card-actions button:hover {
+    background: #f7f7f7;
+}
+
+.trip-card-actions button:first-child {
+    border-left: 1px solid #f0f0f0;
+}

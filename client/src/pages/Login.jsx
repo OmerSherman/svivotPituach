@@ -1,68 +1,41 @@
-// temporary login form for testing - real version coming on the login branch
-
 import authService from "../services/authService";
 import Form from "../components/Form.jsx"
 
-function Login(){
+function Login() {
     const loginConfig = {
-        title: "Login",
-        fields:[
-            {
-                "label":"email",
-                "name":"email",
-                "type":"email",
-                "required": true
-
-            },
-            {
-                "label": "password",
-                "name": "password",
-                "type": "password",
-                "required": true
-            }
-
+        title: "התחברות",
+        buttonText: "התחבר",
+        buttonLoading: "מתחבר...",
+        fields: [
+            { label: "אימייל",  name: "email",    type: "email",    required: true },
+            { label: "סיסמה",   name: "password", type: "password", required: true }
         ],
-        onSubmit : async (formData)=> {
-            await authService.login(formData.email, formData.password)
+        onSubmit: async (formData) => {
+            await authService.login(formData.email, formData.password);
         },
-        navigate: "/" 
-    }
+        navigate: "/"
+    };
+
     const registerConfig = {
-        title: "Register",
-        fields:[
-            {
-                "label":"email",
-                "name":"email",
-                "type":"email",
-                "required": true
-            },
-            {
-                "label": "password",
-                "name": "password",
-                "type": "password",
-                "required": true
+        title: "הרשמה",
+        buttonText: "הירשם",
+        buttonLoading: "נרשם...",
+        fields: [
+            { label: "אימייל",    name: "email",     type: "email",    required: true },
+            { label: "סיסמה",     name: "password",  type: "password", required: true },
+            { label: "שם פרטי",   name: "firstName", type: "text",     required: true },
+            { label: "שם משפחה",  name: "lastName",  type: "text",     required: true }
+        ],
+        onSubmit: async (formData) => {
+            await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
+        },
+        navigate: "/login"
+    };
 
-            },
-            {
-                "label": "First name",
-                "name": "firstName",
-                "type": "text",
-                "required": true
-
-            },
-            {
-                "label": "Last name",
-                "name": "lastName",
-                "type": "text",
-                "required": true
-            }
-        ]    
-    }
-    return(
+    return (
         <div>
             <Form configForm={loginConfig} />
-        
-            <Form configForm={registerConfig}/>
+            <Form configForm={registerConfig} />
         </div>
     )
 }
