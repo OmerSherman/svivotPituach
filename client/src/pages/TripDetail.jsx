@@ -32,34 +32,28 @@ function TripDetail() {
                 }
                 setTrip(tripData);
 
-                // fetch cities + attractions from server
                 var [citiesData, attractionsData] = await Promise.all([
                     citiesService.getAll(),
                     attractionsService.getAll()
                 ]);
                 setCities(citiesData);
 
-                // find city ids that belong to this trip's country
                 var countryCityIds = citiesData
                     .filter(function(c) { return c.country_id === tripData.countryId; })
                     .map(function(c) { return c.id; });
 
-                // filter attractions by country
                 var filtered = attractionsData.filter(function(a) {
                     return countryCityIds.includes(a.city_id);
                 });
 
-                // filter by trip months
                 var monthRange = getMonthRange(tripData.startMonth, tripData.endMonth);
                 filtered = filtered.filter(function(a) {
                     if (!a.best_months || a.best_months.length === 0) return true;
-                    // check if any trip month overlaps with best_months
                     return monthRange.some(function(m) {
                         return a.best_months.includes(m);
                     });
                 });
 
-                // sort by audience score for trip's travel style
                 filtered.sort(function(a, b) {
                     var scoreA = (a.audience_scores && a.audience_scores[tripData.travelStyle]) || 0;
                     var scoreB = (b.audience_scores && b.audience_scores[tripData.travelStyle]) || 0;
@@ -81,7 +75,6 @@ function TripDetail() {
         if (updated) setTrip({ ...updated });
     }
 
-    // build month range array (handles wrap around dec->jan)
     function getMonthRange(start, end) {
         var months = [];
         var current = start;
@@ -93,13 +86,19 @@ function TripDetail() {
         return months;
     }
 
-    // find city name for an attraction
     function getCityName(cityId) {
         var city = cities.find(function(c) { return c.id === cityId; });
         return city ? city.name_he : "";
     }
 
-    // table columns
+    // format the date range nicely - if same month, show only one
+    function formatDateRange(start, end) {
+        if (start === end) {
+            return MONTH_NAMES[start] + " בלבד";
+        }
+        return MONTH_NAMES[start] + " – " + MONTH_NAMES[end];
+    }
+
     var columns = [
         { key: "name_he", label: "שם" },
         { key: "city_id", label: "עיר", render: function(val) { return getCityName(val); } },
@@ -113,11 +112,7 @@ function TripDetail() {
     ];
 
     if (loading) {
-        return (
-            <div className="trip-detail-page">
-                <p className="trip-detail-loading">טוען...</p>
-            </div>
-        );
+        return <div className="trip-detail-page"><p className="trip-detail-loading">טוען...</p></div>;
     }
 
     if (error || !trip) {
@@ -133,6 +128,9 @@ function TripDetail() {
         return trip.favorites && trip.favorites.includes(aId);
     };
 
+    // get only the favorited attractions for the "my favorites" section
+    var favoriteAttractions = attractions.filter(function(a) { return isFav(a.id); });
+
     return (
         <div className="trip-detail-page">
             <Link to="/" className="trip-detail-back">← חזרה לטיולים שלי</Link>
@@ -141,12 +139,46 @@ function TripDetail() {
                 <h1>{trip.name}</h1>
                 <div className="trip-detail-meta">
                     <span>📍 {COUNTRY_NAMES[trip.countryId]}</span>
-                    <span>📅 {MONTH_NAMES[trip.startMonth]} – {MONTH_NAMES[trip.endMonth]}</span>
+                    <span>📅 {formatDateRange(trip.startMonth, trip.endMonth)}</span>
                     <span>🎒 {STYLE_NAMES[trip.travelStyle]}</span>
+                    <span>🎯 {attractions.length} אטרקציות מתאימות</span>
+                    {favoriteAttractions.length > 0 && (
+                        <span>❤ {favoriteAttractions.length} מועדפים</span>
+                    )}
                 </div>
             </header>
 
-            {/* table view */}
+            {/* MY FAVORITES section - only show if there are favorites */}
+            {favoriteAttractions.length > 0 && (
+                <section className="trip-detail-section trip-favorites-section">
+                    <h2>❤ המועדפים שלי בטיול הזה</h2>
+                    <div className="trip-detail-grid">
+                        {favoriteAttractions.map(function(attr) {
+                            var score = (attr.audience_scores && attr.audience_scores[trip.travelStyle]) || attr.popularity_score;
+                            return (
+                                <div key={attr.id} className="trip-detail-card-wrapper">
+                                    <ItemCard
+                                        title={attr.name_he}
+                                        subtitle={getCityName(attr.city_id)}
+                                        description={attr.description_he}
+                                        imageUrl={attr.image_url}
+                                        score={score}
+                                        tags={attr.tags}
+                                    />
+                                    <button
+                                        className="fav-btn fav-btn-active"
+                                        onClick={function() { handleToggleFavorite(attr.id); }}
+                                    >
+                                        ❤ הסר מהמועדפים
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
+            {/* all attractions table */}
             <section className="trip-detail-section">
                 <h2>אטרקציות מומלצות</h2>
                 <DataTable
@@ -157,7 +189,7 @@ function TripDetail() {
                 />
             </section>
 
-            {/* cards with favorites */}
+            {/* all attractions as cards */}
             <section className="trip-detail-section">
                 <h2>בחרו מועדפים</h2>
                 {attractions.length === 0 ? (
