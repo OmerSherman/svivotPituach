@@ -8,8 +8,16 @@
 }
 
 .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 1.2rem;
     font-weight: 700;
+}
+
+.navbar-logo img {
+    height: 36px;
+    width: auto;
 }
 
 .navbar-links {
