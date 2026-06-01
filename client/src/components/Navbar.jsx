@@ -14,8 +14,10 @@ function Navbar() {
 
     return (
         <nav className="navbar">
-            <div className="navbar-logo">🌎 שביל הטחינה</div>
-            <img src={logo} alt="שביל הטחינה" />
+            <div className="navbar-logo">
+                <img src={logo} alt="שביל הטחינה" />
+                <span>שביל הטחינה</span>
+            </div>
             <div className="navbar-links">
                 {user ? (
                     <>
