@@ -1,0 +1,142 @@
+.trip-form-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.trip-form {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    margin: auto;
+}
+
+.trip-form h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #1a202c;
+}
+
+.trip-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.trip-form-field > span {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #2d3748;
+}
+
+.trip-form-field input,
+.trip-form-field select {
+    padding: 9px 12px;
+    border: 1px solid #d0d6e2;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.trip-form-field input:focus,
+.trip-form-field select:focus {
+    outline: none;
+    border-color: #3b4cca;
+}
+
+.trip-form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.trip-form-row .trip-form-field {
+    flex: 1;
+}
+
+/* interests chips */
+.trip-form-interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.interest-chip {
+    padding: 6px 14px;
+    border: 1px solid #d0d6e2;
+    border-radius: 16px;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+}
+
+.interest-chip:hover {
+    background: #f4f6fb;
+    border-color: #3b4cca;
+}
+
+.interest-chip-active {
+    background: #3b4cca;
+    color: #fff;
+    border-color: #3b4cca;
+}
+
+.interest-chip-active:hover {
+    background: #2d3aa6;
+}
+
+.trip-form-error {
+    margin: 0;
+    color: #a32525;
+    background: #fdecec;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.trip-form-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.trip-form-save {
+    flex: 1;
+    padding: 11px;
+    background: #3b4cca;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.trip-form-save:hover { background: #2d3aa6; }
+
+.trip-form-cancel {
+    flex: 1;
+    padding: 11px;
+    background: #f4f4f4;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.trip-form-cancel:hover { background: #e8e8e8; }

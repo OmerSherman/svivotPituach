@@ -138,19 +138,6 @@ function Settings() {
                     </select>
                 </label>
 
-                <label className="settings-field">
-                    <span>רמת תקציב</span>
-                    <select
-                        value={budgetLevel}
-                        onChange={function(e) { setBudgetLevel(e.target.value); }}
-                        disabled={saving}
-                    >
-                        <option value="low">חסכוני</option>
-                        <option value="medium">בינוני</option>
-                        <option value="high">פרימיום</option>
-                    </select>
-                </label>
-
                 {error   && <p className="settings-error">{error}</p>}
                 {success && <p className="settings-success">{success}</p>}
 

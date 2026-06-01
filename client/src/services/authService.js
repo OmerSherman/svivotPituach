@@ -5,12 +5,13 @@ const STORAGE_KEY = "user";
 async function login(email, password) {
     const res = await api.post("/auth/login", { email: email, password: password });
     // save user so api.js can use it for the headers
+    //todo : check if login succesd and then save to local storage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(res.data));
     return res.data;
 }
 
 async function register(firstName, lastName, email, password) {
-    const res = await api.post("/users/register", {
+    const res = await api.post("/auth/register", {
         firstName: firstName,
         lastName: lastName,
         email: email,
