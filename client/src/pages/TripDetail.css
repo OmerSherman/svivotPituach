@@ -12,9 +12,7 @@
     font-size: 0.95rem;
 }
 
-.trip-detail-back:hover {
-    text-decoration: underline;
-}
+.trip-detail-back:hover { text-decoration: underline; }
 
 .trip-detail-header {
     margin-bottom: 28px;
@@ -36,19 +34,47 @@
     flex-wrap: wrap;
 }
 
+/* interests display in header */
+.trip-detail-interests {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.trip-detail-interests > span:first-child {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.trip-detail-interest-tag {
+    background: #eef2ff;
+    color: #3b4cca;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
 .trip-detail-section {
     margin-top: 32px;
 }
 
 .trip-detail-section h2 {
-    margin: 0 0 16px;
+    margin: 0 0 8px;
     font-size: 1.35rem;
     color: #2d3748;
     border-right: 4px solid #3b4cca;
     padding-right: 12px;
 }
 
-/* favorites section - special styling to stand out */
+.trip-detail-hint {
+    margin: 0 0 16px;
+    color: #777;
+    font-size: 0.85rem;
+    padding-right: 16px;
+}
+
 .trip-favorites-section {
     background: linear-gradient(135deg, #fff5f5 0%, #fef0f5 100%);
     padding: 20px;
@@ -59,6 +85,7 @@
 .trip-favorites-section h2 {
     color: #c53030;
     border-right-color: #c53030;
+    margin-bottom: 16px;
 }
 
 .trip-detail-grid {
@@ -70,6 +97,11 @@
 .trip-detail-card-wrapper {
     display: flex;
     flex-direction: column;
+}
+
+/* the card itself is clickable - show a slight cursor change */
+.trip-detail-card-wrapper > div:first-child {
+    cursor: pointer;
 }
 
 .fav-btn {
@@ -85,9 +117,7 @@
     transition: background 0.15s;
 }
 
-.fav-btn:hover {
-    background: #f0f0f0;
-}
+.fav-btn:hover { background: #f0f0f0; }
 
 .fav-btn-active {
     background: #fde8e8;
@@ -95,9 +125,7 @@
     border-color: #f3b8b8;
 }
 
-.fav-btn-active:hover {
-    background: #fbd5d5;
-}
+.fav-btn-active:hover { background: #fbd5d5; }
 
 .trip-detail-loading,
 .trip-detail-empty,

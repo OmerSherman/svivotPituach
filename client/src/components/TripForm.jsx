@@ -8,22 +8,21 @@ var COUNTRIES = [
 ];
 
 var MONTHS = [
-    { value: 1,  label: "ינואר" },
-    { value: 2,  label: "פברואר" },
-    { value: 3,  label: "מרץ" },
-    { value: 4,  label: "אפריל" },
-    { value: 5,  label: "מאי" },
-    { value: 6,  label: "יוני" },
-    { value: 7,  label: "יולי" },
-    { value: 8,  label: "אוגוסט" },
-    { value: 9,  label: "ספטמבר" },
-    { value: 10, label: "אוקטובר" },
-    { value: 11, label: "נובמבר" },
-    { value: 12, label: "דצמבר" }
+    { value: 1,  label: "ינואר" },   { value: 2,  label: "פברואר" },
+    { value: 3,  label: "מרץ" },     { value: 4,  label: "אפריל" },
+    { value: 5,  label: "מאי" },     { value: 6,  label: "יוני" },
+    { value: 7,  label: "יולי" },    { value: 8,  label: "אוגוסט" },
+    { value: 9,  label: "ספטמבר" },  { value: 10, label: "אוקטובר" },
+    { value: 11, label: "נובמבר" },  { value: 12, label: "דצמבר" }
 ];
 
-// used for both create and edit
-// props: initialData (optional), onSave, onCancel
+// available interests - these match real tags in the attractions data
+var INTEREST_OPTIONS = [
+    "תרבות", "היסטוריה", "טבע", "נוף", "אוכל",
+    "אמנות", "אדריכלות", "חוף", "הליכה", "צילום",
+    "חיי לילה", "קניות"
+];
+
 function TripForm({ initialData, onSave, onCancel }) {
     var defaults = initialData || {};
 
@@ -33,7 +32,16 @@ function TripForm({ initialData, onSave, onCancel }) {
     var [endMonth, setEndMonth]     = useState(defaults.endMonth || 1);
     var [travelStyle, setTravelStyle] = useState(defaults.travelStyle || "solo");
     var [budget, setBudget]         = useState(defaults.budget || "medium");
+    var [interests, setInterests]   = useState(defaults.interests || []);
     var [error, setError]           = useState("");
+
+    function toggleInterest(tag) {
+        if (interests.includes(tag)) {
+            setInterests(interests.filter(function(t) { return t !== tag; }));
+        } else {
+            setInterests([...interests, tag]);
+        }
+    }
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -50,7 +58,8 @@ function TripForm({ initialData, onSave, onCancel }) {
             startMonth: Number(startMonth),
             endMonth: Number(endMonth),
             travelStyle: travelStyle,
-            budget: budget
+            budget: budget,
+            interests: interests
         });
     }
 
@@ -112,6 +121,26 @@ function TripForm({ initialData, onSave, onCancel }) {
                         <option value="high">פרימיום</option>
                     </select>
                 </label>
+
+                {/* interests - checkboxes */}
+                <div className="trip-form-field">
+                    <span>מה הכי מעניין אותך? (אפשר לבחור כמה)</span>
+                    <div className="trip-form-interests">
+                        {INTEREST_OPTIONS.map(function(tag) {
+                            var active = interests.includes(tag);
+                            return (
+                                <button
+                                    key={tag}
+                                    type="button"
+                                    className={"interest-chip" + (active ? " interest-chip-active" : "")}
+                                    onClick={function() { toggleInterest(tag); }}
+                                >
+                                    {tag}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
 
                 {error && <p className="trip-form-error">{error}</p>}
 

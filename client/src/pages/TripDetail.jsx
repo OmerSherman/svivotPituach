@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import ItemCard from "../components/ItemCard";
+import AttractionModal from "../components/AttractionModal";
 import tripsService from "../services/tripsService";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
@@ -21,6 +22,9 @@ function TripDetail() {
     var [loading, setLoading] = useState(true);
     var [error, setError] = useState("");
 
+    // modal state - which attraction is open
+    var [selectedAttraction, setSelectedAttraction] = useState(null);
+
     useEffect(function() {
         async function loadData() {
             try {
@@ -38,6 +42,7 @@ function TripDetail() {
                 ]);
                 setCities(citiesData);
 
+                // filter by country
                 var countryCityIds = citiesData
                     .filter(function(c) { return c.country_id === tripData.countryId; })
                     .map(function(c) { return c.id; });
@@ -46,6 +51,7 @@ function TripDetail() {
                     return countryCityIds.includes(a.city_id);
                 });
 
+                // filter by month range
                 var monthRange = getMonthRange(tripData.startMonth, tripData.endMonth);
                 filtered = filtered.filter(function(a) {
                     if (!a.best_months || a.best_months.length === 0) return true;
@@ -54,7 +60,15 @@ function TripDetail() {
                     });
                 });
 
+                // sort: first by matching interest tags, then by audience score
+                var userInterests = tripData.interests || [];
                 filtered.sort(function(a, b) {
+                    var matchA = countMatchingTags(a.tags, userInterests);
+                    var matchB = countMatchingTags(b.tags, userInterests);
+                    if (matchA !== matchB) {
+                        return matchB - matchA; // more matches first
+                    }
+                    // tie-breaker: audience score for travel style
                     var scoreA = (a.audience_scores && a.audience_scores[tripData.travelStyle]) || 0;
                     var scoreB = (b.audience_scores && b.audience_scores[tripData.travelStyle]) || 0;
                     return scoreB - scoreA;
@@ -69,6 +83,12 @@ function TripDetail() {
         }
         loadData();
     }, [id]);
+
+    // count how many of the user's interests match this attraction's tags
+    function countMatchingTags(tags, interests) {
+        if (!tags || !interests || interests.length === 0) return 0;
+        return tags.filter(function(t) { return interests.includes(t); }).length;
+    }
 
     function handleToggleFavorite(attractionId) {
         var updated = tripsService.toggleFavorite(id, attractionId);
@@ -91,11 +111,8 @@ function TripDetail() {
         return city ? city.name_he : "";
     }
 
-    // format the date range nicely - if same month, show only one
     function formatDateRange(start, end) {
-        if (start === end) {
-            return MONTH_NAMES[start] + " בלבד";
-        }
+        if (start === end) return MONTH_NAMES[start] + " בלבד";
         return MONTH_NAMES[start] + " – " + MONTH_NAMES[end];
     }
 
@@ -128,7 +145,6 @@ function TripDetail() {
         return trip.favorites && trip.favorites.includes(aId);
     };
 
-    // get only the favorited attractions for the "my favorites" section
     var favoriteAttractions = attractions.filter(function(a) { return isFav(a.id); });
 
     return (
@@ -146,9 +162,17 @@ function TripDetail() {
                         <span>❤ {favoriteAttractions.length} מועדפים</span>
                     )}
                 </div>
+                {trip.interests && trip.interests.length > 0 && (
+                    <div className="trip-detail-interests">
+                        <span>תחומי עניין: </span>
+                        {trip.interests.map(function(t, i) {
+                            return <span key={i} className="trip-detail-interest-tag">{t}</span>;
+                        })}
+                    </div>
+                )}
             </header>
 
-            {/* MY FAVORITES section - only show if there are favorites */}
+            {/* favorites section */}
             {favoriteAttractions.length > 0 && (
                 <section className="trip-detail-section trip-favorites-section">
                     <h2>❤ המועדפים שלי בטיול הזה</h2>
@@ -157,14 +181,16 @@ function TripDetail() {
                             var score = (attr.audience_scores && attr.audience_scores[trip.travelStyle]) || attr.popularity_score;
                             return (
                                 <div key={attr.id} className="trip-detail-card-wrapper">
-                                    <ItemCard
-                                        title={attr.name_he}
-                                        subtitle={getCityName(attr.city_id)}
-                                        description={attr.description_he}
-                                        imageUrl={attr.image_url}
-                                        score={score}
-                                        tags={attr.tags}
-                                    />
+                                    <div onClick={function() { setSelectedAttraction(attr); }}>
+                                        <ItemCard
+                                            title={attr.name_he}
+                                            subtitle={getCityName(attr.city_id)}
+                                            description={attr.description_he}
+                                            imageUrl={attr.image_url}
+                                            score={score}
+                                            tags={attr.tags}
+                                        />
+                                    </div>
                                     <button
                                         className="fav-btn fav-btn-active"
                                         onClick={function() { handleToggleFavorite(attr.id); }}
@@ -178,7 +204,7 @@ function TripDetail() {
                 </section>
             )}
 
-            {/* all attractions table */}
+            {/* table */}
             <section className="trip-detail-section">
                 <h2>אטרקציות מומלצות</h2>
                 <DataTable
@@ -189,9 +215,10 @@ function TripDetail() {
                 />
             </section>
 
-            {/* all attractions as cards */}
+            {/* card grid - click to expand */}
             <section className="trip-detail-section">
                 <h2>בחרו מועדפים</h2>
+                <p className="trip-detail-hint">💡 לחצו על כרטיסיה לפרטים נוספים</p>
                 {attractions.length === 0 ? (
                     <p className="trip-detail-empty">לא נמצאו אטרקציות</p>
                 ) : (
@@ -201,14 +228,16 @@ function TripDetail() {
                             var favorited = isFav(attr.id);
                             return (
                                 <div key={attr.id} className="trip-detail-card-wrapper">
-                                    <ItemCard
-                                        title={attr.name_he}
-                                        subtitle={getCityName(attr.city_id)}
-                                        description={attr.description_he}
-                                        imageUrl={attr.image_url}
-                                        score={score}
-                                        tags={attr.tags}
-                                    />
+                                    <div onClick={function() { setSelectedAttraction(attr); }}>
+                                        <ItemCard
+                                            title={attr.name_he}
+                                            subtitle={getCityName(attr.city_id)}
+                                            description={attr.description_he}
+                                            imageUrl={attr.image_url}
+                                            score={score}
+                                            tags={attr.tags}
+                                        />
+                                    </div>
                                     <button
                                         className={"fav-btn" + (favorited ? " fav-btn-active" : "")}
                                         onClick={function() { handleToggleFavorite(attr.id); }}
@@ -221,6 +250,15 @@ function TripDetail() {
                     </div>
                 )}
             </section>
+
+            {/* the modal */}
+            {selectedAttraction && (
+                <AttractionModal
+                    attraction={selectedAttraction}
+                    cityName={getCityName(selectedAttraction.city_id)}
+                    onClose={function() { setSelectedAttraction(null); }}
+                />
+            )}
         </div>
     );
 }
