@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import logo from "../assets/logo-transparent.svg";
 import "./Navbar.css";
 
 function Navbar() {
@@ -14,7 +15,7 @@ function Navbar() {
     return (
         <nav className="navbar">
             <div className="navbar-logo">🌎 שביל הטחינה</div>
-
+            <img src={logo} alt="שביל הטחינה" />
             <div className="navbar-links">
                 {user ? (
                     <>
