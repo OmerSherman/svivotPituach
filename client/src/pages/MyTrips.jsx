@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import tripsService from "../services/tripsService";
 import TripForm from "../components/TripForm";
 import "./MyTrips.css";
+import userContext from "../contexts/userContext";
 
 var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
@@ -13,28 +14,28 @@ var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מ
 
 function MyTrips() {
     var navigate = useNavigate();
-    var currentUser = authService.getStoredUser();
+    const {user} = useContext(userContext)
 
     var [trips, setTrips] = useState(tripsService.getAll());
     var [showForm, setShowForm] = useState(false);
     var [editingTrip, setEditingTrip] = useState(null);
 
     function handleCreate(data) {
-        tripsService.create(data);
-        setTrips(tripsService.getAll());
+        tripsService.create(user.userId , data);
+        setTrips(tripsService.getAll(user.userId));
         setShowForm(false);
     }
 
     function handleUpdate(data) {
-        tripsService.update(editingTrip.id, data);
-        setTrips(tripsService.getAll());
+        tripsService.update(user.userId, editingTrip.id, data);
+        setTrips(tripsService.getAll(user.userId));
         setEditingTrip(null);
     }
 
     function handleDelete(tripId) {
         if (window.confirm("למחוק את הטיול?")) {
             tripsService.remove(tripId);
-            setTrips(tripsService.getAll());
+            setTrips(tripsService.getAll(user.userId));
         }
     }
 
@@ -46,8 +47,8 @@ function MyTrips() {
         <div className="my-trips-page">
             <header className="my-trips-header">
                 <h1>
-                    {currentUser
-                        ? "הטיולים של " + currentUser.firstName + " 🌎"
+                    {user
+                        ? "הטיולים של " + user.firstName + " 🌎"
                         : "הטיולים שלי"}
                 </h1>
                 <button className="my-trips-add-btn" onClick={function() { setShowForm(true); }}>

@@ -1,12 +1,12 @@
 import authService from "./authService";
 
-function getStorageKey() {
-    var user = authService.getStoredUser();
-    return user ? "trips_" + user.userId : null;
+
+function getStorageKey(userId) {
+    return userId ? "trips_" + userId : null;
 }
 
-function getAll() {
-    var key = getStorageKey();
+function getAll(userID) {
+    var key = getStorageKey(userID);
     if (!key) return [];
     try {
         return JSON.parse(localStorage.getItem(key)) || [];
@@ -15,13 +15,13 @@ function getAll() {
     }
 }
 
-function getById(tripId) {
-    var trips = getAll();
+function getById(userid, tripId) {
+    var trips = getAll(userid);
     return trips.find(function(t) { return t.id === tripId; }) || null;
 }
 
-function create(tripData) {
-    var trips = getAll();
+function create(userID , tripData) {
+    var trips = getAll(userID);
     var newTrip = {
         id: "trip_" + Date.now(),
         name: tripData.name,
@@ -35,11 +35,11 @@ function create(tripData) {
         createdAt: new Date().toISOString()
     };
     trips.push(newTrip);
-    save(trips);
+    save(userID, trips);
     return newTrip;
 }
 
-function update(tripId, updates) {
+function update(userID , tripId, updates) {
     var trips = getAll();
     var index = trips.findIndex(function(t) { return t.id === tripId; });
     if (index === -1) return null;
@@ -48,13 +48,13 @@ function update(tripId, updates) {
     return trips[index];
 }
 
-function remove(tripId) {
-    var trips = getAll().filter(function(t) { return t.id !== tripId; });
+function remove(userID, tripId) {
+    var trips = getAll(userID).filter(function(t) { return t.id !== tripId; });
     save(trips);
 }
 
-function toggleFavorite(tripId, attractionId) {
-    var trip = getById(tripId);
+function toggleFavorite(userID, tripId, attractionId) {
+    var trip = getById(userID, tripId);
     if (!trip) return null;
     var favs = trip.favorites || [];
     if (favs.includes(attractionId)) {
@@ -62,11 +62,11 @@ function toggleFavorite(tripId, attractionId) {
     } else {
         favs.push(attractionId);
     }
-    return update(tripId, { favorites: favs });
+    return update(userID, tripId, { favorites: favs });
 }
 
-function save(trips) {
-    var key = getStorageKey();
+function save(userID , trips) {
+    var key = getStorageKey(userID);
     if (key) localStorage.setItem(key, JSON.stringify(trips));
 }
 
