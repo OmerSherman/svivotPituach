@@ -4,7 +4,7 @@
         "firstName": "michal",
         "lastName": "adam",
         "email": "michal@example.com",
-        "password": "1234",
+        "password": "123456",
         "userRole": "admin",
         "createDate": "2026-05-02T00:00:00.000Z",
         "updateDate": "2026-05-02T00:00:00.000Z"
@@ -14,7 +14,7 @@
         "firstName": "omer",
         "lastName": "sherman",
         "email": "omersherman22@gmail.com",
-        "password": "1234",
+        "password": "123456",
         "userRole": "admin",
         "createDate": "2026-05-02T00:00:00.000Z",
         "updateDate": "2026-05-02T00:00:00.000Z"
@@ -24,7 +24,7 @@
         "firstName": "hillel",
         "lastName": "zilberman",
         "email": "hillel@example.com",
-        "password": "1234",
+        "password": "123456",
         "userRole": "manager",
         "createDate": "2026-05-02T00:00:00.000Z",
         "updateDate": "2026-05-02T00:00:00.000Z"
@@ -34,7 +34,7 @@
         "firstName": "test",
         "lastName": "user",
         "email": "user@example.com",
-        "password": "1234",
+        "password": "123456",
         "userRole": "user",
         "createDate": "2026-05-02T00:00:00.000Z",
         "updateDate": "2026-05-02T00:00:00.000Z"
