@@ -1,13 +1,15 @@
 import { useContext, useState } from "react";
 import authService from "../services/authService";
 import Form from "../components/Form.jsx";
+import AboutModal from "../components/AboutModal";
 import userContext from "../contexts/userContext";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo-transparent.svg";
 import "./Login.css";
 
 function Login() {
     const { setUser } = useContext(userContext);
     const [isLogin, setForm] = useState(true);
+    const [showAbout, setShowAbout] = useState(false);
 
     const loginConfig = {
         title: "התחברות",
@@ -73,7 +75,16 @@ function Login() {
                         </button>
                     </>
                 )}
+
+                {/* "about us" plane button + caption */}
+                <button className="about-plane" onClick={() => setShowAbout(true)}>
+                    <span className="about-plane-icon">✈️</span>
+                </button>
+                <p className="about-plane-caption">לעוד מידע — לחצו על המטוס</p>
             </div>
+
+            {/* about us modal */}
+            {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
         </div>
     );
 }
