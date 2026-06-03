@@ -5,7 +5,7 @@ import userContext from "../contexts/userContext";
 import { useContext } from "react";
 function Login() {
     const {user , setUser} = useContext(userContext)
-
+    const [err , setError] = useState("")
     const loginConfig = {
         title: "התחברות",
         buttonText: "התחבר",
@@ -19,8 +19,8 @@ function Login() {
                 const user = await authService.login(formData.email, formData.password);
                 setUser(user) 
             }
-            catch{
-
+            catch(err){
+                setError(err.masg||"An error ocuured during login")
             }
             
         },
@@ -38,7 +38,12 @@ function Login() {
             { label: "שם משפחה",  name: "lastName",  type: "text",     required: true }
         ],
         onSubmit: async (formData) => {
-            await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
+            try{
+                await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
+            }
+            catch(err){
+                setError(err.masg||"An error ocuured during register")
+            }
         },
         navigate: "/login"
     };
@@ -56,8 +61,10 @@ function Login() {
                     <Form configForm={registerConfig }/>
                     <button onClick={()=> setform(!isLogin)}>כבר יש לך משתמש?</button>
                 </div>
-            )
-            }
+            )}
+            {err &&(
+                <p>{err}</p>
+            )}
         </div>
     )
 }

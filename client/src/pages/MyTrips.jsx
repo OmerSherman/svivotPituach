@@ -34,7 +34,7 @@ function MyTrips() {
 
     function handleDelete(tripId) {
         if (window.confirm("למחוק את הטיול?")) {
-            tripsService.remove(tripId);
+            tripsService.remove(user.userId , tripId);
             setTrips(tripsService.getAll(user.userId));
         }
     }
