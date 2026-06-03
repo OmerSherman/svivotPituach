@@ -1,74 +1,65 @@
-import authService from "./authService";
+import api from "./api";
 
+// server uses 'travelerType' and 'budgetLevel', the UI uses 'travelStyle' and 'budget'.
+// these helpers translate between the two shapes.
 
-function getStorageKey(userId) {
-    return userId ? "trips_" + userId : null;
-}
-
-function getAll(userID) {
-    var key = getStorageKey(userID);
-    if (!key) return [];
-    try {
-        return JSON.parse(localStorage.getItem(key)) || [];
-    } catch (err) {
-        return [];
-    }
-}
-
-function getById(userid, tripId) {
-    var trips = getAll(userid);
-    return trips.find(function(t) { return t.id === tripId; }) || null;
-}
-
-function create(userID , tripData) {
-    var trips = getAll(userID);
-    var newTrip = {
-        id: "trip_" + Date.now(),
-        name: tripData.name,
-        countryId: Number(tripData.countryId),
-        startMonth: Number(tripData.startMonth),
-        endMonth: Number(tripData.endMonth),
-        travelStyle: tripData.travelStyle,
-        budget: tripData.budget,
-        interests: tripData.interests || [],
-        favorites: [],
-        createdAt: new Date().toISOString()
+function fromServer(p) {
+    return {
+        id: p.id,
+        name: p.name,
+        countryId: p.countryId,
+        startMonth: p.startMonth,
+        endMonth: p.endMonth,
+        travelStyle: p.travelerType,
+        budget: p.budgetLevel,
+        interests: p.interests || [],
+        favorites: p.favorites || [],
+        createdAt: p.createdAt
     };
-    trips.push(newTrip);
-    save(userID, trips);
-    return newTrip;
 }
 
-function update(userID , tripId, updates) {
-    var trips = getAll();
-    var index = trips.findIndex(function(t) { return t.id === tripId; });
-    if (index === -1) return null;
-    trips[index] = { ...trips[index], ...updates };
-    save(trips);
-    return trips[index];
+function toServer(t) {
+    return {
+        name: t.name,
+        countryId: Number(t.countryId),
+        startMonth: Number(t.startMonth),
+        endMonth: Number(t.endMonth),
+        travelerType: t.travelStyle,
+        budgetLevel: t.budget,
+        interests: t.interests || []
+    };
 }
 
-function remove(userID, tripId) {
-    var trips = getAll(userID).filter(function(t) { return t.id !== tripId; });
-    save(trips);
+async function getAll() {
+    const res = await api.get("/profile");
+    return res.data.map(fromServer);
 }
 
-function toggleFavorite(userID, tripId, attractionId) {
-    var trip = getById(userID, tripId);
-    if (!trip) return null;
-    var favs = trip.favorites || [];
-    if (favs.includes(attractionId)) {
-        favs = favs.filter(function(id) { return id !== attractionId; });
-    } else {
-        favs.push(attractionId);
-    }
-    return update(userID, tripId, { favorites: favs });
+async function getById(tripId) {
+    const res = await api.get("/profile/" + tripId);
+    return fromServer(res.data);
 }
 
-function save(userID , trips) {
-    var key = getStorageKey(userID);
-    if (key) localStorage.setItem(key, JSON.stringify(trips));
+async function create(tripData) {
+    const res = await api.post("/profile", toServer(tripData));
+    return fromServer(res.data);
 }
 
-var tripsService = { getAll, getById, create, update, remove, toggleFavorite };
+async function update(tripId, updates) {
+    const res = await api.put("/profile/" + tripId, toServer(updates));
+    return fromServer(res.data);
+}
+
+async function remove(tripId) {
+    await api.del("/profile/" + tripId);
+}
+
+async function toggleFavorite(tripId, attractionId) {
+    const res = await api.post("/profile/" + tripId + "/favorites", {
+        attractionId: attractionId
+    });
+    return fromServer(res.data);
+}
+
+const tripsService = { getAll, getById, create, update, remove, toggleFavorite };
 export default tripsService;
