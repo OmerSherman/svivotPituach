@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import ItemCard from "../components/ItemCard";
 import AttractionModal from "../components/AttractionModal";
+import TahiniProgress from "../components/TahiniProgress";
 import tripsService from "../services/tripsService";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
@@ -36,7 +37,6 @@ function TripDetail() {
                 }
                 setTrip(tripData);
 
-                // fetch cities and attractions in parallel
                 var [citiesData, attractionsData] = await Promise.all([
                     citiesService.getAll(),
                     attractionsService.getAll()
@@ -67,7 +67,7 @@ function TripDetail() {
                     var matchA = countMatchingTags(a.tags, userInterests);
                     var matchB = countMatchingTags(b.tags, userInterests);
                     if (matchA !== matchB) {
-                        return matchB - matchA; // more matches first
+                        return matchB - matchA;
                     }
                     var scoreA = (a.audience_scores && a.audience_scores[tripData.travelStyle]) || 0;
                     var scoreB = (b.audience_scores && b.audience_scores[tripData.travelStyle]) || 0;
@@ -84,13 +84,11 @@ function TripDetail() {
         loadData();
     }, [id]);
 
-    // count how many user interests match an attraction's tags
     function countMatchingTags(tags, interests) {
         if (!tags || !interests || interests.length === 0) return 0;
         return tags.filter(function(t) { return interests.includes(t); }).length;
     }
 
-    // async because we now call the server, not localStorage
     async function handleToggleFavorite(attractionId) {
         try {
             var updated = await tripsService.toggleFavorite(id, attractionId);
@@ -116,7 +114,6 @@ function TripDetail() {
         return city ? city.name_he : "";
     }
 
-    // show "month" instead of "month - month" when start equals end
     function formatDateRange(start, end) {
         if (start === end) return MONTH_NAMES[start] + " בלבד";
         return MONTH_NAMES[start] + " – " + MONTH_NAMES[end];
@@ -163,10 +160,6 @@ function TripDetail() {
                     <span>📍 {COUNTRY_NAMES[trip.countryId]}</span>
                     <span>📅 {formatDateRange(trip.startMonth, trip.endMonth)}</span>
                     <span>🎒 {STYLE_NAMES[trip.travelStyle]}</span>
-                    <span>🎯 {attractions.length} אטרקציות מתאימות</span>
-                    {favoriteAttractions.length > 0 && (
-                        <span>❤ {favoriteAttractions.length} מועדפים</span>
-                    )}
                 </div>
                 {trip.interests && trip.interests.length > 0 && (
                     <div className="trip-detail-interests">
@@ -177,6 +170,12 @@ function TripDetail() {
                     </div>
                 )}
             </header>
+
+            {/* gamification - tahini jar that fills with favorites */}
+            <TahiniProgress
+                current={favoriteAttractions.length}
+                total={attractions.length}
+            />
 
             {/* favorites section - only shown when there are favorites */}
             {favoriteAttractions.length > 0 && (

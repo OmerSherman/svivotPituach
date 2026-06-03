@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import authService from "../services/authService";
 import Form from "../components/Form.jsx";
 import userContext from "../contexts/userContext";
+import logo from "../assets/logo.svg";
 import "./Login.css";
 
 function Login() {
@@ -50,6 +51,13 @@ function Login() {
     return (
         <div className="login-page">
             <div className="login-container">
+                {/* logo + title at the top */}
+                <div className="login-brand">
+                    <img src={logo} alt="שביל הטחינה" className="login-logo"/>
+                    <h2 className="login-tagline">שביל הטחינה</h2>
+                    <p className="login-subtitle">המדריך שלך לדרום אמריקה</p>
+                </div>
+
                 {isLogin ? (
                     <>
                         <Form configForm={loginConfig} />

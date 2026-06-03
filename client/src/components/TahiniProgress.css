@@ -1,0 +1,44 @@
+.tahini-progress {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #fffbf0 0%, #fef5e0 100%);
+    border: 1px solid #f0e2c0;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(196, 168, 92, 0.12);
+}
+
+.tahini-jar {
+    flex-shrink: 0;
+}
+
+/* the fill rect animates smoothly when current changes */
+.tahini-fill-rect {
+    transition: y 0.6s ease, height 0.6s ease;
+}
+
+.tahini-progress-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tahini-progress-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #8a6d3e;
+}
+
+.tahini-progress-label {
+    font-size: 0.95rem;
+    color: #6e5530;
+}
+
+.tahini-progress-message {
+    font-size: 0.95rem;
+    color: #b08530;
+    font-weight: 600;
+    margin-top: 4px;
+}
