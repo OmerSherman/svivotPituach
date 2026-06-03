@@ -32,7 +32,7 @@ function Form({ configForm }) {
             const formData = new FormData(e.target);
             const dataToSubmit = Object.fromEntries(formData.entries());
 
-            await configForm.onSubmit(dataToSubmit);
+            const res = await configForm.onSubmit(dataToSubmit);
             configForm.navigate && navigate(configForm.navigate);
         } catch (err) {
             setError(err.message);

@@ -5,7 +5,6 @@ import userContext from "../contexts/userContext";
 import { useContext } from "react";
 function Login() {
     const {user , setUser} = useContext(userContext)
-    const [err , setError] = useState("")
     const loginConfig = {
         title: "התחברות",
         buttonText: "התחבר",
@@ -15,14 +14,9 @@ function Login() {
             { label: "סיסמה",   name: "password", type: "password", required: true }
         ],
         onSubmit: async (formData) => {
-            try{
-                const user = await authService.login(formData.email, formData.password);
-                setUser(user) 
-            }
-            catch(err){
-                setError(err.masg||"An error ocuured during login")
-            }
             
+            const user = await authService.login(formData.email, formData.password);
+            setUser(user)
         },
         navigate: "/"
     };
@@ -38,14 +32,11 @@ function Login() {
             { label: "שם משפחה",  name: "lastName",  type: "text",     required: true }
         ],
         onSubmit: async (formData) => {
-            try{
-                await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
-            }
-            catch(err){
-                setError(err.masg||"An error ocuured during register")
-            }
+        
+            const user = await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
+            setUser(user)
         },
-        navigate: "/login"
+        navigate: "/"
     };
     const [isLogin , setform] = useState(true)
 
@@ -61,9 +52,6 @@ function Login() {
                     <Form configForm={registerConfig }/>
                     <button onClick={()=> setform(!isLogin)}>כבר יש לך משתמש?</button>
                 </div>
-            )}
-            {err &&(
-                <p>{err}</p>
             )}
         </div>
     )
