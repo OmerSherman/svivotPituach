@@ -7,8 +7,6 @@ function Settings() {
     const [firstName,    setFirstName]    = useState("");
     const [lastName,     setLastName]     = useState("");
     const [email,        setEmail]        = useState("");
-    const [theme,        setTheme]        = useState("light");
-    const [budgetLevel,  setBudgetLevel]  = useState("medium");
 
     // ui states
     const [initialLoading, setInitialLoading] = useState(true);
@@ -24,8 +22,6 @@ function Settings() {
                 setFirstName(data.firstName || "");
                 setLastName(data.lastName || "");
                 setEmail(data.email || "");
-                setTheme(data.theme || "light");
-                setBudgetLevel(data.budgetLevel || "medium");
             } catch (err) {
                 setError("שגיאה בטעינת ההגדרות: " + err.message);
             } finally {
@@ -68,8 +64,6 @@ function Settings() {
                 firstName:   firstName.trim(),
                 lastName:    lastName.trim(),
                 email:       email.trim(),
-                theme:       theme,
-                budgetLevel: budgetLevel
             });
             setSuccess("ההגדרות נשמרו בהצלחה");
         } catch (err) {
@@ -124,18 +118,6 @@ function Settings() {
                         onChange={function(e) { setEmail(e.target.value); }}
                         disabled={saving}
                     />
-                </label>
-
-                <label className="settings-field">
-                    <span>ערכת נושא</span>
-                    <select
-                        value={theme}
-                        onChange={function(e) { setTheme(e.target.value); }}
-                        disabled={saving}
-                    >
-                        <option value="light">בהיר</option>
-                        <option value="dark">כהה</option>
-                    </select>
                 </label>
 
                 {error   && <p className="settings-error">{error}</p>}

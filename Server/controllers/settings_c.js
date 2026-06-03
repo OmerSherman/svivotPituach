@@ -9,23 +9,6 @@ function getCurrentUser(req) {
     return users.find(function(u) { return u.userId === id; }) || null;
 }
 
-// some users don't have a profile yet - create a default one
-function getOrCreateProfile(userId) {
-    let profile = profiles.find(function(p) { return p.userId === userId; });
-    if (!profile) {
-        profile = {
-            id: profiles.length + 1,
-            userId: userId,
-            travelerType: "solo",
-            interests: [],
-            budgetLevel: "medium",
-            theme: "light"
-        };
-        profiles.push(profile);
-    }
-    return profile;
-}
-
 function getSettings(req, res, next) {
     try {
         const user = getCurrentUser(req);
@@ -36,15 +19,10 @@ function getSettings(req, res, next) {
             });
         }
 
-        const profile = getOrCreateProfile(user.userId);
-
         const settings = {
             firstName: user.firstName,
             lastName: user.lastName,
-            email: user.email,
-            travelerType: profile.travelerType,
-            budgetLevel: profile.budgetLevel,
-            theme: profile.theme || "light"
+            email: user.email
         };
 
         return res.status(200).json({ success: true, data: settings, error: null });
@@ -82,18 +60,10 @@ function updateSettings(req, res, next) {
         if (req.body.email     !== undefined) user.email     = req.body.email;
         user.updateDate = new Date().toISOString();
 
-        const profile = getOrCreateProfile(user.userId);
-        if (req.body.travelerType !== undefined) profile.travelerType = req.body.travelerType;
-        if (req.body.budgetLevel  !== undefined) profile.budgetLevel  = req.body.budgetLevel;
-        if (req.body.theme        !== undefined) profile.theme        = req.body.theme;
-
         const updated = {
             firstName: user.firstName,
             lastName: user.lastName,
-            email: user.email,
-            travelerType: profile.travelerType,
-            budgetLevel: profile.budgetLevel,
-            theme: profile.theme || "light"
+            email: user.email
         };
 
         return res.status(200).json({ success: true, data: updated, error: null });

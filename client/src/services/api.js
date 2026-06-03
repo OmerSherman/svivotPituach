@@ -1,5 +1,4 @@
 // fetch helper - all services go through here
-
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
 
 // build auth headers from localStorage
