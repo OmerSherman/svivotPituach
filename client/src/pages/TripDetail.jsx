@@ -22,7 +22,7 @@ function TripDetail() {
     var [loading, setLoading] = useState(true);
     var [error, setError] = useState("");
 
-    // modal state - which attraction is open
+    // modal state - which attraction is currently open
     var [selectedAttraction, setSelectedAttraction] = useState(null);
 
     useEffect(function() {
@@ -36,13 +36,14 @@ function TripDetail() {
                 }
                 setTrip(tripData);
 
+                // fetch cities and attractions in parallel
                 var [citiesData, attractionsData] = await Promise.all([
                     citiesService.getAll(),
                     attractionsService.getAll()
                 ]);
                 setCities(citiesData);
 
-                // filter by country
+                // filter attractions by trip country
                 var countryCityIds = citiesData
                     .filter(function(c) { return c.country_id === tripData.countryId; })
                     .map(function(c) { return c.id; });
@@ -51,7 +52,7 @@ function TripDetail() {
                     return countryCityIds.includes(a.city_id);
                 });
 
-                // filter by month range
+                // filter by month range - skip if attraction has no months listed
                 var monthRange = getMonthRange(tripData.startMonth, tripData.endMonth);
                 filtered = filtered.filter(function(a) {
                     if (!a.best_months || a.best_months.length === 0) return true;
@@ -60,7 +61,7 @@ function TripDetail() {
                     });
                 });
 
-                // sort: first by matching interest tags, then by audience score
+                // sort - first by matching interest tags, then by audience score
                 var userInterests = tripData.interests || [];
                 filtered.sort(function(a, b) {
                     var matchA = countMatchingTags(a.tags, userInterests);
@@ -68,7 +69,6 @@ function TripDetail() {
                     if (matchA !== matchB) {
                         return matchB - matchA; // more matches first
                     }
-                    // tie-breaker: audience score for travel style
                     var scoreA = (a.audience_scores && a.audience_scores[tripData.travelStyle]) || 0;
                     var scoreB = (b.audience_scores && b.audience_scores[tripData.travelStyle]) || 0;
                     return scoreB - scoreA;
@@ -84,15 +84,20 @@ function TripDetail() {
         loadData();
     }, [id]);
 
-    // count how many of the user's interests match this attraction's tags
+    // count how many user interests match an attraction's tags
     function countMatchingTags(tags, interests) {
         if (!tags || !interests || interests.length === 0) return 0;
         return tags.filter(function(t) { return interests.includes(t); }).length;
     }
 
-    function handleToggleFavorite(attractionId) {
-        var updated = await tripsService.toggleFavorite(id, attractionId);
-        if (updated) setTrip({ ...updated });
+    // async because we now call the server, not localStorage
+    async function handleToggleFavorite(attractionId) {
+        try {
+            var updated = await tripsService.toggleFavorite(id, attractionId);
+            if (updated) setTrip({ ...updated });
+        } catch (err) {
+            alert("שגיאה בשמירת המועדף: " + err.message);
+        }
     }
 
     function getMonthRange(start, end) {
@@ -111,6 +116,7 @@ function TripDetail() {
         return city ? city.name_he : "";
     }
 
+    // show "month" instead of "month - month" when start equals end
     function formatDateRange(start, end) {
         if (start === end) return MONTH_NAMES[start] + " בלבד";
         return MONTH_NAMES[start] + " – " + MONTH_NAMES[end];
@@ -172,7 +178,7 @@ function TripDetail() {
                 )}
             </header>
 
-            {/* favorites section */}
+            {/* favorites section - only shown when there are favorites */}
             {favoriteAttractions.length > 0 && (
                 <section className="trip-detail-section trip-favorites-section">
                     <h2>❤ המועדפים שלי בטיול הזה</h2>
@@ -204,7 +210,7 @@ function TripDetail() {
                 </section>
             )}
 
-            {/* table */}
+            {/* table view */}
             <section className="trip-detail-section">
                 <h2>אטרקציות מומלצות</h2>
                 <DataTable
@@ -215,7 +221,7 @@ function TripDetail() {
                 />
             </section>
 
-            {/* card grid - click to expand */}
+            {/* cards view - click to expand */}
             <section className="trip-detail-section">
                 <h2>בחרו מועדפים</h2>
                 <p className="trip-detail-hint">💡 לחצו על כרטיסיה לפרטים נוספים</p>

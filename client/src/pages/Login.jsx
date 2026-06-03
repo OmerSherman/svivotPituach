@@ -1,10 +1,12 @@
+import { useContext, useState } from "react";
 import authService from "../services/authService";
-import Form from "../components/Form.jsx"
-import { useState } from "react";
+import Form from "../components/Form.jsx";
 import userContext from "../contexts/userContext";
-import { useContext } from "react";
+
 function Login() {
-    const {user , setUser} = useContext(userContext)
+    const { setUser } = useContext(userContext);
+    const [isLogin, setForm] = useState(true);
+
     const loginConfig = {
         title: "התחברות",
         buttonText: "התחבר",
@@ -14,9 +16,12 @@ function Login() {
             { label: "סיסמה",   name: "password", type: "password", required: true }
         ],
         onSubmit: async (formData) => {
-            
+            // password length check (assignment requires 6+ chars)
+            if (!formData.password || formData.password.length < 6) {
+                throw new Error("הסיסמה חייבת להיות באורך 6 תווים לפחות");
+            }
             const user = await authService.login(formData.email, formData.password);
-            setUser(user)
+            setUser(user);
         },
         navigate: "/"
     };
@@ -32,28 +37,30 @@ function Login() {
             { label: "שם משפחה",  name: "lastName",  type: "text",     required: true }
         ],
         onSubmit: async (formData) => {
-        
-            const user = await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
-            setUser(user)
-        },
-        navigate: "/"
+            if (!formData.password || formData.password.length < 6) {
+                throw new Error("הסיסמה חייבת להיות באורך 6 תווים לפחות");
+            }
+            await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
+            // after register, switch back to the login form
+            setForm(true);
+        }
     };
-    const [isLogin , setform] = useState(true)
 
     return (
         <div>
-            {isLogin ?( 
+            {isLogin ? (
                 <div>
-                    <Form configForm={loginConfig}/>
-                    <button onClick={()=> setform(!isLogin)}>מטייל חדש?</button>
+                    <Form configForm={loginConfig} />
+                    <button onClick={() => setForm(false)}>מטייל חדש?</button>
                 </div>
-            ):(
+            ) : (
                 <div>
-                    <Form configForm={registerConfig }/>
-                    <button onClick={()=> setform(!isLogin)}>כבר יש לך משתמש?</button>
+                    <Form configForm={registerConfig} />
+                    <button onClick={() => setForm(true)}>כבר יש לך משתמש?</button>
                 </div>
             )}
         </div>
-    )
+    );
 }
+
 export default Login;

@@ -1,14 +1,29 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import usersService from "../services/usersService";
 import logo from "../assets/logo-transparent.svg";
 import "./Navbar.css";
 import userContext from "../contexts/userContext";
 
 function Navbar() {
     const navigate = useNavigate();
-    // local user starts from storage so the navbar paints immediately
-    const {user , setUser} = useContext(userContext);
+    const { user, setUser } = useContext(userContext);
+
+    // refresh user info from server (assignment requires GET /api/users/me)
+    useEffect(() => {
+        async function fetchMe() {
+            if (!user) return; // not logged in, skip
+            try {
+                const fresh = await usersService.getMe();
+                setUser(fresh);
+            } catch (err) {
+                console.warn("could not refresh user info:", err.message);
+            }
+        }
+        fetchMe();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     async function handleLogout() {
         await authService.logout();
