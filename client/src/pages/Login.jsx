@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import authService from "../services/authService";
 import Form from "../components/Form.jsx";
 import userContext from "../contexts/userContext";
+import "./Login.css";
 
 function Login() {
     const { setUser } = useContext(userContext);
@@ -41,24 +42,30 @@ function Login() {
                 throw new Error("הסיסמה חייבת להיות באורך 6 תווים לפחות");
             }
             await authService.register(formData.firstName, formData.lastName, formData.email, formData.password);
-            // after register, switch back to the login form
+            // after register, switch back to login form
             setForm(true);
         }
     };
 
     return (
-        <div>
-            {isLogin ? (
-                <div>
-                    <Form configForm={loginConfig} />
-                    <button onClick={() => setForm(false)}>מטייל חדש?</button>
-                </div>
-            ) : (
-                <div>
-                    <Form configForm={registerConfig} />
-                    <button onClick={() => setForm(true)}>כבר יש לך משתמש?</button>
-                </div>
-            )}
+        <div className="login-page">
+            <div className="login-container">
+                {isLogin ? (
+                    <>
+                        <Form configForm={loginConfig} />
+                        <button className="login-toggle" onClick={() => setForm(false)}>
+                            מטייל חדש? הירשם כאן
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <Form configForm={registerConfig} />
+                        <button className="login-toggle" onClick={() => setForm(true)}>
+                            כבר יש לך משתמש? התחבר
+                        </button>
+                    </>
+                )}
+            </div>
         </div>
     );
 }
