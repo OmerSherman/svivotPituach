@@ -28,7 +28,7 @@ function TripDetail() {
     useEffect(function() {
         async function loadData() {
             try {
-                var tripData = tripsService.getById(id);
+                var tripData = await tripsService.getById(id);
                 if (!tripData) {
                     setError("הטיול לא נמצא");
                     setLoading(false);
@@ -91,7 +91,7 @@ function TripDetail() {
     }
 
     function handleToggleFavorite(attractionId) {
-        var updated = tripsService.toggleFavorite(id, attractionId);
+        var updated = await tripsService.toggleFavorite(id, attractionId);
         if (updated) setTrip({ ...updated });
     }
 
