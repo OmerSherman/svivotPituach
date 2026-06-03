@@ -10,10 +10,14 @@ import userContext from "./contexts/userContext";
 import { useState } from "react";
 
 function App() {
+    // start user state from localStorage so refresh keeps the user logged in
+    const [user, setUser] = useState(() => {
+        const stored = localStorage.getItem("user");
+        return stored ? JSON.parse(stored) : null;
+    });
 
-    const [user , setUser] = useState(null)    
     return (
-        <userContext.Provider value={{user, setUser}}>
+        <userContext.Provider value={{ user, setUser }}>
             <BrowserRouter>
                 <Layout>
                     <Routes>

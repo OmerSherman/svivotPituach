@@ -1,47 +1,39 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./pages/Login";
-import MyTrips from "./pages/MyTrips";
-import TripDetail from "./pages/TripDetail";
-import Settings from "./pages/Settings";
-import CityAttractions from "./pages/CityAttractions";
-import userContext from "./contexts/userContext";
-import { useState } from "react";
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
-function App() {
-    // start user state from localStorage so refresh keeps the user logged in
-    const [user, setUser] = useState(() => {
-        const stored = localStorage.getItem("user");
-        return stored ? JSON.parse(stored) : null;
-    });
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 
-    return (
-        <userContext.Provider value={{ user, setUser }}>
-            <BrowserRouter>
-                <Layout>
-                    <Routes>
-                        {/* public */}
-                        <Route path="/login" element={<Login />} />
+app.use(express.json());
+const port = process.env.PORT;
 
-                        {/* protected */}
-                        <Route path="/" element={
-                            <ProtectedRoute><MyTrips /></ProtectedRoute>
-                        } />
-                        <Route path="/trips/:id" element={
-                            <ProtectedRoute><TripDetail /></ProtectedRoute>
-                        } />
-                        <Route path="/settings" element={
-                            <ProtectedRoute><Settings /></ProtectedRoute>
-                        } />
-                        <Route path="/cities/:id" element={
-                            <ProtectedRoute><CityAttractions /></ProtectedRoute>
-                        } />
-                    </Routes>
-                </Layout>
-            </BrowserRouter>
-        </userContext.Provider>
-    );
-}
+const logger = require('./middleware/logger');
+const errorHandler = require('./middleware/errorHandler');
 
-export default App;
+app.use(logger);
+
+// routers
+const cities_router = require('./routes/cities_r');
+const favorites_router = require('./routes/favorites_r');
+const profiles_router = require('./routes/profiles_r');
+const attractions_router = require('./routes/attractions_r');
+const users_router = require('./routes/users_r');
+const auth_router = require('./routes/auth_r');
+const settings_router = require('./routes/settings_r');
+
+app.use('/api/profile', profiles_router);
+app.use('/api/cities', cities_router);
+app.use('/api/favorites', favorites_router);
+app.use('/api/attractions', attractions_router);
+app.use('/api/users', users_router);
+app.use('/api/auth', auth_router);
+app.use('/api/settings', settings_router);
+
+app.use(errorHandler);
+
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
