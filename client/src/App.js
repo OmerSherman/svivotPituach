@@ -8,6 +8,8 @@ import Settings from "./pages/Settings";
 import CityAttractions from "./pages/CityAttractions";
 import userContext from "./contexts/userContext";
 import { useState } from "react";
+import AdminPortal from "./pages/adminPortal"
+import AdminPortaluser from "./pages/adminPortaluser";
 
 function App() {
     // start user state from localStorage so refresh keeps the user logged in
@@ -36,6 +38,12 @@ function App() {
                         } />
                         <Route path="/cities/:id" element={
                             <ProtectedRoute><CityAttractions /></ProtectedRoute>
+                        } />
+                        <Route path="/adminPortal" element={
+                            <ProtectedRoute> <AdminPortal/></ProtectedRoute>
+                        } />
+                        <Route path="/adminPortaluser" element={
+                            <ProtectedRoute> <AdminPortaluser/> </ProtectedRoute>
                         } />
                     </Routes>
                 </Layout>

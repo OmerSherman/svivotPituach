@@ -1,8 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import settingsService from "../services/settingsService";
 import "./Settings.css";
+import usersService from "../services/usersService";
+import userContext from "../contexts/userContext";
+import { useNavigate } from "react-router-dom";
 
 function Settings() {
+    const navigate = useNavigate()
+    const {user, setUser} = useContext(userContext)
     // form fields
     const [firstName,    setFirstName]    = useState("");
     const [lastName,     setLastName]     = useState("");
@@ -81,6 +86,21 @@ function Settings() {
         );
     }
 
+    const handleDelete =async ()=>{
+        const isConfirmed = window.confirm("האם אתה בטוח שברצונך למחוק משתמש זה?");
+        if (!isConfirmed) return;
+        try{
+            await usersService.del(user.userId)
+            alert("אנחנו נפרדים לשלום 👋");
+            setUser(null)
+            localStorage.removeItem("user");
+            Navigate("/login")
+        }
+        catch(err){
+            setError("המחיקה נכשלה" + err.message)
+        }
+    }
+
     return (
         <div className="settings-page">
             <header className="settings-header">
@@ -126,6 +146,10 @@ function Settings() {
                 <button type="submit" className="settings-submit" disabled={saving}>
                     {saving ? "שומר..." : "שמור שינויים"}
                 </button>
+                <button type="button" className="settings-delete" onClick={()=>handleDelete()}>
+                    מחק משתמש ): 
+                </button>
+                
             </form>
         </div>
     );

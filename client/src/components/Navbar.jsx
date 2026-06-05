@@ -28,6 +28,7 @@ function Navbar() {
     async function handleLogout() {
         await authService.logout();
         setUser(null);
+        localStorage.removeItem("user");
         navigate("/login");
     }
 
@@ -42,6 +43,9 @@ function Navbar() {
                     <>
                         <Link to="/">הטיולים שלי</Link>
                         <Link to="/settings">הגדרות</Link>
+                        {(user.userRole === "admin" || user.userRole === "maneger") && (
+                            <Link to="adminPortal">ניהול</Link>
+                        )}
                         <span className="navbar-user">שלום, {user.firstName}</span>
                         <button className="navbar-logout" onClick={handleLogout}>התנתק</button>
                     </>
