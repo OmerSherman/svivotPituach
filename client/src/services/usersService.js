@@ -20,5 +20,10 @@ async function update(id, updates) {
     return res.data;
 }
 
-const usersService = { getMe, getAll, getById, update };
+async function del(id) {
+    const res = await api.del("/users/" + id)
+    return res.data
+}
+
+const usersService = { getMe, getAll, getById, update , del };
 export default usersService;

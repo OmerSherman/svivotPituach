@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Form.css";
 
 function FormField(props) {
     const [value, setValue] = useState("");
 
     return (
-        <div>
+        <div className="form-field">
             <label>{props.label}</label>
             <input
                 type={props.type}
@@ -33,7 +34,8 @@ function Form({ configForm }) {
             const dataToSubmit = Object.fromEntries(formData.entries());
 
             await configForm.onSubmit(dataToSubmit);
-            configForm.navigate && navigate(configForm.navigate);
+            // navigate only if config requested it
+            if (configForm.navigate) navigate(configForm.navigate);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -46,12 +48,10 @@ function Form({ configForm }) {
     const btnLoading = configForm.buttonLoading || "שולח...";
 
     return (
-        <div style={{ maxWidth: 380, margin: "60px auto", padding: 24,
-                      background: "#fff", borderRadius: 12,
-                      border: "1px solid #e0e0e0" }}>
-            <h1 style={{ marginTop: 0 }}>{configForm.title}</h1>
+        <div className="form-card">
+            <h1>{configForm.title}</h1>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <form onSubmit={handleSubmit}>
                 {fields.map(function(field) {
                     return (
                         <FormField
@@ -64,11 +64,9 @@ function Form({ configForm }) {
                     );
                 })}
 
-                {error && <p style={{ color: "#a32525" }}>{error}</p>}
+                {error && <p className="form-error">{error}</p>}
 
-                <button type="submit" disabled={loading}
-                        style={{ padding: 10, background: "#3b4cca", color: "#fff",
-                                 border: "none", borderRadius: 8, cursor: "pointer" }}>
+                <button type="submit" className="form-submit" disabled={loading}>
                     {loading ? btnLoading : btnText}
                 </button>
             </form>

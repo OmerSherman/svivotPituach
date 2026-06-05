@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import authService from "../services/authService";
 import tripsService from "../services/tripsService";
 import TripForm from "../components/TripForm";
 import "./MyTrips.css";
+import userContext from "../contexts/userContext";
 
 var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
@@ -12,29 +12,61 @@ var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מ
                    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
 
 function MyTrips() {
-    var navigate = useNavigate();
-    var currentUser = authService.getStoredUser();
+    const navigate = useNavigate();
+    const { user } = useContext(userContext);
 
-    var [trips, setTrips] = useState(tripsService.getAll());
-    var [showForm, setShowForm] = useState(false);
-    var [editingTrip, setEditingTrip] = useState(null);
+    const [trips, setTrips] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    function handleCreate(data) {
-        tripsService.create(data);
-        setTrips(tripsService.getAll());
-        setShowForm(false);
+    const [showForm, setShowForm] = useState(false);
+    const [editingTrip, setEditingTrip] = useState(null);
+
+    // load trips from server on mount
+    useEffect(function() {
+        loadTrips();
+    }, []);
+
+    async function loadTrips() {
+        setLoading(true);
+        setError("");
+        try {
+            const data = await tripsService.getAll();
+            setTrips(data);
+        } catch (err) {
+            setError("שגיאה בטעינת הטיולים: " + err.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
-    function handleUpdate(data) {
-        tripsService.update(editingTrip.id, data);
-        setTrips(tripsService.getAll());
-        setEditingTrip(null);
+    async function handleCreate(data) {
+        try {
+            await tripsService.create(data);
+            await loadTrips();
+            setShowForm(false);
+        } catch (err) {
+            alert("שגיאה ביצירת הטיול: " + err.message);
+        }
     }
 
-    function handleDelete(tripId) {
-        if (window.confirm("למחוק את הטיול?")) {
-            tripsService.remove(tripId);
-            setTrips(tripsService.getAll());
+    async function handleUpdate(data) {
+        try {
+            await tripsService.update(editingTrip.id, data);
+            await loadTrips();
+            setEditingTrip(null);
+        } catch (err) {
+            alert("שגיאה בעדכון הטיול: " + err.message);
+        }
+    }
+
+    async function handleDelete(tripId) {
+        if (!window.confirm("למחוק את הטיול?")) return;
+        try {
+            await tripsService.remove(tripId);
+            await loadTrips();
+        } catch (err) {
+            alert("שגיאה במחיקת הטיול: " + err.message);
         }
     }
 
@@ -46,8 +78,8 @@ function MyTrips() {
         <div className="my-trips-page">
             <header className="my-trips-header">
                 <h1>
-                    {currentUser
-                        ? "הטיולים של " + currentUser.firstName + " 🌎"
+                    {user
+                        ? "הטיולים של " + user.firstName + " 🌎"
                         : "הטיולים שלי"}
                 </h1>
                 <button className="my-trips-add-btn" onClick={function() { setShowForm(true); }}>
@@ -55,14 +87,26 @@ function MyTrips() {
                 </button>
             </header>
 
-            {trips.length === 0 && (
+            {loading && (
+                <div className="my-trips-empty">
+                    <p>טוען טיולים...</p>
+                </div>
+            )}
+
+            {error && (
+                <div className="my-trips-empty">
+                    <p>{error}</p>
+                </div>
+            )}
+
+            {!loading && !error && trips.length === 0 && (
                 <div className="my-trips-empty">
                     <p>עדיין אין טיולים מתוכננים</p>
                     <p>לחצו על "טיול חדש" כדי להתחיל לתכנן!</p>
                 </div>
             )}
 
-            {trips.length > 0 && (
+            {!loading && !error && trips.length > 0 && (
                 <div className="my-trips-grid">
                     {trips.map(function(trip) {
                         return (
@@ -96,7 +140,6 @@ function MyTrips() {
                 </div>
             )}
 
-            {/* create form */}
             {showForm && (
                 <TripForm
                     onSave={handleCreate}
@@ -104,7 +147,6 @@ function MyTrips() {
                 />
             )}
 
-            {/* edit form */}
             {editingTrip && (
                 <TripForm
                     initialData={editingTrip}

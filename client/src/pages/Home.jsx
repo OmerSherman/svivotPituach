@@ -5,10 +5,11 @@ import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
 import authService from "../services/authService";
 import "./Home.css";
+import userContext from "../contexts/UserContext";
 
 function Home() {
     const navigate = useNavigate();
-    const currentUser = authService.getStoredUser();
+    const {user} = useContext(userContext)
 
     // cities section state
     const [cities, setCities] = useState([]);
@@ -59,8 +60,8 @@ function Home() {
         <div className="home-page">
             <header className="home-hero">
                 <h1>
-                    {currentUser
-                        ? "שלום " + currentUser.firstName + " 👋"
+                    {user
+                        ? "שלום " + user.firstName + " 👋"
                         : "ברוכים הבאים לשביל הטחינה"}
                 </h1>
                 <p className="home-subtitle">

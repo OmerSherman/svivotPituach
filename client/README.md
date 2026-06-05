@@ -20,7 +20,7 @@ cd client
 npm install
 npm start
 ```
-Client runs on port 3001 (set in `.env`).
+Client runs on port 5173 (set in `.env`).
 
 API base URL: `http://localhost:3000`
 
@@ -36,20 +36,26 @@ All have password `1234`:
 
 ```
 src/
-  components/   - Navbar, Footer, Layout, ItemCard, DataTable, attraction_card
-  pages/        - Login, Home, Settings, CityAttractions
-  services/     - api.js + one service per entity
+  components/   - Navbar, Footer, Layout, Form, ItemCard, DataTable,
+                  TripForm, AttractionModal, ProtectedRoute
+  pages/        - Login, MyTrips, TripDetail, Settings, CityAttractions
+  services/     - api.js + one service per entity (auth, users, cities,
+                  attractions, settings, trips)
+  contexts/     - userContext (logged-in user across the app)
+  assets/       - logo files
   App.js        - routing
 ```
 
 ## Routes
 
-- `/login` - login page
-- `/` - home / dashboard
+- `/login` - login + register
+- `/` - my trips dashboard (main page after login)
+- `/trips/:id` - single trip view with filtered attractions
 - `/settings` - user settings
 - `/cities/:id` - city attractions (table + cards)
 
 ## Notes
 
 - Mock auth using `x-user-role` and `x-user-id` headers (no JWT yet).
-- User is saved in localStorage after login.
+- Logged-in user is saved in localStorage so refresh keeps the session.
+- Planned trips are saved on the server in profiles.json.

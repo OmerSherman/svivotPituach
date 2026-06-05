@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import settingsService from "../services/settingsService";
 import "./Settings.css";
+import usersService from "../services/usersService";
+import userContext from "../contexts/userContext";
+import { useNavigate } from "react-router-dom";
 
 function Settings() {
+    const navigate = useNavigate()
+    const {user, setUser} = useContext(userContext)
     // form fields
     const [firstName,    setFirstName]    = useState("");
     const [lastName,     setLastName]     = useState("");
     const [email,        setEmail]        = useState("");
-    const [theme,        setTheme]        = useState("light");
-    const [budgetLevel,  setBudgetLevel]  = useState("medium");
 
     // ui states
     const [initialLoading, setInitialLoading] = useState(true);
@@ -24,8 +27,6 @@ function Settings() {
                 setFirstName(data.firstName || "");
                 setLastName(data.lastName || "");
                 setEmail(data.email || "");
-                setTheme(data.theme || "light");
-                setBudgetLevel(data.budgetLevel || "medium");
             } catch (err) {
                 setError("שגיאה בטעינת ההגדרות: " + err.message);
             } finally {
@@ -68,8 +69,6 @@ function Settings() {
                 firstName:   firstName.trim(),
                 lastName:    lastName.trim(),
                 email:       email.trim(),
-                theme:       theme,
-                budgetLevel: budgetLevel
             });
             setSuccess("ההגדרות נשמרו בהצלחה");
         } catch (err) {
@@ -85,6 +84,21 @@ function Settings() {
                 <p className="settings-loading">טוען הגדרות...</p>
             </div>
         );
+    }
+
+    const handleDelete =async ()=>{
+        const isConfirmed = window.confirm("האם אתה בטוח שברצונך למחוק משתמש זה?");
+        if (!isConfirmed) return;
+        try{
+            await usersService.del(user.userId)
+            alert("אנחנו נפרדים לשלום 👋");
+            setUser(null)
+            localStorage.removeItem("user");
+            Navigate("/login")
+        }
+        catch(err){
+            setError("המחיקה נכשלה" + err.message)
+        }
     }
 
     return (
@@ -126,24 +140,16 @@ function Settings() {
                     />
                 </label>
 
-                <label className="settings-field">
-                    <span>ערכת נושא</span>
-                    <select
-                        value={theme}
-                        onChange={function(e) { setTheme(e.target.value); }}
-                        disabled={saving}
-                    >
-                        <option value="light">בהיר</option>
-                        <option value="dark">כהה</option>
-                    </select>
-                </label>
-
                 {error   && <p className="settings-error">{error}</p>}
                 {success && <p className="settings-success">{success}</p>}
 
                 <button type="submit" className="settings-submit" disabled={saving}>
                     {saving ? "שומר..." : "שמור שינויים"}
                 </button>
+                <button type="button" className="settings-delete" onClick={()=>handleDelete()}>
+                    מחק משתמש ): 
+                </button>
+                
             </form>
         </div>
     );
