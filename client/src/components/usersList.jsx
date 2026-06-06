@@ -1,52 +1,68 @@
 import { useNavigate } from "react-router-dom";
-function UsersList({users , setUsersList}){
-    const navigate = useNavigate()
+import "./usersList.css";
 
-    const handleClick = (user) => {
-        navigate("/adminPortaluser",  {state : {user: user}}) //navigate to specific user admin portal with state as the user
+// hebrew labels for the role badges
+const ROLE_LABELS = { admin: "אדמין", manager: "מנהל", user: "משתמש" };
 
+function UsersList({ users }) {
+    const navigate = useNavigate();
+
+    // navigate to the user's profile page with the user object passed via state
+    function handleRowClick(user) {
+        navigate("/adminPortaluser", { state: { user: user } });
     }
-    const roles= {"admin" : "אדמין", "manager": "מנהל" , "user": "משתמש"}
-    
+
+    // format a date as dd/mm/yyyy in hebrew locale
+    function formatDate(iso) {
+        if (!iso) return "—";
+        try {
+            return new Date(iso).toLocaleDateString("he-IL");
+        } catch (err) {
+            return "—";
+        }
+    }
+
+    // role badge with color matching the role
+    function roleBadge(role) {
+        const label = ROLE_LABELS[role] || role;
+        const cls = "ul-badge ul-badge-" + (role || "user");
+        return <span className={cls}>{label}</span>;
+    }
 
     return (
-        <div className="grid-container">
-            <table className="data-grid" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="ul-wrapper">
+            <table className="ul-table">
                 <thead>
-                    <tr style={{ backgroundColor: "#f4f4f4", textAlign: "left" }}>
-                        <th>ID</th>
-                        <th>שם מלא (Full Name)</th>
-                        <th>אימייל (Email)</th>
-                        <th>תפקיד (Role)</th>
-                        <th>תאריך הצטרפות (Joined)</th>
-                        <th>תאריך עריכה (Last Updated)</th>
+                    <tr>
+                        <th>מזהה</th>
+                        <th>שם מלא</th>
+                        <th>אימייל</th>
+                        <th>תפקיד</th>
+                        <th>תאריך הצטרפות</th>
+                        <th>עדכון אחרון</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user) => (
-                        <tr 
-                            key={user.userId} 
-                            onClick={() => handleClick(user)}
-                            style={{ cursor: "pointer", borderBottom: "1px solid #ddd" }}
-                            className="grid-row"
-                        >
-                            <td>{user.userId}</td>
-                            <td>{user.firstName} {user.lastName}</td>
-                            <td>{user.email}</td>
-                            <td>{roles[user.userRole]}</td>
-                            <td>
-                                {new Date(user.createDate).toLocaleDateString("he-IL")}
-                            </td>
-                            {/* התוספת החדשה: שליפת תאריך העדכון ופירמוט שלו */}
-                            <td>
-                                {new Date(user.updateDate).toLocaleDateString("he-IL")}
-                            </td>
-                        </tr>
-                    ))}
+                    {users.map(function(user) {
+                        return (
+                            <tr
+                                key={user.userId}
+                                onClick={function() { handleRowClick(user); }}
+                                className="ul-row"
+                            >
+                                <td className="ul-id">#{user.userId}</td>
+                                <td className="ul-name">{user.firstName} {user.lastName}</td>
+                                <td className="ul-email">{user.email}</td>
+                                <td>{roleBadge(user.userRole)}</td>
+                                <td className="ul-date">{formatDate(user.createDate)}</td>
+                                <td className="ul-date">{formatDate(user.updateDate)}</td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>
     );
 }
 
-export default UsersList
+export default UsersList;

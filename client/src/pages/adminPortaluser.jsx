@@ -1,233 +1,318 @@
-import { useContext, useEffect, useState } from "react";
-import userContext from "../contexts/userContext";
+import { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import usersService from "../services/usersService";
+import userContext from "../contexts/userContext";
+import "./adminPortaluser.css";
 
+// hebrew labels for roles
+const ROLE_LABELS = { admin: "אדמין", manager: "מנהל", user: "משתמש" };
 
-function AdminPortaluser(){
-    const navigate = useNavigate()
+// numeric levels for permission comparison (higher = more power)
+const ROLE_LEVELS = { user: 0, manager: 1, admin: 2 };
+
+function AdminPortaluser() {
+    const navigate = useNavigate();
     const location = useLocation();
-    const passedUser = location.state?.user;
-    const [error , setError] = useState("")
-    const [currUser , setCurrUser] = useState(passedUser)
+    const { user } = useContext(userContext);
 
+    // the user we're managing - passed from the list page via router state
+    const passedUser = location.state && location.state.user;
+    const [currUser, setCurrUser] = useState(passedUser);
+
+    // edit mode state
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({
-        firstName: passedUser?.firstName || "",
-        lastName: passedUser?.lastName || "",
-        email: passedUser?.email || ""
+        firstName: (passedUser && passedUser.firstName) || "",
+        lastName:  (passedUser && passedUser.lastName)  || "",
+        email:     (passedUser && passedUser.email)     || ""
     });
 
-    const {user} = useContext(userContext)
-    //get the current user 
-    const role =user.userRole
-    const roleLevels = {
-        "user": 0,
-        "manager": 1,
-        "admin": 2
-    };
-    const roles= {"admin" : "אדמין", "manager": "מנהל" , "user": "משתמש"}
+    const [error, setError] = useState("");
+    const [saving, setSaving] = useState(false);
 
-    const canManageUser = roleLevels[role] > roleLevels[currUser.userRole];
-
-    const handleRoleChange =  async (role) => {
-        try{
-            const updatedUser = {
-                ...currUser, 
-                userRole :role
-            }
-            await usersService.update(currUser.userId , updatedUser)
-            setCurrUser(updatedUser) // update the current user
-        }
-        catch(err){
-            console.log(err)
-
-            setError(err.message || `couldn't update to ${role}`)
-        }
+    // guard - if someone got here without passing a user, show fallback
+    if (!currUser) {
+        return (
+            <div className="aup-page">
+                <p className="aup-error">לא נבחר משתמש להצגה.</p>
+                <button className="aup-back-btn" onClick={function() { navigate("/adminPortal"); }}>
+                    חזרה לרשימה
+                </button>
+            </div>
+        );
     }
 
-    const handleDelete = async (id) => {
-        try{
-            await usersService.del(id)
-            navigate("/adminPortal")
+    // permission logic - can the current user manage this user?
+    // rule: you can only manage users with a lower role level than yours
+    const myLevel    = ROLE_LEVELS[user.userRole]    || 0;
+    const theirLevel = ROLE_LEVELS[currUser.userRole] || 0;
+    const canManage  = myLevel > theirLevel;
 
-        }
-        catch(err){
-            setError(err.message || `couldn't delete ${id}`)
-        }
-    }
-
-    const handleGoBack = () => {
-        navigate("/adminPortal")
-    }
-
-    const handleInputChange = (e) => {
-        setEditData({
-            ...editData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSaveChanges = async () => {
+    function formatDate(iso) {
+        if (!iso) return "—";
         try {
-            const updatedUser = {
-                ...currUser,
-                firstName: editData.firstName,
-                lastName: editData.lastName,
-                email: editData.email
-            };
-            
-            await usersService.update(currUser.userId, updatedUser);
-            setCurrUser(updatedUser);
-            setIsEditing(false); 
-            
+            return new Date(iso).toLocaleDateString("he-IL");
         } catch (err) {
-            console.log(err);
-            setError(err.message || "Failed to save changes");
+            return "—";
         }
-    };
+    }
 
-    const cancelEditing = () => {
+    // change the user's role on the server
+    async function handleRoleChange(newRole) {
+        setError("");
+        setSaving(true);
+        try {
+            const updated = { ...currUser, userRole: newRole };
+            await usersService.update(currUser.userId, updated);
+            setCurrUser(updated);
+        } catch (err) {
+            setError(err.message || "לא ניתן לעדכן את התפקיד");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    // delete this user
+    async function handleDelete() {
+        const confirmed = window.confirm(
+            "האם אתה בטוח שברצונך למחוק את המשתמש " + currUser.firstName + " " + currUser.lastName + "?"
+        );
+        if (!confirmed) return;
+
+        setError("");
+        setSaving(true);
+        try {
+            await usersService.del(currUser.userId);
+            navigate("/adminPortal");
+        } catch (err) {
+            setError(err.message || "המחיקה נכשלה");
+            setSaving(false);
+        }
+    }
+
+    // start editing - keep current values as starting point
+    function startEditing() {
         setEditData({
             firstName: currUser.firstName,
-            lastName: currUser.lastName,
-            email: currUser.email
+            lastName:  currUser.lastName,
+            email:     currUser.email
         });
+        setIsEditing(true);
+    }
+
+    function cancelEditing() {
         setIsEditing(false);
-    };
+        setError("");
+    }
+
+    function handleInputChange(e) {
+        setEditData({ ...editData, [e.target.name]: e.target.value });
+    }
+
+    function isValidEmail(value) {
+        if (!value) return false;
+        const trimmed = value.trim();
+        const atIndex  = trimmed.indexOf("@");
+        const dotIndex = trimmed.lastIndexOf(".");
+        return atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < trimmed.length - 1;
+    }
+
+    // save the edits
+    async function handleSaveChanges() {
+        setError("");
+
+        if (!editData.firstName.trim() || !editData.lastName.trim()) {
+            setError("שם פרטי ושם משפחה הם שדות חובה");
+            return;
+        }
+        if (!isValidEmail(editData.email)) {
+            setError("כתובת אימייל לא תקינה");
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const updated = {
+                ...currUser,
+                firstName: editData.firstName.trim(),
+                lastName:  editData.lastName.trim(),
+                email:     editData.email.trim()
+            };
+            await usersService.update(currUser.userId, updated);
+            setCurrUser(updated);
+            setIsEditing(false);
+        } catch (err) {
+            setError(err.message || "השמירה נכשלה");
+        } finally {
+            setSaving(false);
+        }
+    }
 
     return (
-        <div className="user-profile-container" style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "8px", maxWidth: "500px" }}>
-            <h2>פרטי משתמש: {currUser.firstName} {currUser.lastName}</h2>
-            
-            <div className="user-details" style={{ marginBottom: "20px", lineHeight: "1.6" }}>
-                <p><strong>מזהה (ID):</strong> {currUser.userId}</p>
+        <div className="aup-page">
+            <button className="aup-back-link" onClick={function() { navigate("/adminPortal"); }}>
+                ← חזרה לרשימת המשתמשים
+            </button>
+
+            <header className="aup-header">
+                <div className="aup-avatar">
+                    {(currUser.firstName && currUser.firstName.charAt(0).toUpperCase()) || "?"}
+                </div>
+                <div>
+                    <h1>{currUser.firstName} {currUser.lastName}</h1>
+                    <div className="aup-meta-row">
+                        <span className={"aup-role-badge aup-role-" + currUser.userRole}>
+                            {ROLE_LABELS[currUser.userRole] || currUser.userRole}
+                        </span>
+                        <span className="aup-id">#{currUser.userId}</span>
+                    </div>
+                </div>
+            </header>
+
+            {error && <div className="aup-error">{error}</div>}
+
+            <div className="aup-card">
+                <h3 className="aup-section-title">פרטי משתמש</h3>
+
                 {isEditing ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "15px" }}>
-                        <label>
-                            <strong>שם פרטי:</strong>
-                            <input 
-                                type="text" 
-                                name="firstName" 
-                                value={editData.firstName} 
-                                onChange={handleInputChange} 
-                                style={{ marginLeft: "10px" }}
+                    <div className="aup-fields">
+                        <label className="aup-field">
+                            <span>שם פרטי</span>
+                            <input
+                                type="text"
+                                name="firstName"
+                                value={editData.firstName}
+                                onChange={handleInputChange}
+                                disabled={saving}
                             />
                         </label>
-                        <label>
-                            <strong>שם משפחה:</strong>
-                            <input 
-                                type="text" 
-                                name="lastName" 
-                                value={editData.lastName} 
-                                onChange={handleInputChange} 
-                                style={{ marginLeft: "10px" }}
+
+                        <label className="aup-field">
+                            <span>שם משפחה</span>
+                            <input
+                                type="text"
+                                name="lastName"
+                                value={editData.lastName}
+                                onChange={handleInputChange}
+                                disabled={saving}
                             />
                         </label>
-                        <label>
-                            <strong>אימייל:</strong>
-                            <input 
-                                type="email" 
-                                name="email" 
-                                value={editData.email} 
-                                onChange={handleInputChange} 
-                                style={{ marginLeft: "10px" }}
+
+                        <label className="aup-field">
+                            <span>אימייל</span>
+                            <input
+                                type="email"
+                                name="email"
+                                value={editData.email}
+                                onChange={handleInputChange}
+                                disabled={saving}
                             />
                         </label>
                     </div>
                 ) : (
-                    <>
-                        <p><strong>אימייל:</strong> {currUser.email}</p>
-                    </>
+                    <dl className="aup-details">
+                        <dt>שם פרטי</dt>
+                        <dd>{currUser.firstName}</dd>
+
+                        <dt>שם משפחה</dt>
+                        <dd>{currUser.lastName}</dd>
+
+                        <dt>אימייל</dt>
+                        <dd className="aup-email">{currUser.email}</dd>
+
+                        <dt>תאריך הצטרפות</dt>
+                        <dd>{formatDate(currUser.createDate)}</dd>
+
+                        <dt>עדכון אחרון</dt>
+                        <dd>{formatDate(currUser.updateDate)}</dd>
+                    </dl>
                 )}
-                <p><strong>אימייל:</strong> {currUser.email}</p>
-                <p><strong>תפקיד:</strong> {currUser.userRole === "admin" ? "מנהל" : "משתמש רגיל"}</p>
-                <p><strong>תאריך הצטרפות:</strong> {new Date(currUser.createDate).toLocaleDateString("he-IL")}</p>
-                <p><strong>תאריך עדכון אחרון:</strong> {new Date(currUser.updateDate).toLocaleDateString("he-IL")}</p>
             </div>
 
-            <div className="actions" style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "15px" }}>
-                
-                {isEditing ? (
-                    <>
-                        <button 
-                            type="button" 
-                            onClick={handleSaveChanges} 
-                            style={{ backgroundColor: "#4CAF50", color: "white", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                        >
-                            שמור שינויים
-                        </button>
-                        <button 
-                            type="button" 
-                            onClick={cancelEditing} 
-                            style={{ backgroundColor: "#ccc", color: "black", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                        >
-                            ביטול
-                        </button>
-                    </>
-                ) : (
-                    canManageUser && (
-                        <button 
-                            type="button" 
-                            onClick={() => setIsEditing(true)} 
-                            style={{ backgroundColor: "#ff9800", color: "white", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                        >
-                            ערוך פרטים
-                        </button>
-                    )
-                )}
+            {/* action buttons - what shows depends on permissions */}
+            {canManage && (
+                <div className="aup-card aup-actions-card">
+                    <h3 className="aup-section-title">פעולות</h3>
 
-                {!isEditing && (role === "manager" || role === "admin") && currUser.userRole === "user" && (
-                    <button 
-                        type="button"
-                        className="btn-role" 
-                        onClick={() => handleRoleChange("manager")}
-                        style={{ backgroundColor: "#4CAF50", color: "white", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                        הפוך למנג'ר
-                    </button>
-                )}
-                
-                {!isEditing && role === "admin" && currUser.userRole === "manager" && (
-                    <button 
-                        type="button"
-                        className="btn-role" 
-                        onClick={() => handleRoleChange("user")}
-                        style={{ backgroundColor: "#4CAF50", color: "white", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                        הפוך למשתמש
-                    </button>
-                )}
-                
-                {!isEditing && role === "admin" && currUser.userRole !== "admin" && (
-                    <button 
-                        type="button"
-                        className="btn-role" 
-                        onClick={() => handleRoleChange("admin")}
-                        style={{ backgroundColor: "#2196F3", color: "white", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                        הפוך לאדמין
-                    </button>
-                )}
+                    <div className="aup-actions">
+                        {isEditing ? (
+                            <>
+                                <button
+                                    className="aup-btn aup-btn-primary"
+                                    onClick={handleSaveChanges}
+                                    disabled={saving}
+                                >
+                                    {saving ? "שומר..." : "💾 שמור שינויים"}
+                                </button>
+                                <button
+                                    className="aup-btn aup-btn-ghost"
+                                    onClick={cancelEditing}
+                                    disabled={saving}
+                                >
+                                    ביטול
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    className="aup-btn aup-btn-primary"
+                                    onClick={startEditing}
+                                    disabled={saving}
+                                >
+                                    ✏ ערוך פרטים
+                                </button>
 
-                {!isEditing && canManageUser && (
-                    <button 
-                        type="button"
-                        className="btn-delete" 
-                        onClick={() => handleDelete(currUser.userId)}
-                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                        מחק משתמש
-                    </button>  
-                )}              
-            </div>
+                                {/* role change buttons - only when not editing */}
+                                {currUser.userRole === "user" && (
+                                    <button
+                                        className="aup-btn aup-btn-secondary"
+                                        onClick={function() { handleRoleChange("manager"); }}
+                                        disabled={saving}
+                                    >
+                                        ⬆ הפוך למנהל
+                                    </button>
+                                )}
 
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            
-            <button className="btn-back" type="button" onClick={handleGoBack}>חזרה לרשימת המשתמשים</button>
+                                {currUser.userRole === "manager" && (
+                                    <button
+                                        className="aup-btn aup-btn-secondary"
+                                        onClick={function() { handleRoleChange("user"); }}
+                                        disabled={saving}
+                                    >
+                                        ⬇ הפוך למשתמש רגיל
+                                    </button>
+                                )}
 
+                                {user.userRole === "admin" && currUser.userRole !== "admin" && (
+                                    <button
+                                        className="aup-btn aup-btn-secondary"
+                                        onClick={function() { handleRoleChange("admin"); }}
+                                        disabled={saving}
+                                    >
+                                        ⭐ הפוך לאדמין
+                                    </button>
+                                )}
+
+                                <button
+                                    className="aup-btn aup-btn-danger"
+                                    onClick={handleDelete}
+                                    disabled={saving}
+                                >
+                                    🗑 מחק משתמש
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {!canManage && (
+                <div className="aup-no-permissions">
+                    אין לך הרשאה לערוך משתמש זה
+                </div>
+            )}
         </div>
     );
-}                
+}
 
-export default AdminPortaluser
+export default AdminPortaluser;

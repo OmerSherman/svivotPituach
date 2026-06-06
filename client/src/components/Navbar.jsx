@@ -2,9 +2,9 @@ import { useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import usersService from "../services/usersService";
+import userContext from "../contexts/userContext";
 import logo from "../assets/logo-transparent.svg";
 import "./Navbar.css";
-import userContext from "../contexts/userContext";
 
 function Navbar() {
     const navigate = useNavigate();
@@ -14,7 +14,7 @@ function Navbar() {
     // refresh user info from server (assignment requires GET /api/users/me)
     useEffect(() => {
         async function fetchMe() {
-            if (!user) return; // not logged in, skip
+            if (!user) return;
             try {
                 const fresh = await usersService.getMe();
                 setUser(fresh);
@@ -33,16 +33,13 @@ function Navbar() {
         navigate("/login");
     }
 
-    // scroll smoothly to the my-trips section.
-    // if we are not on home page, navigate there first then scroll
+    // smooth scroll to the my-trips section
     function handleMyTripsClick(e) {
         e.preventDefault();
         if (location.pathname === "/") {
-            // already on home - just scroll
             const el = document.getElementById("my-trips");
             if (el) el.scrollIntoView({ behavior: "smooth" });
         } else {
-            // navigate to home, then scroll after the page renders
             navigate("/");
             setTimeout(function() {
                 const el = document.getElementById("my-trips");
@@ -63,7 +60,8 @@ function Navbar() {
                         <Link to="/">דף הבית</Link>
                         <Link to="/#my-trips" onClick={handleMyTripsClick}>הטיולים שלי</Link>
                         <Link to="/settings">הגדרות</Link>
-                        {(user.userRole === "admin" || user.userRole === "maneger") && (
+                        {/* fixed - was "maneger" before, server uses "manager" */}
+                        {(user.userRole === "admin" || user.userRole === "manager") && (
                             <Link to="/adminPortal">ניהול</Link>
                         )}
                         <span className="navbar-user">שלום, {user.firstName}</span>

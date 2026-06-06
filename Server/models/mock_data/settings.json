@@ -1,13 +1,4 @@
 [
-    {
-        "userId": 1,
-        "theme": "dark"
-    },
-    {
-        "userId":2,
-        "theme":"light"
-    },
-    
-        
-    
+    { "userId": 1, "theme": "dark",  "fontSize": "medium", "density": "normal" },
+    { "userId": 2, "theme": "light", "fontSize": "medium", "density": "normal" }
 ]
