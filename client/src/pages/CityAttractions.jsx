@@ -1,44 +1,94 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import ItemCard from "../components/ItemCard";
 import SearchBar from "../components/SearchBar";
+import AttractionForm from "../components/AttractionForm";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
+import userContext from "../contexts/userContext";
 import "./CityAttractions.css";
 
 function CityAttractions() {
     const { id } = useParams();
+    const { user } = useContext(userContext);
+
+    // helpers to check role-based permissions (matches the server middleware)
+    const isAdmin = user && user.userRole === "admin";
+    const isManager = user && user.userRole === "maneger"; // typo matches server
+    const canEdit = isAdmin || isManager;     // admin + manager can edit
+    const canDelete = isAdmin;                 // only admin can delete
+    const canCreate = isAdmin;                 // only admin can create
 
     const [city, setCity] = useState(null);
     const [attractions, setAttractions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // search state (client-side filtering)
+    // search
     const [searchTerm, setSearchTerm] = useState("");
 
+    // admin form state - either creating (showForm=true) or editing (editingAttr=obj)
+    const [showForm, setShowForm] = useState(false);
+    const [editingAttr, setEditingAttr] = useState(null);
+
     useEffect(function() {
-        async function loadData() {
-            setLoading(true);
-            setError("");
-            try {
-                const [cityData, attractionsData] = await Promise.all([
-                    citiesService.getById(id),
-                    attractionsService.getAll({ cityId: id })
-                ]);
-                setCity(cityData);
-                setAttractions(attractionsData);
-            } catch (err) {
-                setError("טעינת הנתונים נכשלה: " + err.message);
-            } finally {
-                setLoading(false);
-            }
-        }
         loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    // filter attractions by search term - checks name, description, and tags
+    async function loadData() {
+        setLoading(true);
+        setError("");
+        try {
+            const [cityData, attractionsData] = await Promise.all([
+                citiesService.getById(id),
+                attractionsService.getAll({ cityId: id })
+            ]);
+            setCity(cityData);
+            setAttractions(attractionsData);
+        } catch (err) {
+            setError("טעינת הנתונים נכשלה: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // admin actions
+
+    async function handleCreate(data) {
+        try {
+            await attractionsService.create(data);
+            await loadData();
+            setShowForm(false);
+        } catch (err) {
+            alert("שגיאה ביצירת אטרקציה: " + err.message);
+            throw err; // re-throw so the form sees it
+        }
+    }
+
+    async function handleUpdate(data) {
+        try {
+            await attractionsService.update(editingAttr.id, data);
+            await loadData();
+            setEditingAttr(null);
+        } catch (err) {
+            alert("שגיאה בעדכון אטרקציה: " + err.message);
+            throw err;
+        }
+    }
+
+    async function handleDelete(attrId, attrName) {
+        if (!window.confirm("למחוק את האטרקציה \"" + attrName + "\"?")) return;
+        try {
+            await attractionsService.remove(attrId);
+            await loadData();
+        } catch (err) {
+            alert("שגיאה במחיקת אטרקציה: " + err.message);
+        }
+    }
+
+    // client-side search filter
     function matchesSearch(attr) {
         if (searchTerm.trim() === "") return true;
         const term = searchTerm.trim().toLowerCase();
@@ -53,14 +103,45 @@ function CityAttractions() {
 
     const filteredAttractions = attractions.filter(matchesSearch);
 
-    // table columns
-    const columns = [
+    // table columns - admins get an extra "actions" column
+    const baseColumns = [
         { key: "name_he",          label: "שם" },
         { key: "type",             label: "סוג",      render: renderType },
         { key: "popularity_score", label: "פופולריות", render: renderScore },
         { key: "tags",             label: "תגיות",    render: renderTags },
         { key: "best_months",      label: "חודשים מומלצים", render: renderMonths }
     ];
+
+    const adminColumn = {
+        key: "id",
+        label: "פעולות",
+        render: function(_, row) {
+            return (
+                <div className="city-row-actions">
+                    {canEdit && (
+                        <button
+                            className="city-action-btn"
+                            onClick={function() { setEditingAttr(row); }}
+                            title="עריכה"
+                        >
+                            ✏
+                        </button>
+                    )}
+                    {canDelete && (
+                        <button
+                            className="city-action-btn city-action-btn-danger"
+                            onClick={function() { handleDelete(row.id, row.name_he); }}
+                            title="מחיקה"
+                        >
+                            🗑
+                        </button>
+                    )}
+                </div>
+            );
+        }
+    };
+
+    const columns = canEdit ? baseColumns.concat([adminColumn]) : baseColumns;
 
     if (loading) {
         return (
@@ -97,19 +178,28 @@ function CityAttractions() {
                 {city.summary_he && <p className="city-summary">{city.summary_he}</p>}
             </header>
 
-            {/* search bar for attractions */}
-            <div className="city-search-wrapper">
+            {/* search + admin create button */}
+            <div className="city-toolbar">
                 <SearchBar
                     value={searchTerm}
                     onChange={setSearchTerm}
                     placeholder="חיפוש אטרקציה לפי שם, תיאור או תגית..."
                 />
-                {searchTerm && (
-                    <p className="city-search-count">
-                        נמצאו {filteredAttractions.length} מתוך {attractions.length} אטרקציות
-                    </p>
+                {canCreate && (
+                    <button
+                        className="city-add-btn"
+                        onClick={function() { setShowForm(true); }}
+                    >
+                        + אטרקציה חדשה
+                    </button>
                 )}
             </div>
+
+            {searchTerm && (
+                <p className="city-search-count">
+                    נמצאו {filteredAttractions.length} מתוך {attractions.length} אטרקציות
+                </p>
+            )}
 
             {/* table view */}
             <section className="city-section">
@@ -139,21 +229,57 @@ function CityAttractions() {
                     <div className="city-grid">
                         {filteredAttractions.map(function(attr) {
                             return (
-                                <ItemCard
-                                    key={attr.id}
-                                    title={attr.name_he}
-                                    subtitle={attr.name}
-                                    description={attr.description_he}
-                                    imageUrl={attr.image_url}
-                                    badge={typeLabel(attr.type)}
-                                    score={attr.popularity_score}
-                                    tags={attr.tags}
-                                />
+                                <div key={attr.id} className="city-card-wrapper">
+                                    <ItemCard
+                                        title={attr.name_he}
+                                        subtitle={attr.name}
+                                        description={attr.description_he}
+                                        imageUrl={attr.image_url}
+                                        badge={typeLabel(attr.type)}
+                                        score={attr.popularity_score}
+                                        tags={attr.tags}
+                                    />
+                                    {/* admin action buttons under the card */}
+                                    {canEdit && (
+                                        <div className="city-card-actions">
+                                            <button
+                                                onClick={function() { setEditingAttr(attr); }}
+                                            >
+                                                ✏ עריכה
+                                            </button>
+                                            {canDelete && (
+                                                <button
+                                                    onClick={function() { handleDelete(attr.id, attr.name_he); }}
+                                                >
+                                                    🗑 מחיקה
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             );
                         })}
                     </div>
                 )}
             </section>
+
+            {/* create or edit modal */}
+            {showForm && (
+                <AttractionForm
+                    cityId={parseInt(id)}
+                    onSave={handleCreate}
+                    onCancel={function() { setShowForm(false); }}
+                />
+            )}
+
+            {editingAttr && (
+                <AttractionForm
+                    cityId={parseInt(id)}
+                    initialData={editingAttr}
+                    onSave={handleUpdate}
+                    onCancel={function() { setEditingAttr(null); }}
+                />
+            )}
         </div>
     );
 }
