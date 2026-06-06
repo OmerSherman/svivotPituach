@@ -84,3 +84,14 @@
     border: 1px solid #f3b8b8;
     margin-bottom: 12px;
 }
+
+
+.city-search-wrapper {
+    margin-bottom: 24px;
+}
+
+.city-search-count {
+    margin: -10px 0 0;
+    font-size: 0.88rem;
+    color: #6b7280;
+}

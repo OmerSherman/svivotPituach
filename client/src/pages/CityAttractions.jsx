@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import ItemCard from "../components/ItemCard";
+import SearchBar from "../components/SearchBar";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
 import "./CityAttractions.css";
@@ -14,12 +15,14 @@ function CityAttractions() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    // search state (client-side filtering)
+    const [searchTerm, setSearchTerm] = useState("");
+
     useEffect(function() {
         async function loadData() {
             setLoading(true);
             setError("");
             try {
-                // fetch both in parallel
                 const [cityData, attractionsData] = await Promise.all([
                     citiesService.getById(id),
                     attractionsService.getAll({ cityId: id })
@@ -34,6 +37,21 @@ function CityAttractions() {
         }
         loadData();
     }, [id]);
+
+    // filter attractions by search term - checks name, description, and tags
+    function matchesSearch(attr) {
+        if (searchTerm.trim() === "") return true;
+        const term = searchTerm.trim().toLowerCase();
+
+        if (attr.name_he && attr.name_he.includes(searchTerm)) return true;
+        if (attr.name && attr.name.toLowerCase().includes(term)) return true;
+        if (attr.description_he && attr.description_he.includes(searchTerm)) return true;
+        if (attr.tags && attr.tags.some(function(t) { return t.includes(searchTerm); })) return true;
+
+        return false;
+    }
+
+    const filteredAttractions = attractions.filter(matchesSearch);
 
     // table columns
     const columns = [
@@ -79,25 +97,47 @@ function CityAttractions() {
                 {city.summary_he && <p className="city-summary">{city.summary_he}</p>}
             </header>
 
+            {/* search bar for attractions */}
+            <div className="city-search-wrapper">
+                <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="חיפוש אטרקציה לפי שם, תיאור או תגית..."
+                />
+                {searchTerm && (
+                    <p className="city-search-count">
+                        נמצאו {filteredAttractions.length} מתוך {attractions.length} אטרקציות
+                    </p>
+                )}
+            </div>
+
             {/* table view */}
             <section className="city-section">
                 <h2>טבלת אטרקציות</h2>
                 <DataTable
                     columns={columns}
-                    rows={attractions}
+                    rows={filteredAttractions}
                     rowKey="id"
-                    emptyMessage="לא נמצאו אטרקציות בעיר זו"
+                    emptyMessage={
+                        searchTerm
+                            ? "לא נמצאו אטרקציות התואמות לחיפוש"
+                            : "לא נמצאו אטרקציות בעיר זו"
+                    }
                 />
             </section>
 
             {/* cards view */}
             <section className="city-section">
                 <h2>כרטיסיות אטרקציות</h2>
-                {attractions.length === 0 ? (
-                    <p className="city-empty">לא נמצאו אטרקציות בעיר זו</p>
+                {filteredAttractions.length === 0 ? (
+                    <p className="city-empty">
+                        {searchTerm
+                            ? "לא נמצאו אטרקציות התואמות לחיפוש"
+                            : "לא נמצאו אטרקציות בעיר זו"}
+                    </p>
                 ) : (
                     <div className="city-grid">
-                        {attractions.map(function(attr) {
+                        {filteredAttractions.map(function(attr) {
                             return (
                                 <ItemCard
                                     key={attr.id}

@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ItemCard from "../components/ItemCard";
 import TripForm from "../components/TripForm";
+import SearchBar from "../components/SearchBar";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
 import tripsService from "../services/tripsService";
@@ -19,29 +20,32 @@ function Home() {
     const navigate = useNavigate();
     const { user } = useContext(userContext);
 
-    // cities section state
-    const [cities, setCities] = useState([]);
+    // cities state - we keep the full list separately so we can restore it when search clears
+    const [allCities, setAllCities] = useState([]);
+    const [displayCities, setDisplayCities] = useState([]);
     const [citiesLoading, setCitiesLoading] = useState(true);
     const [citiesError, setCitiesError] = useState("");
+    const [citySearch, setCitySearch] = useState("");
 
-    // top attractions section state
+    // top attractions state
     const [topAttractions, setTopAttractions] = useState([]);
     const [attractionsLoading, setAttractionsLoading] = useState(true);
     const [attractionsError, setAttractionsError] = useState("");
 
-    // my trips section state
+    // my trips state
     const [trips, setTrips] = useState([]);
     const [tripsLoading, setTripsLoading] = useState(true);
     const [tripsError, setTripsError] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
 
-    // fetch cities on mount
+    // fetch all cities on mount
     useEffect(function() {
         async function fetchCities() {
             try {
                 const data = await citiesService.getAll();
-                setCities(data);
+                setAllCities(data);
+                setDisplayCities(data);
             } catch (err) {
                 setCitiesError("לא ניתן לטעון את הערים: " + err.message);
             } finally {
@@ -51,12 +55,33 @@ function Home() {
         fetchCities();
     }, []);
 
+    // when the user types, wait 300ms before calling the search API.
+    // this is called debouncing - it prevents one API call per keystroke
+    useEffect(function() {
+        // empty search - show all cities, no API call
+        if (citySearch.trim() === "") {
+            setDisplayCities(allCities);
+            return;
+        }
+
+        const handler = setTimeout(async function() {
+            try {
+                const results = await citiesService.search(citySearch);
+                setDisplayCities(results);
+            } catch (err) {
+                console.warn("city search failed:", err.message);
+            }
+        }, 300);
+
+        // cancel the timer if the user types again before 300ms
+        return function() { clearTimeout(handler); };
+    }, [citySearch, allCities]);
+
     // fetch top attractions on mount
     useEffect(function() {
         async function fetchAttractions() {
             try {
                 const data = await attractionsService.getAll();
-                // sort by popularity, take top 6
                 const sorted = data
                     .slice()
                     .sort(function(a, b) { return b.popularity_score - a.popularity_score; })
@@ -133,9 +158,15 @@ function Home() {
                 </p>
             </header>
 
-            {/* section 1 - cities */}
+            {/* section 1 - cities, with search */}
             <section className="home-section">
                 <h2>ערים שכדאי להכיר</h2>
+
+                <SearchBar
+                    value={citySearch}
+                    onChange={setCitySearch}
+                    placeholder="חיפוש עיר לפי שם..."
+                />
 
                 {citiesLoading && (
                     <p className="home-loading">טוען ערים...</p>
@@ -145,13 +176,15 @@ function Home() {
                     <p className="home-error">{citiesError}</p>
                 )}
 
-                {!citiesLoading && !citiesError && cities.length === 0 && (
-                    <p className="home-empty">לא נמצאו ערים להצגה.</p>
+                {!citiesLoading && !citiesError && displayCities.length === 0 && (
+                    <p className="home-empty">
+                        {citySearch ? "לא נמצאו ערים התואמות לחיפוש." : "לא נמצאו ערים להצגה."}
+                    </p>
                 )}
 
-                {!citiesLoading && !citiesError && cities.length > 0 && (
+                {!citiesLoading && !citiesError && displayCities.length > 0 && (
                     <div className="home-grid">
-                        {cities.map(function(city) {
+                        {displayCities.map(function(city) {
                             return (
                                 <ItemCard
                                     key={city.id}
@@ -168,7 +201,7 @@ function Home() {
                 )}
             </section>
 
-            {/* section 2 - top attractions across the whole continent */}
+            {/* section 2 - top attractions */}
             <section className="home-section">
                 <h2>האטרקציות המובילות</h2>
 
@@ -204,7 +237,7 @@ function Home() {
                 )}
             </section>
 
-            {/* section 3 - my trips. has id so navbar can scroll to it */}
+            {/* section 3 - my trips */}
             <section className="home-section" id="my-trips">
                 <div className="home-trips-header">
                     <h2>הטיולים שלי</h2>
@@ -263,12 +296,9 @@ function Home() {
                 )}
             </section>
 
-            {/* trip form modal - create or edit */}
+            {/* trip form modal */}
             {showForm && (
-                <TripForm
-                    onSave={handleCreate}
-                    onCancel={function() { setShowForm(false); }}
-                />
+                <TripForm onSave={handleCreate} onCancel={function() { setShowForm(false); }} />
             )}
 
             {editingTrip && (
@@ -282,7 +312,6 @@ function Home() {
     );
 }
 
-// english attraction type -> hebrew label
 function translateType(type) {
     if (type === "site")  return "אתר";
     if (type === "tour")  return "סיור";
