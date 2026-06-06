@@ -3,8 +3,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 24px;
-    background: #2d3748;
-    color: #fff;
+    background: var(--bg-navbar);
+    color: var(--text-on-dark);
 }
 
 .navbar-logo {
@@ -27,7 +27,7 @@
 }
 
 .navbar-links a {
-    color: #e2e8f0;
+    color: var(--text-on-dark-soft);
     text-decoration: none;
     font-size: 0.95rem;
     padding: 6px 12px;
@@ -37,18 +37,18 @@
 
 .navbar-links a:hover {
     background: rgba(255, 255, 255, 0.12);
-    color: #fff;
+    color: var(--text-on-dark);
 }
 
 .navbar-user {
-    color: #a0aec0;
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.9rem;
 }
 
 .navbar-logout {
     padding: 6px 14px;
     background: rgba(255, 255, 255, 0.1);
-    color: #e2e8f0;
+    color: var(--text-on-dark-soft);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     cursor: pointer;
@@ -58,4 +58,24 @@
 
 .navbar-logout:hover {
     background: rgba(255, 255, 255, 0.2);
+}
+
+/* quick theme toggle button */
+.navbar-theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.navbar-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.08);
 }
