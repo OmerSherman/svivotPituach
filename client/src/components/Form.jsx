@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Form.css";
+import TahiniLoader from "./TahiniLoader";
 
 function FormField(props) {
     const [value, setValue] = useState("");
@@ -32,6 +33,9 @@ function Form({ configForm }) {
         try {
             const formData = new FormData(e.target);
             const dataToSubmit = Object.fromEntries(formData.entries());
+
+            //to test loading add this line of code 
+            await new Promise(resolve => setTimeout(resolve, 3000));
 
             await configForm.onSubmit(dataToSubmit);
             // navigate only if config requested it
@@ -69,6 +73,7 @@ function Form({ configForm }) {
                 <button type="submit" className="form-submit" disabled={loading}>
                     {loading ? btnLoading : btnText}
                 </button>
+                {loading && <TahiniLoader/>}
             </form>
         </div>
     );

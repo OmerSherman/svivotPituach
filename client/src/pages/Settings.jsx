@@ -4,13 +4,14 @@ import "./Settings.css";
 import usersService from "../services/usersService";
 import userContext from "../contexts/userContext";
 import { useNavigate } from "react-router-dom";
+import TahiniLoader from "../components/TahiniLoader";
 
 function Settings() {
     const navigate = useNavigate()
     const {user, setUser} = useContext(userContext)
     // form fields
     const [firstName,    setFirstName]    = useState("");
-    const [lastName,     setLastName]     = useState("");
+    const [theme,     setTheme]     = useState("light");
     const [email,        setEmail]        = useState("");
 
     // ui states
@@ -23,9 +24,15 @@ function Settings() {
     useEffect(function() {
         async function loadSettings() {
             try {
-                setFirstName(user.firstName || "");
-                setLastName(user.lastName || "");
-                setEmail(user.email || "");
+                const settings = await settingsService.get()
+                setFirstName(settings.firstName || "");
+                setEmail(settings.email);
+                setTheme(settings.email)
+                setUser(user => ({
+                    ...user,
+                    firstName: settings.firstName,
+                    email: settings.email 
+                }))
             } catch (err) {
                 setError("שגיאה בטעינת ההגדרות: " + err.message);
             } finally {
@@ -53,10 +60,7 @@ function Settings() {
             setError("חובה למלא שם פרטי");
             return;
         }
-        if (!lastName.trim()) {
-            setError("חובה למלא שם משפחה");
-            return;
-        }
+     
         if (!isValidEmail(email)) {
             setError("כתובת אימייל לא תקינה");
             return;
@@ -66,8 +70,8 @@ function Settings() {
         try {
             await usersService.updateMe({
                 firstName:   firstName.trim(),
-                lastName:    lastName.trim(),
                 email:       email.trim(),
+                theme: theme
             });
             setSuccess("ההגדרות נשמרו בהצלחה");
         } catch (err) {
@@ -77,13 +81,7 @@ function Settings() {
         }
     }
 
-    if (initialLoading) {
-        return (
-            <div className="settings-page">
-                <p className="settings-loading">טוען הגדרות...</p>
-            </div>
-        );
-    }
+    
 
     const handleDelete =async ()=>{
         const isConfirmed = window.confirm("האם אתה בטוח שברצונך למחוק משתמש זה?");
@@ -120,16 +118,6 @@ function Settings() {
                 </label>
 
                 <label className="settings-field">
-                    <span>שם משפחה</span>
-                    <input
-                        type="text"
-                        value={lastName}
-                        onChange={function(e) { setLastName(e.target.value); }}
-                        disabled={saving}
-                    />
-                </label>
-
-                <label className="settings-field">
                     <span>אימייל</span>
                     <input
                         type="email"
@@ -137,6 +125,17 @@ function Settings() {
                         onChange={function(e) { setEmail(e.target.value); }}
                         disabled={saving}
                     />
+                </label>
+                <label className="settings-field">
+                    <span>ערכת נושא</span>
+                    <select
+                        value={theme}
+                        onChange={function(e) { setTheme(e.target.value); }}
+                        disabled={saving}
+                    >
+                        <option value="light">בהיר</option>
+                        <option value="dark">כהה</option>
+                    </select>
                 </label>
 
                 {error   && <p className="settings-error">{error}</p>}
@@ -148,6 +147,9 @@ function Settings() {
                 <button type="button" className="settings-delete" onClick={()=>handleDelete()}>
                     מחק משתמש ): 
                 </button>
+                {
+                    (initialLoading || saving) && <TahiniLoader/>
+                }
                 
             </form>
         </div>
