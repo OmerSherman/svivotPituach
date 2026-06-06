@@ -7,7 +7,6 @@ import Home from "./pages/Home";
 import TripDetail from "./pages/TripDetail";
 import Settings from "./pages/Settings";
 import CityAttractions from "./pages/CityAttractions";
-<<<<<<< HEAD
 import AdminPortal from "./pages/adminPortal";
 import AdminPortaluser from "./pages/adminPortaluser";
 import userContext from "./contexts/userContext";
@@ -16,19 +15,6 @@ import settingsService from "./services/settingsService";
 
 const PREFS_KEY = "preferences";
 const DEFAULT_PREFS = { theme: "light", fontSize: "medium", density: "normal" };
-=======
-import userContext from "./contexts/userContext";
-import preferencesContext from "./contexts/preferencesContext";
-import { useEffect, useState } from "react";
-import AdminPortal from "./pages/adminPortal";
-import AdminPortaluser from "./pages/adminPortaluser";
-import settingsService from "./services/settingsService";
-
-const PREFERENCES_KEY = "preferences";
-
-// default values - used when nothing is in localStorage yet
-const DEFAULT_PREFERENCES = { theme: "light", fontSize: "medium", density: "normal" };
->>>>>>> 76c7c9d41d44c5868b9be93fe723082befe287fc
 
 function App() {
     // start user state from localStorage so refresh keeps the user logged in
@@ -37,7 +23,6 @@ function App() {
         return stored ? JSON.parse(stored) : null;
     });
 
-<<<<<<< HEAD
     // start preferences from local storage too - prevents a flash of wrong theme on refresh
     const [preferences, setPreferences] = useState(() => {
         const stored = localStorage.getItem(PREFS_KEY);
@@ -54,23 +39,6 @@ function App() {
     //   2. apply as data-* attributes on <html> so the css picks up
     useEffect(function() {
         localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
-=======
-    // preferences start from localStorage too (no flash of wrong theme on refresh)
-    const [preferences, setPreferences] = useState(() => {
-        const stored = localStorage.getItem(PREFERENCES_KEY);
-        if (!stored) return DEFAULT_PREFERENCES;
-        try {
-            return Object.assign({}, DEFAULT_PREFERENCES, JSON.parse(stored));
-        } catch (err) {
-            return DEFAULT_PREFERENCES;
-        }
-    });
-
-    // when preferences change - save to localStorage AND apply to the html element
-    useEffect(function() {
-        localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));
-        // apply via data-* attributes that the css listens to
->>>>>>> 76c7c9d41d44c5868b9be93fe723082befe287fc
         document.documentElement.setAttribute("data-theme",     preferences.theme);
         document.documentElement.setAttribute("data-font-size", preferences.fontSize);
         document.documentElement.setAttribute("data-density",   preferences.density);
@@ -78,7 +46,6 @@ function App() {
 
     // when the user logs in - fetch their saved preferences from the server
     useEffect(function() {
-<<<<<<< HEAD
         async function fetchFromServer() {
             if (!user) return;
             try {
@@ -96,21 +63,6 @@ function App() {
             }
         }
         fetchFromServer();
-=======
-        async function fetchPreferences() {
-            if (!user) return;
-            try {
-                const data = await settingsService.get();
-                if (data.preferences) {
-                    setPreferences(Object.assign({}, DEFAULT_PREFERENCES, data.preferences));
-                }
-            } catch (err) {
-                // not critical - just use whatever is in localStorage
-                console.warn("could not load server preferences:", err.message);
-            }
-        }
-        fetchPreferences();
->>>>>>> 76c7c9d41d44c5868b9be93fe723082befe287fc
     }, [user]);
 
     return (

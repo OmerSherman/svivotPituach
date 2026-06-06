@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* ============================================
    DESIGN TOKENS - light theme (default)
    any change to a variable propagates to every component using var()
@@ -9,15 +8,6 @@
     --bg-surface:        #ffffff;     /* cards, modals */
     --bg-surface-2:      #fafbfd;     /* inputs */
     --bg-surface-3:      #f4f6fb;     /* slight tint */
-=======
-
-:root {
-    /* backgrounds */
-    --bg-page:           #f8fafc;
-    --bg-surface:        #ffffff;        /* cards, modals */
-    --bg-surface-2:      #fafbfd;        /* inputs */
-    --bg-surface-3:      #f4f6fb;        /* very subtle tint */
->>>>>>> 76c7c9d41d44c5868b9be93fe723082befe287fc
     --bg-navbar:         #2d3748;
     --bg-overlay:        rgba(0, 0, 0, 0.55);
 
