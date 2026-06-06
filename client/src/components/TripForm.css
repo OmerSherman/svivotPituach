@@ -1,4 +1,5 @@
-.tf-overlay {
+/* the dark overlay that covers the page behind the modal */
+.trip-form-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--bg-overlay);
@@ -10,7 +11,8 @@
     overflow-y: auto;
 }
 
-.tf-modal {
+/* the white card in the center */
+.trip-form {
     background: var(--bg-surface);
     border-radius: 16px;
     width: 100%;
@@ -20,47 +22,22 @@
     box-shadow: var(--shadow-modal);
     margin: auto;
     color: var(--text-primary);
-}
-
-.tf-close {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg-surface-3);
-    color: var(--text-secondary);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.tf-close:hover {
-    background: var(--border-color);
-}
-
-.tf-modal h2 {
-    margin: 0 0 20px;
-    font-size: 1.4rem;
-    color: var(--text-primary);
-    text-align: center;
-}
-
-.tf-modal form {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
-.tf-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+.trip-form h2 {
+    margin: 0 0 6px;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    text-align: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color-soft);
 }
 
-.tf-modal label {
+/* single field (label + input) */
+.trip-form-field {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -69,11 +46,8 @@
     color: var(--text-primary);
 }
 
-.tf-full { grid-column: span 2; }
-
-.tf-modal input,
-.tf-modal select,
-.tf-modal textarea {
+.trip-form-field input,
+.trip-form-field select {
     padding: 9px 12px;
     border: 1px solid var(--border-color-input);
     border-radius: 9px;
@@ -82,26 +56,34 @@
     background: var(--bg-surface-2);
     color: var(--text-primary);
     font-weight: normal;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
-.tf-modal input:focus,
-.tf-modal select:focus,
-.tf-modal textarea:focus {
+.trip-form-field input:focus,
+.trip-form-field select:focus {
     outline: none;
     border-color: var(--accent-primary);
     background: var(--bg-surface);
     box-shadow: 0 0 0 3px rgba(59, 76, 202, 0.12);
 }
 
-.tf-interests {
+/* two columns side by side */
+.trip-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* interest chips container */
+.trip-form-interests {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 8px 0;
+    padding-top: 6px;
 }
 
-.tf-chip {
+/* one interest chip */
+.interest-chip {
     padding: 6px 14px;
     border-radius: 18px;
     border: 1px solid var(--border-color-input);
@@ -110,25 +92,27 @@
     cursor: pointer;
     font-size: 0.85rem;
     font-family: inherit;
+    font-weight: normal;
     transition: all 0.15s;
 }
 
-.tf-chip:hover {
+.interest-chip:hover {
     border-color: var(--accent-primary);
     color: var(--accent-primary);
 }
 
-.tf-chip-selected {
+.interest-chip-active {
     background: var(--accent-primary);
     color: #ffffff;
     border-color: var(--accent-primary);
 }
 
-.tf-chip-selected:hover {
+.interest-chip-active:hover {
     color: #ffffff;
 }
 
-.tf-error {
+/* error message */
+.trip-form-error {
     margin: 0;
     padding: 10px 12px;
     background: var(--status-error-bg);
@@ -138,7 +122,8 @@
     font-size: 0.9rem;
 }
 
-.tf-actions {
+/* row of save / cancel buttons */
+.trip-form-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -147,12 +132,11 @@
     border-top: 1px solid var(--border-color-soft);
 }
 
-.tf-actions button {
+.trip-form-save,
+.trip-form-cancel {
     padding: 9px 20px;
     border-radius: 9px;
     border: 1px solid var(--border-color-input);
-    background: var(--bg-surface);
-    color: var(--text-primary);
     cursor: pointer;
     font-family: inherit;
     font-size: 0.95rem;
@@ -160,21 +144,21 @@
     transition: background 0.15s;
 }
 
-.tf-actions button:hover:not(:disabled) {
+.trip-form-cancel {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.trip-form-cancel:hover {
     background: var(--bg-surface-3);
 }
 
-.tf-submit {
-    background: var(--accent-primary) !important;
-    color: #ffffff !important;
-    border-color: var(--accent-primary) !important;
+.trip-form-save {
+    background: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
 }
 
-.tf-submit:hover:not(:disabled) {
-    background: var(--accent-primary-hover) !important;
-}
-
-.tf-actions button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.trip-form-save:hover {
+    background: var(--accent-primary-hover);
 }
