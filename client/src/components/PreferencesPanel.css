@@ -1,0 +1,77 @@
+/* the panel floats below the navbar button */
+.pp-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-modal);
+    padding: 16px;
+    min-width: 280px;
+    z-index: 50;
+    animation: pp-fade-in 0.15s ease-out;
+}
+
+@keyframes pp-fade-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.pp-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color-soft);
+}
+
+.pp-row {
+    margin-bottom: 14px;
+}
+
+.pp-row:last-child {
+    margin-bottom: 0;
+}
+
+.pp-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.pp-options {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-surface-3);
+    padding: 3px;
+    border-radius: 8px;
+}
+
+.pp-option {
+    flex: 1;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.pp-option:hover:not(.pp-option-active) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.pp-option-active {
+    background: var(--accent-primary);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(59, 76, 202, 0.3);
+}

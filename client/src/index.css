@@ -1,32 +1,155 @@
+/* ============================================
+   DESIGN TOKENS - light mode (default)
+   any change to a variable propagates to all components
+   ============================================ */
+:root {
+    /* backgrounds */
+    --bg-page:           #f8fafc;
+    --bg-surface:        #ffffff;        /* cards, modals */
+    --bg-surface-2:      #fafbfd;        /* inputs */
+    --bg-surface-3:      #f4f6fb;        /* very subtle tint */
+    --bg-navbar:         #2d3748;
+    --bg-overlay:        rgba(0, 0, 0, 0.55);
+
+    /* text */
+    --text-primary:      #1a202c;
+    --text-secondary:    #555555;
+    --text-muted:        #6b7280;
+    --text-on-dark:      #ffffff;        /* text on navbar */
+    --text-on-dark-soft: #e2e8f0;
+
+    /* accents - same in both themes */
+    --accent-primary:        #3b4cca;
+    --accent-primary-hover:  #2d3aa6;
+    --accent-secondary:      #c97447;
+    --accent-link:           #3b4cca;
+
+    /* borders */
+    --border-color:       #e3e3e3;
+    --border-color-soft:  #f0f0f0;
+    --border-color-input: #d0d6e2;
+
+    /* tags */
+    --tag-bg:             #eef2ff;
+    --tag-color:          #3b4cca;
+    --tag-fav-bg:         #fde8e8;
+    --tag-fav-color:      #c53030;
+
+    /* status colors */
+    --status-error-bg:    #fdecec;
+    --status-error-text:  #a32525;
+    --status-error-border:#f3b8b8;
+    --status-success-bg:  #e9f7ee;
+    --status-success-text:#1e6b3a;
+    --status-success-border:#b6e1c5;
+    --status-warning-bg:  #fefcf3;
+    --status-warning-text:#816800;
+    --status-warning-border:#e6c75d;
+
+    /* shadows */
+    --shadow-card:       0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-card-hover: 0 6px 18px rgba(0, 0, 0, 0.1);
+    --shadow-modal:      0 12px 40px rgba(0, 0, 0, 0.25);
+
+    /* sizing - controlled by Settings */
+    --base-font-size:        16px;
+    --grid-min-card-width:   260px;
+}
+
+/* ============================================
+   DARK THEME - kicks in when html has data-theme="dark"
+   ============================================ */
+[data-theme="dark"] {
+    --bg-page:           #1a1d29;
+    --bg-surface:        #252837;
+    --bg-surface-2:      #2d3142;
+    --bg-surface-3:      #2a2d3c;
+    --bg-navbar:         #15171f;
+    --bg-overlay:        rgba(0, 0, 0, 0.75);
+
+    --text-primary:      #f1f3f8;
+    --text-secondary:    #c0c5d0;
+    --text-muted:        #9ca3af;
+
+    --accent-link:       #8a98e8;
+    --accent-primary-hover: #4a5cd6;
+
+    --border-color:       #3a3d4d;
+    --border-color-soft:  #2d3142;
+    --border-color-input: #444758;
+
+    --tag-bg:             #2c3251;
+    --tag-color:          #a4b3f0;
+    --tag-fav-bg:         #4a2222;
+    --tag-fav-color:      #f59999;
+
+    --status-error-bg:    #3d1f1f;
+    --status-error-text:  #f3b8b8;
+    --status-error-border:#6b3333;
+    --status-success-bg:  #1f3d27;
+    --status-success-text:#a8e0bc;
+    --status-success-border:#3a6b48;
+    --status-warning-bg:  #3d3322;
+    --status-warning-text:#f0d585;
+    --status-warning-border:#6b5a33;
+
+    --shadow-card:       0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-card-hover: 0 6px 18px rgba(0, 0, 0, 0.45);
+    --shadow-modal:      0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================
+   FONT SIZE - scales the whole page
+   ============================================ */
+[data-font-size="small"]  { --base-font-size: 14px; }
+[data-font-size="medium"] { --base-font-size: 16px; }
+[data-font-size="large"]  { --base-font-size: 18px; }
+
+/* ============================================
+   CARD DENSITY - changes how many cards fit per row
+   ============================================ */
+[data-density="compact"]  { --grid-min-card-width: 200px; }
+[data-density="normal"]   { --grid-min-card-width: 260px; }
+[data-density="spacious"] { --grid-min-card-width: 320px; }
+
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
+html {
+    /* changing this scales the entire UI via rem units */
+    font-size: var(--base-font-size);
+}
+
 html, body {
-  margin: 0;
-  padding: 0;
-  direction: rtl;
-  text-align: right;
-  background: #f8fafc;
-  color: #1a202c;
+    margin: 0;
+    padding: 0;
+    direction: rtl;
+    text-align: right;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    transition: background-color 0.2s, color 0.2s;
 }
 
 body {
-  font-family: 'Rubik', 'Segoe UI', 'Heebo', system-ui, -apple-system, BlinkMacSystemFont,
-    'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
+    font-family: 'Rubik', 'Segoe UI', 'Heebo', system-ui, -apple-system, BlinkMacSystemFont,
+        'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 code {
-  font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Courier New', monospace;
-  direction: ltr;
+    font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Courier New', monospace;
+    direction: ltr;
 }
 
 button,
 input,
 select,
 textarea {
-  font-family: inherit;
+    font-family: inherit;
 }

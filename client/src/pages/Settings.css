@@ -11,23 +11,23 @@
 .settings-header h1 {
     margin: 0 0 6px;
     font-size: 1.8rem;
-    color: #1a202c;
+    color: var(--text-primary);
 }
 
 .settings-header p {
     margin: 0;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .settings-form {
-    background: #ffffff;
-    border: 1px solid #e3e3e3;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: 14px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: var(--shadow-card);
 }
 
 .settings-field {
@@ -38,30 +38,28 @@
 
 .settings-field span {
     font-weight: 600;
-    color: #2d3748;
+    color: var(--text-primary);
     font-size: 0.95rem;
 }
 
-.settings-field input,
-.settings-field select {
+.settings-field input {
     padding: 10px 12px;
-    border: 1px solid #d0d6e2;
+    border: 1px solid var(--border-color-input);
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
-    background: #fafbfd;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
     transition: border-color 0.15s, background 0.15s;
 }
 
-.settings-field input:focus,
-.settings-field select:focus {
+.settings-field input:focus {
     outline: none;
-    border-color: #3b4cca;
-    background: #ffffff;
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
 }
 
-.settings-field input:disabled,
-.settings-field select:disabled {
+.settings-field input:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -69,8 +67,8 @@
 .settings-submit {
     margin-top: 8px;
     padding: 12px 18px;
-    background: #3b4cca;
-    color: #ffffff;
+    background: var(--accent-primary);
+    color: var(--text-on-dark);
     border: none;
     border-radius: 10px;
     font-size: 1rem;
@@ -80,11 +78,11 @@
 }
 
 .settings-submit:hover:not(:disabled) {
-    background: #2d3aa6;
+    background: var(--accent-primary-hover);
 }
 
 .settings-submit:disabled {
-    background: #a0a8d8;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
@@ -98,19 +96,19 @@
 }
 
 .settings-error {
-    background: #fdecec;
-    color: #a32525;
-    border: 1px solid #f3b8b8;
+    background: var(--status-error-bg);
+    color: var(--status-error-text);
+    border: 1px solid var(--status-error-border);
 }
 
 .settings-success {
-    background: #e9f7ee;
-    color: #1e6b3a;
-    border: 1px solid #b6e1c5;
+    background: var(--status-success-bg);
+    color: var(--status-success-text);
+    border: 1px solid var(--status-success-border);
 }
 
 .settings-loading {
-    background: #f4f6fb;
-    color: #555;
+    background: var(--bg-surface-3);
+    color: var(--text-secondary);
     text-align: center;
 }

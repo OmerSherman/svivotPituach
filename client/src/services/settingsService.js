@@ -10,5 +10,11 @@ async function update(updates) {
     return res.data;
 }
 
-const settingsService = { get, update };
+// only update preferences, no other fields
+async function updatePreferences(preferences) {
+    const res = await api.put("/settings", { preferences: preferences });
+    return res.data;
+}
+
+const settingsService = { get, update, updatePreferences };
 export default settingsService;

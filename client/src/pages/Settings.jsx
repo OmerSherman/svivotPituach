@@ -1,17 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import settingsService from "../services/settingsService";
-import "./Settings.css";
-import usersService from "../services/usersService";
 import userContext from "../contexts/userContext";
-import { useNavigate } from "react-router-dom";
+import "./Settings.css";
 
 function Settings() {
-    const navigate = useNavigate()
-    const {user, setUser} = useContext(userContext)
+    const { user, setUser } = useContext(userContext);
+
     // form fields
-    const [firstName,    setFirstName]    = useState("");
-    const [lastName,     setLastName]     = useState("");
-    const [email,        setEmail]        = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName,  setLastName]  = useState("");
+    const [email,     setEmail]     = useState("");
 
     // ui states
     const [initialLoading, setInitialLoading] = useState(true);
@@ -50,26 +48,23 @@ function Settings() {
         setSuccess("");
 
         // validate
-        if (!firstName.trim()) {
-            setError("חובה למלא שם פרטי");
-            return;
-        }
-        if (!lastName.trim()) {
-            setError("חובה למלא שם משפחה");
-            return;
-        }
-        if (!isValidEmail(email)) {
-            setError("כתובת אימייל לא תקינה");
-            return;
-        }
+        if (!firstName.trim()) { setError("חובה למלא שם פרטי"); return; }
+        if (!lastName.trim())  { setError("חובה למלא שם משפחה"); return; }
+        if (!isValidEmail(email)) { setError("כתובת אימייל לא תקינה"); return; }
 
         setSaving(true);
         try {
             await settingsService.update({
-                firstName:   firstName.trim(),
-                lastName:    lastName.trim(),
-                email:       email.trim(),
+                firstName: firstName.trim(),
+                lastName:  lastName.trim(),
+                email:     email.trim()
             });
+
+            // update user in context so navbar reflects changes
+            if (user) {
+                setUser({ ...user, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim() });
+            }
+
             setSuccess("ההגדרות נשמרו בהצלחה");
         } catch (err) {
             setError("שמירה נכשלה: " + err.message);
@@ -86,30 +81,14 @@ function Settings() {
         );
     }
 
-    const handleDelete =async ()=>{
-        const isConfirmed = window.confirm("האם אתה בטוח שברצונך למחוק משתמש זה?");
-        if (!isConfirmed) return;
-        try{
-            await usersService.del(user.userId)
-            alert("אנחנו נפרדים לשלום 👋");
-            setUser(null)
-            localStorage.removeItem("user");
-            navigate("/login")
-        }
-        catch(err){
-            setError("המחיקה נכשלה" + err.message)
-        }
-    }
-
     return (
         <div className="settings-page">
             <header className="settings-header">
                 <h1>הגדרות</h1>
-                <p>עדכון פרטי המשתמש והעדפות התצוגה.</p>
+                <p>עדכן את הפרטים האישיים שלך</p>
             </header>
 
             <form className="settings-form" onSubmit={handleSubmit}>
-
                 <label className="settings-field">
                     <span>שם פרטי</span>
                     <input
@@ -144,12 +123,8 @@ function Settings() {
                 {success && <p className="settings-success">{success}</p>}
 
                 <button type="submit" className="settings-submit" disabled={saving}>
-                    {saving ? "שומר..." : "שמור שינויים"}
+                    {saving ? "שומר..." : "שמירה"}
                 </button>
-                <button type="button" className="settings-delete" onClick={()=>handleDelete()}>
-                    מחק משתמש ): 
-                </button>
-                
             </form>
         </div>
     );
