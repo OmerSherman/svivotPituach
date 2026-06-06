@@ -1,19 +1,20 @@
 import { useNavigate } from "react-router-dom";
-function UsersList({users , setUsersList}){
-    const navigate = useNavigate()
+import "./UsersList.css"; 
+
+function UsersList({ users, setUsersList }) {
+    const navigate = useNavigate();
 
     const handleClick = (user) => {
-        navigate("/adminPortaluser",  {state : {user: user}}) //navigate to specific user admin portal with state as the user
-
-    }
-    const roles= {"admin" : "אדמין", "manager": "מנהל" , "user": "משתמש"}
+        navigate("/adminPortaluser", { state: { user: user } });
+    };
     
+    const roles = { admin: "אדמין", manager: "מנהל", user: "משתמש" };
 
     return (
         <div className="grid-container">
-            <table className="data-grid" style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="data-grid">
                 <thead>
-                    <tr style={{ backgroundColor: "#f4f4f4", textAlign: "left" }}>
+                    <tr>
                         <th>ID</th>
                         <th>שם מלא (Full Name)</th>
                         <th>אימייל (Email)</th>
@@ -24,10 +25,9 @@ function UsersList({users , setUsersList}){
                 </thead>
                 <tbody>
                     {users.map((user) => (
-                        <tr 
-                            key={user.userId} 
+                        <tr
+                            key={user.userId}
                             onClick={() => handleClick(user)}
-                            style={{ cursor: "pointer", borderBottom: "1px solid #ddd" }}
                             className="grid-row"
                         >
                             <td>{user.userId}</td>
@@ -37,7 +37,6 @@ function UsersList({users , setUsersList}){
                             <td>
                                 {new Date(user.createDate).toLocaleDateString("he-IL")}
                             </td>
-                            {/* התוספת החדשה: שליפת תאריך העדכון ופירמוט שלו */}
                             <td>
                                 {new Date(user.updateDate).toLocaleDateString("he-IL")}
                             </td>
@@ -49,4 +48,4 @@ function UsersList({users , setUsersList}){
     );
 }
 
-export default UsersList
+export default UsersList;
