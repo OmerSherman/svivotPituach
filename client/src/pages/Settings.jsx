@@ -94,7 +94,7 @@ function Settings() {
             alert("אנחנו נפרדים לשלום 👋");
             setUser(null)
             localStorage.removeItem("user");
-            Navigate("/login")
+            navigate("/login")
         }
         catch(err){
             setError("המחיקה נכשלה" + err.message)
