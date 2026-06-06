@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import usersService from "../services/usersService";
 import logo from "../assets/logo-transparent.svg";
@@ -8,6 +8,7 @@ import userContext from "../contexts/userContext";
 
 function Navbar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, setUser } = useContext(userContext);
 
     // refresh user info from server (assignment requires GET /api/users/me)
@@ -32,6 +33,24 @@ function Navbar() {
         navigate("/login");
     }
 
+    // scroll smoothly to the my-trips section.
+    // if we are not on home page, navigate there first then scroll
+    function handleMyTripsClick(e) {
+        e.preventDefault();
+        if (location.pathname === "/") {
+            // already on home - just scroll
+            const el = document.getElementById("my-trips");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        } else {
+            // navigate to home, then scroll after the page renders
+            navigate("/");
+            setTimeout(function() {
+                const el = document.getElementById("my-trips");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        }
+    }
+
     return (
         <nav className="navbar">
             <div className="navbar-logo">
@@ -41,10 +60,11 @@ function Navbar() {
             <div className="navbar-links">
                 {user ? (
                     <>
-                        <Link to="/">הטיולים שלי</Link>
+                        <Link to="/">דף הבית</Link>
+                        <Link to="/#my-trips" onClick={handleMyTripsClick}>הטיולים שלי</Link>
                         <Link to="/settings">הגדרות</Link>
                         {(user.userRole === "admin" || user.userRole === "maneger") && (
-                            <Link to="adminPortal">ניהול</Link>
+                            <Link to="/adminPortal">ניהול</Link>
                         )}
                         <span className="navbar-user">שלום, {user.firstName}</span>
                         <button className="navbar-logout" onClick={handleLogout}>התנתק</button>

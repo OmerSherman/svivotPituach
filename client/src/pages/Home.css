@@ -4,6 +4,7 @@
     padding: 24px 20px 60px;
 }
 
+/* hero / welcome header */
 .home-hero {
     text-align: center;
     padding: 30px 0 24px;
@@ -18,13 +19,18 @@
 }
 
 .home-subtitle {
-    margin: 0;
+    margin: 0 auto;
     color: #555;
     font-size: 1.05rem;
+    max-width: 600px;
+    line-height: 1.6;
 }
 
+/* generic section */
 .home-section {
     margin-top: 36px;
+    /* scroll-margin so when navbar scrolls to #my-trips it lands below the navbar */
+    scroll-margin-top: 90px;
 }
 
 .home-section h2 {
@@ -35,12 +41,14 @@
     padding-right: 12px;
 }
 
+/* generic grid for cards */
 .home-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 18px;
 }
 
+/* loading / empty / error states */
 .home-loading, .home-empty, .home-error {
     padding: 18px;
     border-radius: 10px;
@@ -62,4 +70,129 @@
     background: #fdecec;
     color: #a32525;
     border: 1px solid #f3b8b8;
+}
+
+/* my trips section header (title + add button on same row) */
+.home-trips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.home-trips-header h2 {
+    margin: 0;
+}
+
+.home-add-trip-btn {
+    padding: 10px 20px;
+    background: #3b4cca;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.home-add-trip-btn:hover {
+    background: #2d3aa6;
+}
+
+/* my trips empty state - bigger and friendlier */
+.home-trips-empty {
+    text-align: center;
+    padding: 50px 20px;
+    background: #fafbfd;
+    border: 2px dashed #d6d6d6;
+    border-radius: 14px;
+    color: #777;
+}
+
+.home-trips-empty p {
+    margin: 4px 0;
+}
+
+/* my trips grid */
+.home-trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+/* one trip card */
+.home-trip-card {
+    background: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.home-trip-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.home-trip-body {
+    padding: 18px;
+    cursor: pointer;
+}
+
+.home-trip-body h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    color: #1a202c;
+}
+
+.home-trip-dest, .home-trip-dates {
+    margin: 0 0 6px;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.home-trip-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.home-trip-tag {
+    padding: 3px 10px;
+    background: #eef2ff;
+    color: #3b4cca;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.home-trip-tag-fav {
+    background: #fde8e8;
+    color: #c53030;
+}
+
+.home-trip-actions {
+    display: flex;
+    border-top: 1px solid #f0f0f0;
+}
+
+.home-trip-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: #555;
+    transition: background 0.15s;
+}
+
+.home-trip-actions button:hover {
+    background: #f7f7f7;
+}
+
+.home-trip-actions button:first-child {
+    border-left: 1px solid #f0f0f0;
 }

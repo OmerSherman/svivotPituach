@@ -1,15 +1,23 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ItemCard from "../components/ItemCard";
+import TripForm from "../components/TripForm";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
-import authService from "../services/authService";
+import tripsService from "../services/tripsService";
+import userContext from "../contexts/userContext";
 import "./Home.css";
-import userContext from "../contexts/UserContext";
+
+// constants used in the trip cards
+var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
+var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
+var BUDGET_NAMES = { low: "חסכוני", medium: "בינוני", high: "פרימיום" };
+var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+                   "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
 
 function Home() {
     const navigate = useNavigate();
-    const {user} = useContext(userContext)
+    const { user } = useContext(userContext);
 
     // cities section state
     const [cities, setCities] = useState([]);
@@ -21,7 +29,14 @@ function Home() {
     const [attractionsLoading, setAttractionsLoading] = useState(true);
     const [attractionsError, setAttractionsError] = useState("");
 
-    //UseEffect for fetching cities
+    // my trips section state
+    const [trips, setTrips] = useState([]);
+    const [tripsLoading, setTripsLoading] = useState(true);
+    const [tripsError, setTripsError] = useState("");
+    const [showForm, setShowForm] = useState(false);
+    const [editingTrip, setEditingTrip] = useState(null);
+
+    // fetch cities on mount
     useEffect(function() {
         async function fetchCities() {
             try {
@@ -35,8 +50,8 @@ function Home() {
         }
         fetchCities();
     }, []);
-    
-    //useEffect for fetching cities 
+
+    // fetch top attractions on mount
     useEffect(function() {
         async function fetchAttractions() {
             try {
@@ -56,8 +71,57 @@ function Home() {
         fetchAttractions();
     }, []);
 
+    // fetch trips on mount
+    useEffect(function() {
+        loadTrips();
+    }, []);
+
+    async function loadTrips() {
+        setTripsLoading(true);
+        setTripsError("");
+        try {
+            const data = await tripsService.getAll();
+            setTrips(data);
+        } catch (err) {
+            setTripsError("שגיאה בטעינת הטיולים: " + err.message);
+        } finally {
+            setTripsLoading(false);
+        }
+    }
+
+    async function handleCreate(data) {
+        try {
+            await tripsService.create(data);
+            await loadTrips();
+            setShowForm(false);
+        } catch (err) {
+            alert("שגיאה ביצירת הטיול: " + err.message);
+        }
+    }
+
+    async function handleUpdate(data) {
+        try {
+            await tripsService.update(editingTrip.id, data);
+            await loadTrips();
+            setEditingTrip(null);
+        } catch (err) {
+            alert("שגיאה בעדכון הטיול: " + err.message);
+        }
+    }
+
+    async function handleDelete(tripId) {
+        if (!window.confirm("למחוק את הטיול?")) return;
+        try {
+            await tripsService.remove(tripId);
+            await loadTrips();
+        } catch (err) {
+            alert("שגיאה במחיקת הטיול: " + err.message);
+        }
+    }
+
     return (
         <div className="home-page">
+            {/* hero / welcome header */}
             <header className="home-hero">
                 <h1>
                     {user
@@ -69,7 +133,7 @@ function Home() {
                 </p>
             </header>
 
-            {/* cities */}
+            {/* section 1 - cities */}
             <section className="home-section">
                 <h2>ערים שכדאי להכיר</h2>
 
@@ -104,7 +168,7 @@ function Home() {
                 )}
             </section>
 
-            {/* top attractions */}
+            {/* section 2 - top attractions across the whole continent */}
             <section className="home-section">
                 <h2>האטרקציות המובילות</h2>
 
@@ -139,11 +203,86 @@ function Home() {
                     </div>
                 )}
             </section>
+
+            {/* section 3 - my trips. has id so navbar can scroll to it */}
+            <section className="home-section" id="my-trips">
+                <div className="home-trips-header">
+                    <h2>הטיולים שלי</h2>
+                    <button className="home-add-trip-btn" onClick={function() { setShowForm(true); }}>
+                        + טיול חדש
+                    </button>
+                </div>
+
+                {tripsLoading && (
+                    <p className="home-loading">טוען טיולים...</p>
+                )}
+
+                {tripsError && (
+                    <p className="home-error">{tripsError}</p>
+                )}
+
+                {!tripsLoading && !tripsError && trips.length === 0 && (
+                    <div className="home-trips-empty">
+                        <p>עדיין אין טיולים מתוכננים</p>
+                        <p>לחצו על "טיול חדש" כדי להתחיל לתכנן!</p>
+                    </div>
+                )}
+
+                {!tripsLoading && !tripsError && trips.length > 0 && (
+                    <div className="home-trips-grid">
+                        {trips.map(function(trip) {
+                            return (
+                                <div key={trip.id} className="home-trip-card">
+                                    <div className="home-trip-body"
+                                         onClick={function() { navigate("/trips/" + trip.id); }}>
+                                        <h3>{trip.name}</h3>
+                                        <p className="home-trip-dest">
+                                            📍 {COUNTRY_NAMES[trip.countryId] || "לא ידוע"}
+                                        </p>
+                                        <p className="home-trip-dates">
+                                            📅 {MONTH_NAMES[trip.startMonth]} – {MONTH_NAMES[trip.endMonth]}
+                                        </p>
+                                        <div className="home-trip-tags">
+                                            <span className="home-trip-tag">{STYLE_NAMES[trip.travelStyle]}</span>
+                                            <span className="home-trip-tag">{BUDGET_NAMES[trip.budget]}</span>
+                                            {trip.favorites && trip.favorites.length > 0 && (
+                                                <span className="home-trip-tag home-trip-tag-fav">
+                                                    ❤ {trip.favorites.length} מועדפים
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="home-trip-actions">
+                                        <button onClick={function() { setEditingTrip(trip); }}>✏ עריכה</button>
+                                        <button onClick={function() { handleDelete(trip.id); }}>🗑 מחיקה</button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </section>
+
+            {/* trip form modal - create or edit */}
+            {showForm && (
+                <TripForm
+                    onSave={handleCreate}
+                    onCancel={function() { setShowForm(false); }}
+                />
+            )}
+
+            {editingTrip && (
+                <TripForm
+                    initialData={editingTrip}
+                    onSave={handleUpdate}
+                    onCancel={function() { setEditingTrip(null); }}
+                />
+            )}
         </div>
     );
 }
 
-// english type -> hebrew label
+// english attraction type -> hebrew label
 function translateType(type) {
     if (type === "site")  return "אתר";
     if (type === "tour")  return "סיור";
