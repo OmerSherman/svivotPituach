@@ -59,3 +59,23 @@
 .navbar-logout:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+/* quick theme toggle button */
+.navbar-theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.navbar-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.08);
+}
