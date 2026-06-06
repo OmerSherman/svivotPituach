@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import usersService from "../services/usersService";
 import UsersList from "../components/usersList";
 import SearchBar from "../components/SearchBar";
