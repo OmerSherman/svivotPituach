@@ -18,9 +18,11 @@
 }
 
 .home-subtitle {
-    margin: 0;
+    margin: 0 auto;
     color: #555;
     font-size: 1.05rem;
+    max-width: 600px;
+    line-height: 1.6;
 }
 
 .home-section {

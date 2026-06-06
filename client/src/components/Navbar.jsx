@@ -40,7 +40,8 @@ function Navbar() {
             <div className="navbar-links">
                 {user ? (
                     <>
-                        <Link to="/">הטיולים שלי</Link>
+                        <Link to="/">דף הבית</Link>
+                        <Link to="/my-trips">הטיולים שלי</Link>
                         <Link to="/settings">הגדרות</Link>
                         <span className="navbar-user">שלום, {user.firstName}</span>
                         <button className="navbar-logout" onClick={handleLogout}>התנתק</button>
