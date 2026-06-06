@@ -5,6 +5,7 @@ import AboutModal from "../components/AboutModal";
 import userContext from "../contexts/userContext";
 import logo from "../assets/logo-transparent.svg";
 import "./Login.css";
+import usersService from "../services/usersService.js";
 
 function Login() {
     const { setUser } = useContext(userContext);
@@ -24,7 +25,8 @@ function Login() {
             if (!formData.password || formData.password.length < 6) {
                 throw new Error("הסיסמה חייבת להיות באורך 6 תווים לפחות");
             }
-            const user = await authService.login(formData.email, formData.password);
+            const user_temp = await authService.login(formData.email, formData.password);
+            const user = await usersService.getById(user_temp.userId)
             setUser(user);
         },
         navigate: "/"

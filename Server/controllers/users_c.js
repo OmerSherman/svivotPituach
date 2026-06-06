@@ -1,10 +1,19 @@
 const users = require("../models/mock_data/users.json");
 
+function getCurrentUser(req) {
+    const id = parseInt(req.headers['x-user-id']);
+    if (isNaN(id)) return null;
+    return users.find(function(u) { return u.userId === id; }) || null;
+}
 // helper to find user by id
 function findById(id) {
     return users.find(function(u) {
         return u.userId === parseInt(id);
     });
+}
+
+function updateInDB(id, fields ) { 
+    return null
 }
 
 // GET - all users
@@ -176,11 +185,53 @@ function getMe(req, res, next) {
             createDate: user.createDate,
             updateDate: user.updateDate
         };
-
+        // update data base
         return res.status(200).json({ success: true, data: safeUser, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-module.exports = { getAll, getById, create, update, remove, getMe };
+function updateMe(req, res, next) {
+    try {
+        const user = getCurrentUser(req);
+        if (!user) {
+            return res.status(401).json({
+                success: false, data: null,
+                error: { code: "UNAUTHORIZED", message: "not logged in", details: {} }
+            });
+        }
+
+        // simple email check
+        if (req.body.email !== undefined) {
+            const emailLooksOk = typeof req.body.email === "string" &&
+                                 req.body.email.indexOf("@") > 0 &&
+                                 req.body.email.indexOf(".") > 0;
+            if (!emailLooksOk) {
+                return res.status(400).json({
+                    success: false, data: null,
+                    error: { code: "VALIDATION_ERROR", message: "email format is invalid", details: { field: "email" } }
+                });
+            }
+        }
+
+        // only update fields that were sent
+        if (req.body.firstName !== undefined) user.firstName = req.body.firstName;
+        if (req.body.lastName  !== undefined) user.lastName  = req.body.lastName;
+        if (req.body.email     !== undefined) user.email     = req.body.email;
+
+        const updated = {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            updateDate:new Date().toISOString()
+        };
+        updateInDB(user.userId , updated)
+
+        return res.status(200).json({ success: true, data: updated, error: null });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { getAll, getById, create, update, remove, getMe , updateMe};

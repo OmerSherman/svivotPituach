@@ -23,10 +23,9 @@ function Settings() {
     useEffect(function() {
         async function loadSettings() {
             try {
-                const data = await settingsService.get();
-                setFirstName(data.firstName || "");
-                setLastName(data.lastName || "");
-                setEmail(data.email || "");
+                setFirstName(user.firstName || "");
+                setLastName(user.lastName || "");
+                setEmail(user.email || "");
             } catch (err) {
                 setError("שגיאה בטעינת ההגדרות: " + err.message);
             } finally {
@@ -65,7 +64,7 @@ function Settings() {
 
         setSaving(true);
         try {
-            await settingsService.update({
+            await usersService.updateMe({
                 firstName:   firstName.trim(),
                 lastName:    lastName.trim(),
                 email:       email.trim(),

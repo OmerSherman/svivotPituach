@@ -5,6 +5,10 @@ async function getMe() {
     return res.data;
 }
 
+async function updateMe(updates) {
+    const res = await api.put("/users/me")
+}
+
 async function getAll() {
     const res = await api.get("/users");
     return res.data;
@@ -25,5 +29,5 @@ async function del(id) {
     return res.data
 }
 
-const usersService = { getMe, getAll, getById, update , del };
+const usersService = { getMe, getAll, getById, update , del, updateMe };
 export default usersService;
