@@ -19,6 +19,7 @@
     font-size: 1rem;
     color: #6b7280;
     margin-left: 8px;
+    -webkit-user-select: none;
     user-select: none;
 }
 
