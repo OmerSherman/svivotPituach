@@ -4,6 +4,7 @@ import DataTable from "../components/DataTable";
 import ItemCard from "../components/ItemCard";
 import SearchBar from "../components/SearchBar";
 import AttractionForm from "../components/AttractionForm";
+import TahiniLoader from "../components/TahiniLoader";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
 import userContext from "../contexts/userContext";
@@ -146,7 +147,7 @@ function CityAttractions() {
     if (loading) {
         return (
             <div className="city-page">
-                <p className="city-loading">טוען נתוני העיר...</p>
+                <TahiniLoader />
             </div>
         );
     }

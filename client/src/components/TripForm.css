@@ -1,142 +1,180 @@
-.trip-form-overlay {
+.tf-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--bg-overlay);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    z-index: 100;
-    padding: 20px;
+    z-index: 200;
+    padding: 30px 20px;
     overflow-y: auto;
 }
 
-.trip-form {
-    background: #fff;
-    border-radius: 14px;
-    padding: 28px;
+.tf-modal {
+    background: var(--bg-surface);
+    border-radius: 16px;
     width: 100%;
-    max-width: 520px;
+    max-width: 560px;
+    padding: 28px 32px;
+    position: relative;
+    box-shadow: var(--shadow-modal);
+    margin: auto;
+    color: var(--text-primary);
+}
+
+.tf-close {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-surface-3);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tf-close:hover {
+    background: var(--border-color);
+}
+
+.tf-modal h2 {
+    margin: 0 0 20px;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.tf-modal form {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-    margin: auto;
 }
 
-.trip-form h2 {
-    margin: 0;
-    font-size: 1.4rem;
-    color: #1a202c;
+.tf-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
 }
 
-.trip-form-field {
+.tf-modal label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-}
-
-.trip-form-field > span {
-    font-weight: 600;
+    gap: 5px;
     font-size: 0.9rem;
-    color: #2d3748;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
-.trip-form-field input,
-.trip-form-field select {
+.tf-full { grid-column: span 2; }
+
+.tf-modal input,
+.tf-modal select,
+.tf-modal textarea {
     padding: 9px 12px;
-    border: 1px solid #d0d6e2;
-    border-radius: 8px;
-    font-size: 1rem;
+    border: 1px solid var(--border-color-input);
+    border-radius: 9px;
+    font-size: 0.95rem;
     font-family: inherit;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    font-weight: normal;
+    transition: border-color 0.15s, background 0.15s;
 }
 
-.trip-form-field input:focus,
-.trip-form-field select:focus {
+.tf-modal input:focus,
+.tf-modal select:focus,
+.tf-modal textarea:focus {
     outline: none;
-    border-color: #3b4cca;
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 3px rgba(59, 76, 202, 0.12);
 }
 
-.trip-form-row {
-    display: flex;
-    gap: 12px;
-}
-
-.trip-form-row .trip-form-field {
-    flex: 1;
-}
-
-/* interests chips */
-.trip-form-interests {
+.tf-interests {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 4px;
+    padding: 8px 0;
 }
 
-.interest-chip {
+.tf-chip {
     padding: 6px 14px;
-    border: 1px solid #d0d6e2;
-    border-radius: 16px;
-    background: #fff;
-    color: #555;
+    border-radius: 18px;
+    border: 1px solid var(--border-color-input);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
     cursor: pointer;
-    font-family: inherit;
     font-size: 0.85rem;
+    font-family: inherit;
     transition: all 0.15s;
 }
 
-.interest-chip:hover {
-    background: #f4f6fb;
-    border-color: #3b4cca;
+.tf-chip:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
-.interest-chip-active {
-    background: #3b4cca;
-    color: #fff;
-    border-color: #3b4cca;
+.tf-chip-selected {
+    background: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
 }
 
-.interest-chip-active:hover {
-    background: #2d3aa6;
+.tf-chip-selected:hover {
+    color: #ffffff;
 }
 
-.trip-form-error {
+.tf-error {
     margin: 0;
-    color: #a32525;
-    background: #fdecec;
-    padding: 8px 12px;
+    padding: 10px 12px;
+    background: var(--status-error-bg);
+    color: var(--status-error-text);
+    border: 1px solid var(--status-error-border);
     border-radius: 8px;
+    font-size: 0.9rem;
 }
 
-.trip-form-buttons {
+.tf-actions {
     display: flex;
+    justify-content: flex-end;
     gap: 10px;
-    margin-top: 4px;
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color-soft);
 }
 
-.trip-form-save {
-    flex: 1;
-    padding: 11px;
-    background: #3b4cca;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+.tf-actions button {
+    padding: 9px 20px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color-input);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
     font-weight: 600;
-    cursor: pointer;
+    transition: background 0.15s;
 }
 
-.trip-form-save:hover { background: #2d3aa6; }
-
-.trip-form-cancel {
-    flex: 1;
-    padding: 11px;
-    background: #f4f4f4;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
+.tf-actions button:hover:not(:disabled) {
+    background: var(--bg-surface-3);
 }
 
-.trip-form-cancel:hover { background: #e8e8e8; }
+.tf-submit {
+    background: var(--accent-primary) !important;
+    color: #ffffff !important;
+    border-color: var(--accent-primary) !important;
+}
+
+.tf-submit:hover:not(:disabled) {
+    background: var(--accent-primary-hover) !important;
+}
+
+.tf-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

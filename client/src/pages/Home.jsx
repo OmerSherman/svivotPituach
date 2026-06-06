@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ItemCard from "../components/ItemCard";
 import TripForm from "../components/TripForm";
 import SearchBar from "../components/SearchBar";
+import TahiniLoader from "../components/TahiniLoader";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
 import tripsService from "../services/tripsService";
@@ -20,26 +21,26 @@ function Home() {
     const navigate = useNavigate();
     const { user } = useContext(userContext);
 
-    // cities state - we keep the full list separately so we can restore it when search clears
+    // cities - keep full list separately so we can restore it when search clears
     const [allCities, setAllCities] = useState([]);
     const [displayCities, setDisplayCities] = useState([]);
     const [citiesLoading, setCitiesLoading] = useState(true);
     const [citiesError, setCitiesError] = useState("");
     const [citySearch, setCitySearch] = useState("");
 
-    // top attractions state
+    // top attractions
     const [topAttractions, setTopAttractions] = useState([]);
     const [attractionsLoading, setAttractionsLoading] = useState(true);
     const [attractionsError, setAttractionsError] = useState("");
 
-    // my trips state
+    // my trips
     const [trips, setTrips] = useState([]);
     const [tripsLoading, setTripsLoading] = useState(true);
     const [tripsError, setTripsError] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
 
-    // fetch all cities on mount
+    // fetch cities on mount
     useEffect(function() {
         async function fetchCities() {
             try {
@@ -55,10 +56,8 @@ function Home() {
         fetchCities();
     }, []);
 
-    // when the user types, wait 300ms before calling the search API.
-    // this is called debouncing - it prevents one API call per keystroke
+    // debounced city search - waits 300ms before calling the api
     useEffect(function() {
-        // empty search - show all cities, no API call
         if (citySearch.trim() === "") {
             setDisplayCities(allCities);
             return;
@@ -73,7 +72,6 @@ function Home() {
             }
         }, 300);
 
-        // cancel the timer if the user types again before 300ms
         return function() { clearTimeout(handler); };
     }, [citySearch, allCities]);
 
@@ -158,7 +156,7 @@ function Home() {
                 </p>
             </header>
 
-            {/* section 1 - cities, with search */}
+            {/* section 1 - cities */}
             <section className="home-section">
                 <h2>ערים שכדאי להכיר</h2>
 
@@ -168,9 +166,7 @@ function Home() {
                     placeholder="חיפוש עיר לפי שם..."
                 />
 
-                {citiesLoading && (
-                    <p className="home-loading">טוען ערים...</p>
-                )}
+                {citiesLoading && <TahiniLoader />}
 
                 {citiesError && (
                     <p className="home-error">{citiesError}</p>
@@ -205,9 +201,7 @@ function Home() {
             <section className="home-section">
                 <h2>האטרקציות המובילות</h2>
 
-                {attractionsLoading && (
-                    <p className="home-loading">טוען אטרקציות...</p>
-                )}
+                {attractionsLoading && <TahiniLoader />}
 
                 {attractionsError && (
                     <p className="home-error">{attractionsError}</p>
@@ -246,9 +240,7 @@ function Home() {
                     </button>
                 </div>
 
-                {tripsLoading && (
-                    <p className="home-loading">טוען טיולים...</p>
-                )}
+                {tripsLoading && <TahiniLoader />}
 
                 {tripsError && (
                     <p className="home-error">{tripsError}</p>

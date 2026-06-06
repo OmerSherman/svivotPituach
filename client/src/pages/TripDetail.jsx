@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import ItemCard from "../components/ItemCard";
 import AttractionModal from "../components/AttractionModal";
+import TahiniLoader from "../components/TahiniLoader";
 import TahiniProgress from "../components/TahiniProgress";
 import tripsService from "../services/tripsService";
 import citiesService from "../services/citiesService";
@@ -132,7 +133,7 @@ function TripDetail() {
     ];
 
     if (loading) {
-        return <div className="trip-detail-page"><p className="trip-detail-loading">טוען...</p></div>;
+        return <div className="trip-detail-page"><TahiniLoader /></div>;
     }
 
     if (error || !trip) {
