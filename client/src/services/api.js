@@ -23,7 +23,7 @@ function buildAuthHeaders() {
 async function request(path, options = {}) {
     
     //to test loading add this line of code 
-    //await new Promise(resolve => setTimeout(resolve, 3000));
+    // await new Promise(resolve => setTimeout(resolve, 3000));
     
     const url = API_URL + path;
 
