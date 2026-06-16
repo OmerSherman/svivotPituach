@@ -8,7 +8,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');

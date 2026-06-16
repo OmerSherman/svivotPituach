@@ -1,3 +1,18 @@
+# dependencies
 node_modules/
-.env
+
+# production build
+client/build/
+
+# logs
+*.log
+npm-debug.log*
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
 .vscode/
+
+# NOTE: the .env files ARE committed on purpose for this assignment.
+# They contain only ports and a local API URL (mock data, no real secrets),
+# so the project runs with zero configuration. Do NOT add .env here.

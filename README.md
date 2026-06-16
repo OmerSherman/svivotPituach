@@ -1,68 +1,80 @@
 # שביל הטחינה (Shvil HaTahina)
 
-Travel guide application for South America — Peru, Argentina, Brazil.
+A travel-planning app for backpackers heading to South America — Peru, Argentina, and Brazil.
+You browse cities and attractions, build a personalized trip, mark favorites, and tweak how the
+app looks. Built as a full-stack React + Express project.
 
-**Course:** סביבות פיתוח באינטרנט · Ben-Gurion University
+**Course:** סביבות פיתוח באינטרנט · Ben-Gurion University of the Negev
 **Team:** Omer Sherman · Hillel Zilberman · Michal Adam
 
 ---
 
-## Overview
+## What it does
 
-A full-stack React + Express app that helps Israeli backpackers plan a South America trip.
-Users can browse cities and attractions, create personalized trip profiles, mark favorites, and customize their display.
-
-**Features:**
-- 🔐 Login + register with role-based access (user / manager / admin)
-- 🗺 Browse cities and top attractions from across South America
-- ✈️ Create custom trips with destination, dates, style, budget, and interests
-- ❤️ Mark favorite attractions per trip (with a gamified "tahini jar" that fills up)
-- 🎨 Display preferences: theme (light/dark), font size, card density
-- 🔍 Search cities and attractions
-- 🛠 Admin tools: manage users (admin/manager), CRUD attractions (admin/manager)
+- Login and register, with three roles: user / manager / admin
+- Browse cities and their top attractions across South America
+- Build a custom trip: destination, dates, travel style, budget, and interests
+- Mark favorite attractions per trip (with a "tahini jar" that fills up as you add more)
+- Display preferences saved per user: light/dark theme, font size, card density
+- Search for cities and attractions
+- Admin tools: manage users and run CRUD on attractions
 
 ---
 
 ## How to run
 
-You need **Node.js 18+** installed.
+You'll need **Node.js 18 or newer**. The app has two parts — a backend and a frontend —
+and they run in **two separate terminals**. Start the backend first, because the frontend
+expects it to already be up on port 3000.
 
-### 1. Backend (run first)
+### 1. Backend (start this first)
+
 ```bash
 cd Server
 npm install
 npm start
 ```
-The server will start on **http://localhost:3000**.
 
-### 2. Frontend (in a separate terminal)
+The server starts on **http://localhost:3000**. You should see `Server running on http://localhost:3000`
+in the terminal.
+
+### 2. Frontend (in a second terminal)
+
 ```bash
 cd client
 npm install
 npm start
 ```
-The client will open at **http://localhost:5173**.
 
-The client communicates with the backend at `http://localhost:3000/api`.
+The app opens in your browser at **http://localhost:5173**.
 
-### Environment variables
+That's it — the frontend talks to the backend automatically.
 
-Both folders contain a `.env` file with the default settings:
-- `client/.env` → `PORT=5173` and `REACT_APP_API_URL=http://localhost:3000/api`
-- `Server/.env` → `PORT=3000`
+### Ports and environment
+
+Each part runs on its own port and ships with a ready `.env` file, so there's nothing to configure:
+
+| Part      | Port | Config file    |
+|-----------|------|----------------|
+| Frontend  | 5173 | `client/.env`  |
+| Backend   | 3000 | `Server/.env`  |
+
+- The frontend runs at **http://localhost:5173**.
+- The backend API base URL is **http://localhost:3000/api**, set in `client/.env` as
+  `REACT_APP_API_URL`. If that variable is ever missing, the frontend falls back to the same URL anyway.
 
 ---
 
 ## Test users
 
-All users have password `123456`:
+Every user's password is `123456`.
 
-| Email | Role |
-|---|---|
-| michal@example.com | admin |
-| omersherman22@gmail.com | admin |
-| hillel@example.com | manager |
-| user@example.com | user |
+| Email                   | Role    |
+|-------------------------|---------|
+| michal@example.com      | admin   |
+| omersherman22@gmail.com | admin   |
+| hillel@example.com      | manager |
+| user@example.com        | user    |
 
 ---
 
@@ -70,56 +82,60 @@ All users have password `123456`:
 
 ```
 svivotPituach/
-├── Server/                       # Express REST API (Assignment 2)
-│   ├── app.js                    # entry point
-│   ├── routes/                   # Express routers per entity
-│   ├── controllers/              # business logic per entity
-│   ├── models/
-│   │   └── mock_data/            # JSON files as the database
-│   └── middleware/               # auth, validation, error handling
+├── Server/                  # Express REST API (Assignment 2)
+│   ├── app.js               # entry point
+│   ├── .env                 # backend port
+│   ├── routes/              # one router per entity
+│   ├── controllers/         # request handling and logic
+│   ├── middleware/          # auth, validation, logging, error handling
+│   └── models/
+│       └── mock_data/       # JSON files used as the database
 │
-├── client/                       # React frontend (Assignment 3)
+├── client/                  # React frontend (Assignment 3)
+│   ├── .env                 # frontend port + API URL
 │   └── src/
-│       ├── App.js                # routing + context providers
-│       ├── components/           # reusable: Navbar, Footer, ItemCard, DataTable...
-│       ├── pages/                # routes: Home, Login, Settings, TripDetail...
-│       ├── services/             # API communication layer
-│       └── contexts/             # global state: user, preferences
+│       ├── App.js           # routing and context providers
+│       ├── components/      # reusable: Navbar, Footer, ItemCard, DataTable, ...
+│       ├── pages/           # routes: Home, Login, Settings, TripDetail, ...
+│       ├── services/        # API communication layer
+│       └── contexts/        # global state: user, preferences
 │
-└── screenshots/                  # screenshots showing the app running
+├── screenshots/             # the app running (Login, Dashboard, Table, Settings)
+└── README.md
 ```
 
 ---
 
 ## API endpoints
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | /api/auth/register | public | create a new user |
-| POST | /api/auth/login | public | sign in |
-| POST | /api/auth/logout | public | sign out |
-| GET | /api/users/me | logged in | current user info |
-| GET | /api/users | admin/manager | list all users |
-| PUT | /api/users/:id | admin/manager | update user |
-| DELETE | /api/users/:id | admin or self | delete user |
-| GET | /api/cities | logged in | list all cities |
-| GET | /api/cities/search?q= | logged in | search cities by name |
-| GET | /api/cities/:id | logged in | one city |
-| GET | /api/attractions | logged in | list attractions (filter by city_id, type) |
-| GET | /api/attractions/:id | logged in | one attraction |
-| POST | /api/attractions | admin | create attraction |
-| PUT | /api/attractions/:id | admin/manager | update attraction |
-| DELETE | /api/attractions/:id | admin | delete attraction |
-| GET | /api/profile | logged in | list current user's trips |
-| POST | /api/profile | logged in | create a trip |
-| GET | /api/profile/:id | owner | one trip |
-| PUT | /api/profile/:id | owner | update a trip |
-| DELETE | /api/profile/:id | owner | delete a trip |
-| POST | /api/profile/:id/favorites | owner | toggle favorite attraction |
-| GET | /api/settings | logged in | user info + display preferences |
-| PUT | /api/settings | logged in | update info and/or preferences |
+All responses follow the shape `{ success, data, error }`. Auth is passed through the
+headers `x-user-id` and `x-user-role` (mock auth for now — we'll move to JWT later).
 
-Auth is via headers `x-user-id` and `x-user-role` (mock auth - to be replaced with JWT later).
+| Method | Path                          | Access          | Description                          |
+|--------|-------------------------------|-----------------|--------------------------------------|
+| POST   | /api/auth/register            | public          | create a new user                    |
+| POST   | /api/auth/login               | public          | sign in                              |
+| POST   | /api/auth/logout              | public          | sign out                             |
+| GET    | /api/users/me                 | logged in       | current user info                    |
+| GET    | /api/users                    | admin/manager   | list all users                       |
+| PUT    | /api/users/:id                | admin/manager   | update a user                        |
+| DELETE | /api/users/:id                | admin or self   | delete a user                        |
+| GET    | /api/cities                   | logged in       | list all cities                      |
+| GET    | /api/cities/search?q=         | logged in       | search cities by name                |
+| GET    | /api/cities/:id               | logged in       | one city                             |
+| GET    | /api/attractions              | logged in       | list attractions (filter by city/type) |
+| GET    | /api/attractions/:id          | logged in       | one attraction                       |
+| POST   | /api/attractions              | admin           | create an attraction                 |
+| PUT    | /api/attractions/:id          | admin/manager   | update an attraction                 |
+| DELETE | /api/attractions/:id          | admin           | delete an attraction                 |
+| GET    | /api/profile                  | logged in       | current user's trips                 |
+| POST   | /api/profile                  | logged in       | create a trip                        |
+| GET    | /api/profile/:id              | owner           | one trip                             |
+| PUT    | /api/profile/:id              | owner           | update a trip                        |
+| DELETE | /api/profile/:id              | owner           | delete a trip                        |
+| POST   | /api/profile/:id/favorites    | owner           | toggle a favorite attraction         |
+| GET    | /api/settings                 | logged in       | user info + display preferences      |
+| PUT    | /api/settings                 | logged in       | update info and/or preferences       |
 
 ---
 
@@ -127,14 +143,13 @@ Auth is via headers `x-user-id` and `x-user-role` (mock auth - to be replaced wi
 
 - **Frontend:** React 19, React Router 7, plain CSS with CSS variables
 - **Backend:** Node.js + Express 5
-- **Data:** mock JSON files (will move to MySQL in Assignment 4)
-- **No external UI libraries** — all components handcrafted
+- **Data:** mock JSON files (moving to MySQL in Assignment 4)
+- No external UI libraries — the components are all handwritten.
 
 ---
 
 ## Notes
 
-- The frontend persists the logged-in user and preferences to localStorage so refresh keeps the session.
-- Theme (light/dark), font size, and card density are stored per-user on the server and synced across devices on login.
-- All API responses follow the format `{ success, data, error }`.
-- Server-side validation is enforced on all PUT/POST endpoints.
+- The logged-in user and preferences are saved to localStorage, so a refresh keeps you signed in.
+- Theme, font size, and card density are stored per user on the server and come back on login.
+- Validation runs on the server for every POST and PUT request.
