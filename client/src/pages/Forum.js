@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import ForumChat from '../components/ForumChat';
 import ForumRoomList from '../components/ForumRoomList';
 import { FORUM_COUNTRIES, FORUM_CITIES } from '../data/forumRooms';
+import MapResize from '../components/MapResize';
 import './Forum.css';
 
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -63,8 +64,9 @@ function Forum() {
                     <MapContainer
                         center={[-18, -60]}
                         zoom={4}
-                        style={{ height: '100%', width: '100%' }}
+                        className="forum-map"
                     >
+                        <MapResize />
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution="© OpenStreetMap contributors"

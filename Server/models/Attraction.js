@@ -8,8 +8,8 @@ class Attraction {
         this.tags = tags;
         this.description_he = description_he;
         this.image_url = image_url;
-        this.popularity_score = popularity_score;
-        this.audience_scores = audience_scores; // e.g { family: 9, couple: 10, solo: 7 }
+        this.popularity_score = popularity_score; // computed on read via attractionScoring.js
+        this.audience_scores = audience_scores;   // computed on read via attractionScoring.js
         this.best_months = best_months;
         this.avoid_months = avoid_months;
         this.seasonal_note_he = seasonal_note_he;

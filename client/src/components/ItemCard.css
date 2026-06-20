@@ -99,6 +99,16 @@
     overflow: hidden;
 }
 
+.item-card-score-hint {
+    margin: 8px 0 0;
+    padding: 6px 8px;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
 .item-card-tags {
     display: flex;
     flex-wrap: wrap;

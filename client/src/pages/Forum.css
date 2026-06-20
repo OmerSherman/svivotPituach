@@ -1,11 +1,12 @@
 /* ===== Forum page layout ===== */
 .forum-page {
     padding: 16px 20px;
-    flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     min-height: 0;
+    overflow: hidden;
     background: var(--bg-page);
 }
 
@@ -61,14 +62,17 @@
 .forum-layout {
     display: flex;
     gap: 14px;
-    flex: 1;
+    flex: 1 1 0;
     min-height: 0;
+    overflow: hidden;
+    align-items: stretch;
 }
 
 /* ===== Room sidebar ===== */
 .forum-room-list {
     width: 200px;
     flex-shrink: 0;
+    align-self: stretch;
     display: flex;
     flex-direction: column;
     background: var(--bg-surface);
@@ -169,13 +173,25 @@
 
 /* ===== Map ===== */
 .forum-map-wrap {
-    flex: 1;
+    flex: 1 1 0;
     position: relative;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--shadow-card);
     border: 1px solid var(--border-color);
     min-width: 0;
+    min-height: 280px;
+    align-self: stretch;
+}
+
+/* Leaflet needs an explicit box — percentage height alone collapses in flex layouts */
+.forum-map-wrap > .leaflet-container {
+    position: absolute !important;
+    inset: 0;
+    height: 100% !important;
+    width: 100% !important;
+    z-index: 1;
+    font-family: inherit;
 }
 
 .forum-map-legend {
@@ -220,9 +236,11 @@
 .forum-chat-wrap {
     width: 380px;
     flex-shrink: 0;
+    align-self: stretch;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    overflow: hidden;
 }
 
 .forum-placeholder {
@@ -298,6 +316,7 @@
 /* ===== ForumChat ===== */
 .forum-chat {
     height: 100%;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     border-radius: 12px;
@@ -418,15 +437,18 @@
     flex-shrink: 0;
 }
 
-/* messages area */
+/* messages area — only this section scrolls */
 .forum-chat-messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 8px;
     background: var(--bg-surface-3);
+    overscroll-behavior: contain;
 }
 
 .forum-empty {
@@ -469,7 +491,7 @@
     display: flex;
     gap: 8px;
     align-items: flex-end;
-    max-width: 92%;
+    max-width: 85%;
     align-self: flex-start;
 }
 
@@ -601,28 +623,39 @@
 }
 
 @media (max-width: 900px) {
+    .layout-main--forum {
+        height: calc(100vh - 58px);
+    }
+
+    .forum-page {
+        padding: 12px 14px;
+    }
+
     .forum-header {
         flex-direction: column;
+        margin-bottom: 10px;
     }
 
     .forum-layout {
         flex-direction: column;
-        overflow-y: auto;
+        overflow: hidden;
     }
 
     .forum-room-list {
         width: 100%;
-        max-height: 180px;
+        max-height: 150px;
+        flex-shrink: 0;
     }
 
     .forum-map-wrap {
-        min-height: 280px;
+        height: 32vh;
+        min-height: 200px;
         flex: none;
     }
 
     .forum-chat-wrap {
         width: 100%;
-        min-height: 400px;
-        flex: none;
+        flex: 1;
+        min-height: 0;
     }
 }

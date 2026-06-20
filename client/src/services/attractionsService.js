@@ -1,10 +1,16 @@
 import api from "./api";
 
-// fetch all attractions, with optional filters
+// fetch all attractions, with optional filters and trip personalization
 async function getAll(filters = {}) {
     const params = [];
     if (filters.cityId) params.push("city_id=" + filters.cityId);
-    if (filters.type)   params.push("type=" + filters.type);
+    if (filters.type) params.push("type=" + filters.type);
+    if (filters.travelStyle) params.push("travelStyle=" + encodeURIComponent(filters.travelStyle));
+    if (filters.startMonth) params.push("startMonth=" + filters.startMonth);
+    if (filters.endMonth) params.push("endMonth=" + filters.endMonth);
+    if (filters.interests && filters.interests.length > 0) {
+        params.push("interests=" + encodeURIComponent(filters.interests.join(",")));
+    }
 
     const query = params.length > 0 ? "?" + params.join("&") : "";
     const res = await api.get("/attractions" + query);

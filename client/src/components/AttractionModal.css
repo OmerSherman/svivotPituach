@@ -101,6 +101,12 @@
     color: var(--text-primary);
 }
 
+.am-computed-note {
+    margin: -6px 0 10px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
 .am-tags {
     display: flex;
     flex-wrap: wrap;

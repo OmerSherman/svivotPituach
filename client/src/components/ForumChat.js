@@ -28,15 +28,17 @@ function ForumChat({ room, roomName, onClose }) {
     var [inputText, setInputText] = useState('');
     var [connected, setConnected] = useState(socket.connected);
     var [sendError, setSendError] = useState('');
-    var messagesEndRef = useRef(null);
+    var messagesContainerRef = useRef(null);
     var { user } = useContext(userContext);
 
     var userId = user ? user.userId : 0;
     var userName = user ? user.firstName : 'אורח';
 
+    // scroll only inside the chat panel — never the whole page
     useEffect(function() {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        var el = messagesContainerRef.current;
+        if (el) {
+            el.scrollTop = el.scrollHeight;
         }
     }, [messages]);
 
@@ -156,7 +158,7 @@ function ForumChat({ room, roomName, onClose }) {
                 </div>
             )}
 
-            <div className="forum-chat-messages">
+            <div className="forum-chat-messages" ref={messagesContainerRef}>
                 {messages.length === 0 && (
                     <div className="forum-empty">
                         <span className="forum-empty-icon">👋</span>
@@ -196,7 +198,6 @@ function ForumChat({ room, roomName, onClose }) {
                         </div>
                     );
                 })}
-                <div ref={messagesEndRef} />
             </div>
 
             <div className="forum-chat-input">

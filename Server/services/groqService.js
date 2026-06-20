@@ -1,4 +1,5 @@
 const Groq = require('groq-sdk');
+const { TRIP_SUMMARY_SYSTEM_PROMPT } = require('../prompts/tripSummaryPrompt');
 
 if (!process.env.GROQ_API_KEY) {
     console.warn('[groqService] GROQ_API_KEY is not set - AI trip chat will fail.');
@@ -78,4 +79,23 @@ async function getNextAiResponse(conversationHistory, previousDraft) {
     }
 }
 
-module.exports = { getNextAiResponse, EMPTY_DRAFT };
+// plain-text summary for POST /api/ai/trip-summary
+async function summarizeTrip(tripContext) {
+    try {
+        const completion = await getGroq().chat.completions.create({
+            model: MODEL,
+            messages: [
+                { role: 'system', content: TRIP_SUMMARY_SYSTEM_PROMPT },
+                { role: 'user', content: JSON.stringify(tripContext) }
+            ],
+            max_tokens: 350,
+            temperature: 0.7
+        });
+        const text = completion.choices[0].message.content;
+        return text ? text.trim() : 'לא ניתן ליצור סיכום כרגע.';
+    } catch (err) {
+        throw aiUnavailableError(err);
+    }
+}
+
+module.exports = { getNextAiResponse, summarizeTrip, EMPTY_DRAFT };

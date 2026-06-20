@@ -1,3 +1,4 @@
+import ScoreBreakdown from "./ScoreBreakdown";
 import "./AttractionModal.css";
 
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
@@ -10,8 +11,8 @@ var STYLE_LABELS = {
     group:  { emoji: "👥", label: "קבוצה" }
 };
 
-// props: attraction, cityName, onClose
-function AttractionModal({ attraction, cityName, onClose }) {
+// props: attraction, cityName, travelStyle, onClose
+function AttractionModal({ attraction, cityName, travelStyle, onClose }) {
     if (!attraction) return null;
 
     var bestMonths = attraction.best_months || [];
@@ -55,9 +56,19 @@ function AttractionModal({ attraction, cityName, onClose }) {
                     {/* full description */}
                     <p className="am-description">{attraction.description_he}</p>
 
-                    {/* audience scores - who is this for */}
+                    {attraction.score_breakdown && (
+                        <div className="am-section">
+                            <ScoreBreakdown
+                                breakdown={attraction.score_breakdown}
+                                highlightStyle={travelStyle}
+                            />
+                        </div>
+                    )}
+
+                    {/* audience scores - computed from tags and type */}
                     <div className="am-section">
                         <h3>למי זה מתאים?</h3>
+                        <p className="am-computed-note">ציונים מחושבים אוטומטית לפי תגיות וסוג האטרקציה</p>
                         <div className="am-scores">
                             {Object.keys(STYLE_LABELS).map(function(key) {
                                 var score = scores[key] || 0;

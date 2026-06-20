@@ -8,6 +8,7 @@ import TahiniProgress from "../components/TahiniProgress";
 import tripsService from "../services/tripsService";
 import citiesService from "../services/citiesService";
 import attractionsService from "../services/attractionsService";
+import aiService from "../services/aiService";
 import "./TripDetail.css";
 
 var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
@@ -27,6 +28,10 @@ function TripDetail() {
     // modal state - which attraction is currently open
     var [selectedAttraction, setSelectedAttraction] = useState(null);
 
+    var [summary, setSummary] = useState("");
+    var [summaryLoading, setSummaryLoading] = useState(false);
+    var [summaryError, setSummaryError] = useState("");
+
     useEffect(function() {
         async function loadData() {
             try {
@@ -40,7 +45,12 @@ function TripDetail() {
 
                 var [citiesData, attractionsData] = await Promise.all([
                     citiesService.getAll(),
-                    attractionsService.getAll()
+                    attractionsService.getAll({
+                        travelStyle: tripData.travelStyle,
+                        startMonth: tripData.startMonth,
+                        endMonth: tripData.endMonth,
+                        interests: tripData.interests || []
+                    })
                 ]);
                 setCities(citiesData);
 
@@ -62,16 +72,10 @@ function TripDetail() {
                     });
                 });
 
-                // sort - first by matching interest tags, then by audience score
-                var userInterests = tripData.interests || [];
+                // sort by personalized score from server (tags + style + months + interests)
                 filtered.sort(function(a, b) {
-                    var matchA = countMatchingTags(a.tags, userInterests);
-                    var matchB = countMatchingTags(b.tags, userInterests);
-                    if (matchA !== matchB) {
-                        return matchB - matchA;
-                    }
-                    var scoreA = (a.audience_scores && a.audience_scores[tripData.travelStyle]) || 0;
-                    var scoreB = (b.audience_scores && b.audience_scores[tripData.travelStyle]) || 0;
+                    var scoreA = a.personalized_score || a.popularity_score || 0;
+                    var scoreB = b.personalized_score || b.popularity_score || 0;
                     return scoreB - scoreA;
                 });
 
@@ -85,17 +89,26 @@ function TripDetail() {
         loadData();
     }, [id]);
 
-    function countMatchingTags(tags, interests) {
-        if (!tags || !interests || interests.length === 0) return 0;
-        return tags.filter(function(t) { return interests.includes(t); }).length;
-    }
-
     async function handleToggleFavorite(attractionId) {
         try {
             var updated = await tripsService.toggleFavorite(id, attractionId);
             if (updated) setTrip({ ...updated });
         } catch (err) {
             alert("שגיאה בשמירת המועדף: " + err.message);
+        }
+    }
+
+    async function handleSummarize() {
+        setSummaryLoading(true);
+        setSummaryError("");
+        try {
+            var text = await aiService.summarizeTrip(id);
+            setSummary(text);
+        } catch (err) {
+            setSummary("");
+            setSummaryError(err.message || "לא ניתן ליצור סיכום כרגע");
+        } finally {
+            setSummaryLoading(false);
         }
     }
 
@@ -108,6 +121,20 @@ function TripDetail() {
             current = current === 12 ? 1 : current + 1;
         }
         return months;
+    }
+
+    function getScoreHint(attraction) {
+        var personalized = attraction.score_breakdown && attraction.score_breakdown.personalized;
+        if (!personalized) return null;
+
+        var topFactor = personalized.factors && personalized.factors[0];
+        if (topFactor && topFactor.reasons && topFactor.reasons.length > 0) {
+            return topFactor.reasons[0];
+        }
+        if (personalized.matchedTags && personalized.matchedTags.length > 0) {
+            return 'תחומי עניין משותפים: ' + personalized.matchedTags.join(', ');
+        }
+        return null;
     }
 
     function getCityName(cityId) {
@@ -129,7 +156,8 @@ function TripDetail() {
             if (val === "route") return "מסלול";
             return val;
         }},
-        { key: "popularity_score", label: "ציון", render: function(val) { return <strong>{val}</strong>; } }
+        { key: "popularity_score", label: "ציון כללי", render: function(val) { return <strong>{val}</strong>; } },
+        { key: "personalized_score", label: "התאמה לטיול", render: function(val) { return <strong>{val ?? "—"}</strong>; } }
     ];
 
     if (loading) {
@@ -170,7 +198,26 @@ function TripDetail() {
                         })}
                     </div>
                 )}
+                <button
+                    type="button"
+                    className="trip-detail-summary-btn"
+                    onClick={handleSummarize}
+                    disabled={summaryLoading}
+                >
+                    {summaryLoading ? "מכין סיכום..." : "✨ סכם את הטיול עם AI"}
+                </button>
             </header>
+
+            {(summary || summaryError) && (
+                <section className={"trip-detail-summary" + (summaryError ? " trip-detail-summary--error" : "")}>
+                    <h2>סיכום AI לטיול</h2>
+                    {summaryError ? (
+                        <p className="trip-detail-summary-text">{summaryError}</p>
+                    ) : (
+                        <p className="trip-detail-summary-text">{summary}</p>
+                    )}
+                </section>
+            )}
 
             {/* gamification - tahini jar that fills with favorites */}
             <TahiniProgress
@@ -184,7 +231,9 @@ function TripDetail() {
                     <h2>❤ המועדפים שלי בטיול הזה</h2>
                     <div className="trip-detail-grid">
                         {favoriteAttractions.map(function(attr) {
-                            var score = (attr.audience_scores && attr.audience_scores[trip.travelStyle]) || attr.popularity_score;
+                            var score = attr.personalized_score
+                                || (attr.audience_scores && attr.audience_scores[trip.travelStyle])
+                                || attr.popularity_score;
                             return (
                                 <div key={attr.id} className="trip-detail-card-wrapper">
                                     <div onClick={function() { setSelectedAttraction(attr); }}>
@@ -194,6 +243,7 @@ function TripDetail() {
                                             description={attr.description_he}
                                             imageUrl={attr.image_url}
                                             score={score}
+                                            scoreHint={getScoreHint(attr)}
                                             tags={attr.tags}
                                         />
                                     </div>
@@ -224,13 +274,15 @@ function TripDetail() {
             {/* cards view - click to expand */}
             <section className="trip-detail-section">
                 <h2>בחרו מועדפים</h2>
-                <p className="trip-detail-hint">💡 לחצו על כרטיסיה לפרטים נוספים</p>
+                <p className="trip-detail-hint">💡 לחצו על כרטיסיה לפרטים ופירוט הציון</p>
                 {attractions.length === 0 ? (
                     <p className="trip-detail-empty">לא נמצאו אטרקציות</p>
                 ) : (
                     <div className="trip-detail-grid">
                         {attractions.map(function(attr) {
-                            var score = (attr.audience_scores && attr.audience_scores[trip.travelStyle]) || attr.popularity_score;
+                            var score = attr.personalized_score
+                                || (attr.audience_scores && attr.audience_scores[trip.travelStyle])
+                                || attr.popularity_score;
                             var favorited = isFav(attr.id);
                             return (
                                 <div key={attr.id} className="trip-detail-card-wrapper">
@@ -241,6 +293,7 @@ function TripDetail() {
                                             description={attr.description_he}
                                             imageUrl={attr.image_url}
                                             score={score}
+                                            scoreHint={getScoreHint(attr)}
                                             tags={attr.tags}
                                         />
                                     </div>
@@ -262,6 +315,7 @@ function TripDetail() {
                 <AttractionModal
                     attraction={selectedAttraction}
                     cityName={getCityName(selectedAttraction.city_id)}
+                    travelStyle={trip.travelStyle}
                     onClose={function() { setSelectedAttraction(null); }}
                 />
             )}

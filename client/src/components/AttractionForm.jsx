@@ -16,7 +16,6 @@ function AttractionForm({ cityId, initialData, onSave, onCancel }) {
     const [type, setType] = useState(initialData ? initialData.type : "site");
     const [descriptionHe, setDescriptionHe] = useState(initialData ? initialData.description_he : "");
     const [imageUrl, setImageUrl] = useState(initialData ? (initialData.image_url || "") : "");
-    const [popularity, setPopularity] = useState(initialData ? initialData.popularity_score : 7);
     const [tagsText, setTagsText] = useState(
         initialData && initialData.tags ? initialData.tags.join(", ") : ""
     );
@@ -52,7 +51,6 @@ function AttractionForm({ cityId, initialData, onSave, onCancel }) {
             type: type,
             description_he: descriptionHe.trim(),
             image_url: imageUrl.trim() || null,
-            popularity_score: Number(popularity),
             tags: tags
         };
 
@@ -112,18 +110,11 @@ function AttractionForm({ cityId, initialData, onSave, onCancel }) {
                                 <option value="route">מסלול</option>
                             </select>
                         </label>
-
-                        <label>
-                            פופולריות (1-10)
-                            <input
-                                type="number"
-                                min="1"
-                                max="10"
-                                value={popularity}
-                                onChange={function(e) { setPopularity(e.target.value); }}
-                            />
-                        </label>
                     </div>
+
+                    <p className="attr-form-hint">
+                        הציון מחושב אוטומטית לפי סוג האטרקציה, תגיות, תיאור וחודשים מומלצים.
+                    </p>
 
                     <label className="attr-form-full">
                         תיאור בעברית *

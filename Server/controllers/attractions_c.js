@@ -1,4 +1,8 @@
 const attractions = require('../models/mock_data/attractions.json');
+const {
+    parsePersonalizationContext,
+    enrichAttraction
+} = require('../utils/attractionScoring');
 
 // helper to find attraction by id
 function findById(id) {
@@ -25,6 +29,11 @@ function getAll(req, res, next) {
                 return attraction.city_id === parseInt(city_id);
             });
         }
+
+        var context = parsePersonalizationContext(req.query);
+        result = result.map(function(attraction) {
+            return enrichAttraction(attraction, context);
+        });
 
         res.status(200).json({ success: true, data: result, error: null });
     } catch (err) {
@@ -53,7 +62,8 @@ function getById(req, res, next) {
             });
         }
 
-        res.status(200).json({ success: true, data: attraction, error: null });
+        var context = parsePersonalizationContext(req.query);
+        res.status(200).json({ success: true, data: enrichAttraction(attraction, context), error: null });
     } catch (err) {
         next(err);
     }
@@ -82,13 +92,17 @@ function create(req, res, next) {
             description_he: description_he,
             tags: req.body.tags || [],
             image_url: req.body.image_url || null,
-            popularity_score: req.body.popularity_score || 0,
-            audience_scores: req.body.audience_scores || {},
-            best_months: req.body.best_months || []
+            best_months: req.body.best_months || [],
+            avoid_months: req.body.avoid_months || [],
+            seasonal_note_he: req.body.seasonal_note_he || null
         };
 
         attractions.push(newAttraction);
-        res.status(201).json({ success: true, data: { id: newAttraction.id }, error: null });
+        res.status(201).json({
+            success: true,
+            data: enrichAttraction(newAttraction, null),
+            error: null
+        });
     } catch (err) {
         next(err);
     }
@@ -115,7 +129,10 @@ function update(req, res, next) {
             });
         }
 
-        const allowedFields = ["name", "name_he", "type", "description_he", "tags", "image_url", "popularity_score", "audience_scores", "best_months"];
+        const allowedFields = [
+            "name", "name_he", "type", "description_he", "tags", "image_url",
+            "best_months", "avoid_months", "seasonal_note_he"
+        ];
 
         for (let i = 0; i < allowedFields.length; i++) {
             const field = allowedFields[i];
@@ -124,7 +141,11 @@ function update(req, res, next) {
             }
         }
 
-        res.status(200).json({ success: true, data: { id: parseInt(id) }, error: null });
+        res.status(200).json({
+            success: true,
+            data: enrichAttraction(attraction, null),
+            error: null
+        });
     } catch (err) {
         next(err);
     }

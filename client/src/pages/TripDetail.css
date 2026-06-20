@@ -55,6 +55,67 @@
     font-size: 0.85rem;
 }
 
+.trip-detail-summary-btn {
+    margin-top: 14px;
+    padding: 10px 18px;
+    background: var(--accent-secondary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.15s, opacity 0.15s;
+}
+
+.trip-detail-summary-btn:hover:not(:disabled) {
+    filter: brightness(0.92);
+}
+
+.trip-detail-summary-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.trip-detail-summary {
+    margin-top: 20px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, var(--tag-bg) 0%, var(--bg-surface) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow-card);
+}
+
+.trip-detail-summary--error {
+    background: var(--status-error-bg);
+    border-color: var(--status-error-border);
+}
+
+.trip-detail-summary h2 {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    color: var(--accent-primary);
+    border-right: 4px solid var(--accent-primary);
+    padding-right: 10px;
+}
+
+.trip-detail-summary--error h2 {
+    color: var(--status-error-text);
+    border-right-color: var(--status-error-border);
+}
+
+.trip-detail-summary-text {
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.65;
+    font-size: 0.95rem;
+}
+
+.trip-detail-summary--error .trip-detail-summary-text {
+    color: var(--status-error-text);
+}
+
 .trip-detail-section {
     margin-top: 32px;
 }

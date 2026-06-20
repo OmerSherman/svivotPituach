@@ -42,6 +42,10 @@ function ItemCard(props) {
                     <p className="item-card-description">{props.description}</p>
                 )}
 
+                {props.scoreHint && (
+                    <p className="item-card-score-hint" title="לחץ לפירוט מלא">💡 {props.scoreHint}</p>
+                )}
+
                 {props.tags && props.tags.length > 0 && (
                     <div className="item-card-tags">
                         {/* show max 5 tags */}
