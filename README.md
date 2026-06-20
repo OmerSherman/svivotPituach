@@ -1,155 +1,405 @@
 # שביל הטחינה (Shvil HaTahina)
 
-A travel-planning app for backpackers heading to South America — Peru, Argentina, and Brazil.
-You browse cities and attractions, build a personalized trip, mark favorites, and tweak how the
-app looks. Built as a full-stack React + Express project.
+אפליקציית תכנון טיולים לדרום אמריקה — ערים, אטרקציות, פרופילי טיול, פורום צ'אט בזמן אמת, ועוזר AI לתכנון.
 
-**Course:** סביבות פיתוח באינטרנט · Ben-Gurion University of the Negev
-**Team:** Omer Sherman · Hillel Zilberman · Michal Adam
+**קורס:** סביבות פיתוח באינטרנט · אוניברסיטת בן-גוריון בנגב  
+**צוות:** Omer Sherman · Hillel Zilberman · Michal Adam
 
 ---
 
-## What it does
+## תוכן עניינים
 
-- Login and register, with three roles: user / manager / admin
-- Browse cities and their top attractions across South America
-- Build a custom trip: destination, dates, travel style, budget, and interests
-- Mark favorite attractions per trip (with a "tahini jar" that fills up as you add more)
-- Display preferences saved per user: light/dark theme, font size, card density
-- Search for cities and attractions
-- Admin tools: manage users and run CRUD on attractions
+1. [יכולות האפליקציה](#יכולות-האפליקציה)
+2. [דרישות מקדימות](#דרישות-מקדימות)
+3. [התקנה והרצה](#התקנה-והרצה)
+4. [משתמשי בדיקה](#משתמשי-בדיקה)
+5. [מבנה הפרויקט](#מבנה-הפרויקט)
+6. [בסיס נתונים: Prisma מול ORM ידני](#בסיס-נתונים-prisma-מול-orm-ידני)
+7. [API — REST](#api--rest)
+8. [WebSockets](#websockets)
+9. [AI](#ai)
+10. [Tech Stack](#tech-stack)
 
 ---
 
-## How to run
+## יכולות האפליקציה
 
-You'll need **Node.js 18 or newer**. The app has two parts — a backend and a frontend —
-and they run in **two separate terminals**. Start the backend first, because the frontend
-expects it to already be up on port 3000.
+- התחברות והרשמה (user / manager / admin)
+- עיון בערים ואטרקציות בדרום אמריקה
+- יצירת פרופיל טיול: יעד, חודשים, סגנון, תקציב, תחומי עניין
+- ניקוד אטרקציות מותאם אישית + הסבר "למה הציון הזה?"
+- מועדפים לכל טיול (טבלת junction `trip_attraction`)
+- העדפות תצוגה לכל משתמש: theme, fontSize, density
+- פורום צ'אט לפי מדינה/עיר (Socket.IO + MySQL)
+- תכנון טיול בשיחה עם AI (WebSocket) + סיכום טיול (REST)
+- ניהול משתמשים ואטרקציות (admin/manager)
+- מפות Leaflet בפורום ובאטרקציות
 
-### 1. Backend (start this first)
+---
 
-```bash
+## דרישות מקדימות
+
+| כלי | גרסה |
+|-----|------|
+| Node.js | 18+ |
+| MySQL | 8.0+ |
+| npm | מגיע עם Node |
+
+---
+
+## התקנה והרצה
+
+### 1. Clone והתקנת חבילות
+
+```powershell
 cd Server
 npm install
-npm start
-```
 
-The server starts on **http://localhost:3000**. You should see `Server running on http://localhost:3000`
-in the terminal.
-
-### 2. Frontend (in a second terminal)
-
-```bash
-cd client
+cd ../client
 npm install
-npm start
 ```
 
-The app opens in your browser at **http://localhost:5173**.
+### 2. הגדרת משתני סביבה
 
-That's it — the frontend talks to the backend automatically.
+**Server** — העתיקי `Server/.env.example` ל-`Server/.env` ומלאי:
 
-### Ports and environment
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=YOUR_PASSWORD
+DB_NAME=mydb
+DATABASE_URL=mysql://root:YOUR_PASSWORD@localhost:3306/mydb
+GROQ_API_KEY=YOUR_GROQ_KEY
+GROQ_MODEL=llama-3.3-70b-versatile
+```
 
-Each part runs on its own port and ships with a ready `.env` file, so there's nothing to configure:
+**Client** — העתיקי `client/.env.example` ל-`client/.env`:
 
-| Part      | Port | Config file    |
-|-----------|------|----------------|
-| Frontend  | 5173 | `client/.env`  |
-| Backend   | 3000 | `Server/.env`  |
+```env
+PORT=5173
+REACT_APP_API_URL=http://localhost:3000/api
+REACT_APP_SOCKET_URL=http://localhost:3000
+```
 
-- The frontend runs at **http://localhost:5173**.
-- The backend API base URL is **http://localhost:3000/api**, set in `client/.env` as
-  `REACT_APP_API_URL`. If that variable is ever missing, the frontend falls back to the same URL anyway.
+### 3. ייבוא בסיס הנתונים
+
+> **חשוב:** ייבוא דרך PowerShell (`Get-Content | mysql`) עלול לשבור עברית. השתמשי בסקריפט Node:
+
+```powershell
+# מהשורש של הפרויקט
+node fix-db-encoding.js
+```
+
+הסקריפט:
+- מייבא את `mydb_dump.sql` עם קידוד UTF-8
+- יוצר את טבלת `message` לפורום
+- מציג דוגמת ערים בעברית לאימות
+
+**אלטרנטיבה — DB ריק (ללא נתוני seed):**
+
+```powershell
+cd Server
+npm run db:push
+```
+
+### 4. הרצה (שני טרמינלים)
+
+```powershell
+# טרמינל 1 — Backend
+cd Server
+npm start
+# → http://localhost:3000
+
+# טרמינל 2 — Frontend
+cd client
+npm start
+# → http://localhost:5173
+```
+
+### 5. Prisma Studio (אופציונלי — צפייה ב-DB)
+
+```powershell
+cd Server
+npm run db:studio
+```
 
 ---
 
-## Test users
+## משתמשי בדיקה
 
-Every user's password is `123456`.
+סיסמה לכולם: `123456`
 
-| Email                   | Role    |
-|-------------------------|---------|
-| michal@example.com      | admin   |
-| omersherman22@gmail.com | admin   |
-| hillel@example.com      | manager |
-| user@example.com        | user    |
+| Email | Role |
+|-------|------|
+| michal@example.com | admin |
+| omersherman22@gmail.com | admin |
+| hillel@example.com | manager |
+| user@example.com | user |
 
 ---
 
-## Project structure
+## מבנה הפרויקט
 
 ```
 svivotPituach/
-├── Server/                  # Express REST API (Assignment 2)
-│   ├── app.js               # entry point
-│   ├── .env                 # backend port
-│   ├── routes/              # one router per entity
-│   ├── controllers/         # request handling and logic
-│   ├── middleware/          # auth, validation, logging, error handling
-│   └── models/
-│       └── mock_data/       # JSON files used as the database
-│
-├── client/                  # React frontend (Assignment 3)
-│   ├── .env                 # frontend port + API URL
+├── client/                     # React SPA (פורט 5173)
 │   └── src/
-│       ├── App.js           # routing and context providers
-│       ├── components/      # reusable: Navbar, Footer, ItemCard, DataTable, ...
-│       ├── pages/           # routes: Home, Login, Settings, TripDetail, ...
-│       ├── services/        # API communication layer
-│       └── contexts/        # global state: user, preferences
+│       ├── App.js              # routing + context
+│       ├── pages/              # Home, TripDetail, Forum, Settings...
+│       ├── components/         # Navbar, ItemCard, ForumChat, AiTripChatModal...
+│       ├── services/           # api.js, tripsService, socket.js...
+│       └── contexts/           # userContext, preferencesContext
 │
-├── screenshots/             # the app running (Login, Dashboard, Table, Settings)
+├── Server/                     # Express + Socket.IO (פורט 3000)
+│   ├── app.js                  # entry point
+│   ├── db.js                   # mysql2 pool + Prisma client export
+│   ├── routes/                 # REST routers
+│   ├── controllers/            # business logic
+│   ├── ORM/                    # mysql2 queries (runtime DB access)
+│   ├── socket/                 # forum_socket.js, aiTripSocket.js
+│   ├── services/               # groqService.js
+│   ├── prisma/schema.prisma    # DB schema definition
+│   └── migrations/001_init.sql
+│
+├── mydb_dump.sql               # seed data (Omer)
+├── fix-db-encoding.js          # import script (UTF-8 safe)
+├── ARCHITECTURE.md             # מסמך ארכיטקטורה מפורט
 └── README.md
 ```
 
 ---
 
-## API endpoints
+## בסיס נתונים: Prisma מול ORM ידני
 
-All responses follow the shape `{ success, data, error }`. Auth is passed through the
-headers `x-user-id` and `x-user-role` (mock auth for now — we'll move to JWT later).
+### התשובה הקצרה
 
-| Method | Path                          | Access          | Description                          |
-|--------|-------------------------------|-----------------|--------------------------------------|
-| POST   | /api/auth/register            | public          | create a new user                    |
-| POST   | /api/auth/login               | public          | sign in                              |
-| POST   | /api/auth/logout              | public          | sign out                             |
-| GET    | /api/users/me                 | logged in       | current user info                    |
-| GET    | /api/users                    | admin/manager   | list all users                       |
-| PUT    | /api/users/:id                | admin/manager   | update a user                        |
-| DELETE | /api/users/:id                | admin or self   | delete a user                        |
-| GET    | /api/cities                   | logged in       | list all cities                      |
-| GET    | /api/cities/search?q=         | logged in       | search cities by name                |
-| GET    | /api/cities/:id               | logged in       | one city                             |
-| GET    | /api/attractions              | logged in       | list attractions (filter by city/type) |
-| GET    | /api/attractions/:id          | logged in       | one attraction                       |
-| POST   | /api/attractions              | admin           | create an attraction                 |
-| PUT    | /api/attractions/:id          | admin/manager   | update an attraction                 |
-| DELETE | /api/attractions/:id          | admin           | delete an attraction                 |
-| GET    | /api/profile                  | logged in       | current user's trips                 |
-| POST   | /api/profile                  | logged in       | create a trip                        |
-| GET    | /api/profile/:id              | owner           | one trip                             |
-| PUT    | /api/profile/:id              | owner           | update a trip                        |
-| DELETE | /api/profile/:id              | owner           | delete a trip                        |
-| POST   | /api/profile/:id/favorites    | owner           | toggle a favorite attraction         |
-| GET    | /api/settings                 | logged in       | user info + display preferences      |
-| PUT    | /api/settings                 | logged in       | update info and/or preferences       |
+**שניהם מדברים עם אותו MySQL (`mydb`), אבל לתפקידים שונים:**
+
+| | Prisma | ORM ידני (`Server/ORM/`) |
+|---|--------|--------------------------|
+| **מה זה** | כלי הגדרת סכמה + migrations | שכבת גישה ל-DB בזמן ריצה |
+| **איפה מוגדר** | `Server/prisma/schema.prisma` | `Server/ORM/*.js` |
+| **איך שואלים DB** | `prisma.user.findMany()` | `pool.query('SELECT ...')` |
+| **מתי בשימוש** | פיתוח, `db:push`, Studio | **כל בקשת API בזמן ריצה** |
+| **מי קורא** | מפתחים (`npm run db:*`) | controllers → ORM → mysql2 |
+
+**Prisma לא "מחובר" ל-ORM הידני בקוד** — אין שכבת גשר. שניהם פונים לאותה DB בנפרד.
+
+### דיאגרמה
+
+```
+                    ┌─────────────────────────┐
+                    │   MySQL — mydb          │
+                    │   (8 tables)            │
+                    └───────────┬─────────────┘
+                                │
+              ┌─────────────────┴─────────────────┐
+              │                                   │
+              ▼                                   ▼
+   ┌──────────────────────┐          ┌──────────────────────┐
+   │  Prisma              │          │  mysql2 pool (db.js) │
+   │  schema.prisma       │          │                      │
+   │  npm run db:push     │          │  UserORM.js          │
+   │  npm run db:studio   │          │  TripORM.js          │
+   │                      │          │  AttractionORM.js    │
+   │  ❌ לא בשימוש ב-API  │          │  CityORM.js ...      │
+   └──────────────────────┘          └──────────┬───────────┘
+                                                │
+                                                ▼
+                                     ┌──────────────────────┐
+                                     │  controllers/        │
+                                     │  (auth, profiles,    │
+                                     │   attractions...)    │
+                                     └──────────────────────┘
+```
+
+### חיבור טכני — `Server/db.js`
+
+```javascript
+// זה מה שה-ORM משתמש בו בזמן ריצה:
+const pool = mysql.createPool({ database: 'mydb', charset: 'utf8mb4', ... });
+module.exports = pool;
+
+// Prisma client — נוצר אבל controllers לא קוראים לו:
+module.exports.prisma = new PrismaClient();
+```
+
+### טבלאות
+
+| טבלה | Prisma model | ORM |
+|------|--------------|-----|
+| `user` | User | UserORM |
+| `country` | Country | — (אין API, רק scraper) |
+| `city` | City | CityORM |
+| `attraction` | Attraction | AttractionORM |
+| `trip` | Trip | TripORM |
+| `trip_attraction` | TripAttraction | TripORM (favorites) |
+| `settings` | Settings | SettingsORM |
+| `message` | Message | MessageORM |
+
+### פקודות Prisma שימושיות
+
+```powershell
+cd Server
+npm run db:generate   # יוצר @prisma/client מ-schema
+npm run db:push       # מסנכרן schema → MySQL (DB ריק/חדש)
+npm run db:studio     # UI לצפייה ועריכה ב-DB
+```
 
 ---
 
-## Tech stack
+## API — REST
 
-- **Frontend:** React 19, React Router 7, plain CSS with CSS variables
-- **Backend:** Node.js + Express 5
-- **Data:** mock JSON files (moving to MySQL in Assignment 4)
-- No external UI libraries — the components are all handwritten.
+כל התשובות בפורmat:
+
+```json
+{ "success": true, "data": {}, "error": null }
+```
+
+**אימות:** headers `x-user-id` ו-`x-user-role` (לאחר login, הלקוח שולח אותם אוטומטית).
+
+### Auth
+
+| Method | Path | תיאור |
+|--------|------|--------|
+| POST | `/api/auth/register` | הרשמה |
+| POST | `/api/auth/login` | התחברות |
+| POST | `/api/auth/logout` | התנתקות |
+
+### Users
+
+| Method | Path | הרשאה |
+|--------|------|--------|
+| GET | `/api/users/me` | logged in |
+| PUT | `/api/users/me` | logged in |
+| GET | `/api/users` | admin |
+| GET | `/api/users/:id` | open |
+| POST | `/api/users` | admin |
+| PUT | `/api/users/:id` | admin/manager |
+| DELETE | `/api/users/:id` | admin or self |
+
+### Cities
+
+| Method | Path | תיאור |
+|--------|------|--------|
+| GET | `/api/cities` | כל הערים |
+| GET | `/api/cities/search?q=` | חיפוש |
+| GET | `/api/cities/:id` | עיר בודדת |
+
+### Attractions
+
+| Method | Path | הרשאה |
+|--------|------|--------|
+| GET | `/api/attractions` | logged in |
+| GET | `/api/attractions/map?city_id=` | logged in |
+| GET | `/api/attractions/:id` | logged in |
+| POST | `/api/attractions` | admin |
+| PUT | `/api/attractions/:id` | admin/manager |
+| DELETE | `/api/attractions/:id` | admin |
+
+Query params ל-GET `/api/attractions`:
+- `type`, `city_id`
+- `travelStyle`, `startMonth`, `endMonth`, `interests` — לניקוד מותאם אישית
+
+### Trips (Profile)
+
+| Method | Path | תיאור |
+|--------|------|--------|
+| GET | `/api/profile` | הטיולים שלי |
+| POST | `/api/profile` | יצירת טיול |
+| GET | `/api/profile/:id` | טיול בודד |
+| PUT | `/api/profile/:id` | עדכון |
+| DELETE | `/api/profile/:id` | מחיקה |
+| POST | `/api/profile/:id/favorites` | toggle מועדף `{ attractionId }` |
+
+### Settings
+
+| Method | Path | תיאור |
+|--------|------|--------|
+| GET | `/api/settings` | פרופיל + העדפות תצוגה |
+| PUT | `/api/settings` | עדכון |
+
+### Forum
+
+| Method | Path | תיאור |
+|--------|------|--------|
+| GET | `/api/forum/:room/messages` | 50 הודעות אחרונות (למשל `country_1`, `city_3`) |
+
+### AI (REST)
+
+| Method | Path | Body | תיאור |
+|--------|------|------|--------|
+| POST | `/api/ai/trip-summary` | `{ tripId }` | סיכום AI לטיול קיים |
+
+> דורש `GROQ_API_KEY` ב-`.env`
 
 ---
 
-## Notes
+## WebSockets
 
-- The logged-in user and preferences are saved to localStorage, so a refresh keeps you signed in.
-- Theme, font size, and card density are stored per user on the server and come back on login.
-- Validation runs on the server for every POST and PUT request.
+חיבור: `REACT_APP_SOCKET_URL` (ברירת מחדל `http://localhost:3000`)
+
+### פורום — `forum_socket.js`
+
+| Client → Server | תיאור |
+|-----------------|--------|
+| `room:join` | `{ room }` |
+| `room:leave` | `{ room }` |
+| `message:send` | `{ room, userId, userName, text }` |
+
+| Server → Client | תיאור |
+|-----------------|--------|
+| `message:new` | הודעה חדשה (נשמרת ב-MySQL) |
+| `presence:update` | `{ room, count }` |
+| `message:error` | שגיאה |
+
+### AI Trip Chat — `aiTripSocket.js`
+
+חיבור עם `auth: { userId }`.
+
+| Client → Server | תיאור |
+|-----------------|--------|
+| `ai-trip:start` | התחלת שיחה |
+| `ai-trip:user-message` | `{ text }` |
+| `ai-trip:reset` | איפוס |
+
+| Server → Client | תיאור |
+|-----------------|--------|
+| `ai-trip:bot-message` | `{ text, draft }` |
+| `ai-trip:bot-typing` | `{ typing }` |
+| `ai-trip:draft-ready` | `{ draft }` — טיוטה מוכנה לשמירה |
+| `ai-trip:error` | שגיאה |
+
+---
+
+## AI
+
+| ערוץ | פרוטוקול | שימוש |
+|------|----------|-------|
+| צ'אט תכנון טיול | WebSocket | שיחה → טיוטת טיול → שמירה ב-DB |
+| סיכום טיול | REST `POST /api/ai/trip-summary` | טקסט סיכום לטיול קיים |
+
+מודל ברירת מחדל: `llama-3.3-70b-versatile` (Groq).
+
+---
+
+## Tech Stack
+
+| שכבה | טכנולוגיה |
+|------|-----------|
+| Frontend | React 19, React Router 7, Leaflet, Socket.IO Client |
+| Backend | Node.js, Express 5, Socket.IO 4 |
+| Database | MySQL 8, mysql2 (runtime), Prisma (schema) |
+| AI | Groq SDK |
+| Auth | Header-based (`x-user-id`, `x-user-role`) + localStorage |
+
+---
+
+## הערות
+
+- המשתמש והעדפות נשמרים ב-`localStorage` — רענון לא מנתק.
+- ייבוא DB: **תמיד** `node fix-db-encoding.js` (לא PowerShell pipe) לשמירת עברית.
+- מסמך ארכיטקטורה מפורט: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
+- תיעוד API מורחב (Assignment 2): [`Server/docs/README.md`](./Server/docs/README.md)
