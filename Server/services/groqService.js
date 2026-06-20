@@ -1,5 +1,5 @@
 const Groq = require('groq-sdk');
-const { TRIP_SUMMARY_SYSTEM_PROMPT } = require('../prompts/tripSummaryPrompt');
+const { buildTripSummarySystemPrompt } = require('../prompts/tripSummaryPrompt');
 
 if (!process.env.GROQ_API_KEY) {
     console.warn('[groqService] GROQ_API_KEY is not set - AI trip chat will fail.');
@@ -82,10 +82,11 @@ async function getNextAiResponse(conversationHistory, previousDraft) {
 // plain-text summary for POST /api/ai/trip-summary
 async function summarizeTrip(tripContext) {
     try {
+        const systemPrompt = await buildTripSummarySystemPrompt();
         const completion = await getGroq().chat.completions.create({
             model: MODEL,
             messages: [
-                { role: 'system', content: TRIP_SUMMARY_SYSTEM_PROMPT },
+                { role: 'system', content: systemPrompt },
                 { role: 'user', content: JSON.stringify(tripContext) }
             ],
             max_tokens: 350,

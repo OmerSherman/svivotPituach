@@ -1,5 +1,5 @@
 const groqService = require('../services/groqService');
-const { TRIP_CHAT_SYSTEM_PROMPT } = require('../prompts/tripChatSystemPrompt');
+const { buildTripChatSystemPrompt } = require('../prompts/tripChatSystemPrompt');
 const { validateTripDraft } = require('../utils/validateTripDraft');
 
 const SESSION_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
@@ -11,10 +11,11 @@ function chatErrorMessage(err, fallback) {
     return err && err.aiUnavailable ? AI_UNAVAILABLE_MESSAGE : fallback;
 }
 
-function createSession(userId) {
+async function createSession(userId) {
+    const systemPrompt = await buildTripChatSystemPrompt();
     return {
         userId: userId,
-        history: [{ role: 'system', content: TRIP_CHAT_SYSTEM_PROMPT }],
+        history: [{ role: 'system', content: systemPrompt }],
         draft: null,
         status: 'collecting',
         createdAt: new Date(),
@@ -76,7 +77,7 @@ function registerAiTripSocket(io) {
                 socket.emit('ai-trip:error', { message: 'יש להתחבר כדי להשתמש בעוזר ה-AI.' });
                 return;
             }
-            const session = createSession(socket.userId);
+            const session = await createSession(socket.userId);
             sessions.set(socket.id, session);
             session.history.push({ role: 'user', content: OPENING_MESSAGE });
 
