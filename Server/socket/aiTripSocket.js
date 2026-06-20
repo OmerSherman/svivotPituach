@@ -50,12 +50,12 @@ async function advanceConversation(session) {
 function registerAiTripSocket(io) {
     const sessions = new Map();
 
+    // attach userId when provided — do not block connections without it (forum uses the same io instance)
     io.use(function(socket, next) {
         const userId = Number(socket.handshake.auth && socket.handshake.auth.userId);
-        if (!Number.isInteger(userId) || userId <= 0) {
-            return next(new Error('missing or invalid userId'));
+        if (Number.isInteger(userId) && userId > 0) {
+            socket.userId = userId;
         }
-        socket.userId = userId;
         next();
     });
 
@@ -72,6 +72,10 @@ function registerAiTripSocket(io) {
 
     io.on('connection', function(socket) {
         async function startSession() {
+            if (!socket.userId) {
+                socket.emit('ai-trip:error', { message: 'יש להתחבר כדי להשתמש בעוזר ה-AI.' });
+                return;
+            }
             const session = createSession(socket.userId);
             sessions.set(socket.id, session);
             session.history.push({ role: 'user', content: OPENING_MESSAGE });
