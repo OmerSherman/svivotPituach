@@ -1,7 +1,7 @@
 // Upsert helpers used only by the scraper.
 // Keeps the scraper independent from the Server ORM (different process, same DB).
 
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 const pool = require('../db');
 
 // Returns existing countryId or inserts and returns new one

@@ -1,15 +1,15 @@
 {
-  "name": "src",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
     "scripts": {
-        "start": "node app.js",
+        "start": "node src/app.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "db:setup": "node scripts/setup-database.js",
-        "db:seed": "node scripts/setup-database.js --seed-only",
-        "db:generate": "prisma generate",
-        "db:studio": "prisma studio"
+        "db:setup": "node src/scripts/setup-database.js",
+        "db:seed": "node src/scripts/setup-database.js --seed-only",
+        "db:generate": "prisma generate --schema=models/schema.prisma",
+        "db:studio": "prisma studio --schema=models/schema.prisma"
     },
   "keywords": [],
   "author": "",

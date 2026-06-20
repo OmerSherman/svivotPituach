@@ -13,12 +13,12 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 
-# Server env (now untracked; copy Server/.env.example to get started)
-Server/.env
+# Backend env (now untracked; copy backend/.env.example to get started)
+backend/.env
 
-# NOTE: client/.env IS still committed on purpose for this assignment.
+# NOTE: frontend/.env IS still committed on purpose for this assignment.
 # It contains only a local API URL (mock data, no real secrets),
-# so the frontend runs with zero configuration. Do NOT add client/.env here.
+# so the frontend runs with zero configuration. Do NOT add frontend/.env here.
 
 # personal planning docs, not part of the deliverable
 PROJECT_OVERVIEW.md

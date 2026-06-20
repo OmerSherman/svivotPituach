@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
 const { fetchWikitext, fetchCoordinates } = require('./wikivoyageClient');
 const { extractAttractions, extractDistrictLinks } = require('./parser');

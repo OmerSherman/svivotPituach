@@ -62,7 +62,7 @@
 
 ```
 svivotPituach/
-├── client/                    # React SPA (פורט 5173)
+├── frontend/                  # React SPA (פורט 5173)
 │   └── src/
 │       ├── App.js             # ניתוב ראשי + Context
 │       ├── pages/             # דפי האפליקציה
@@ -71,18 +71,19 @@ svivotPituach/
 │       ├── contexts/          # userContext, preferencesContext
 │       └── data/              # נתונים סטטיים (חדרי פורום)
 │
-├── Server/                    # Node.js Backend (פורט 3000)
-│   ├── app.js                 # נקודת כניסה — Express + Socket.IO
-│   ├── db.js                  # mysql2 pool + Prisma client
-│   ├── routes/                # הגדרת endpoints
-│   ├── controllers/           # לוגיקה עסקית
-│   ├── ORM/                   # שכבת גישה ל-DB (SQL גולמי)
-│   ├── services/              # Groq AI
-│   ├── socket/                # forum_socket, aiTripSocket
-│   ├── middleware/            # logger, roleCheck, checkFields
-│   ├── utils/                 # attractionScoring, validateTripDraft
-│   ├── prompts/               # פרומפטים ל-AI
-│   ├── prisma/                # schema.prisma
+├── backend/                   # Node.js Backend (פורט 3000)
+│   ├── src/
+│   │   ├── app.js             # נקודת כניסה — Express + Socket.IO
+│   │   ├── db.js              # mysql2 pool + Prisma client
+│   │   ├── routes/            # הגדרת endpoints
+│   │   ├── controllers/       # לוגיקה עסקית
+│   │   ├── repositories/      # שכבת גישה ל-DB (Prisma)
+│   │   ├── services/          # Groq AI
+│   │   ├── socket/            # forum_socket, aiTripSocket
+│   │   ├── middleware/        # logger, roleCheck, checkFields
+│   │   ├── utils/             # attractionScoring, validateTripDraft
+│   │   └── prompts/           # פרומפטים ל-AI
+│   ├── models/                # schema.prisma (ORM)
 │   └── migrations/            # SQL migrations
 │
 ├── mydb_dump.sql              # גיבוי נתוני Omer
@@ -94,7 +95,7 @@ svivotPituach/
 
 ## 3. ארכיטקטורת השרת (Backend)
 
-### 3.1 נקודת כניסה — `Server/app.js`
+### 3.1 נקודת כניסה — `backend/src/app.js`
 
 השרת בונה **שרת HTTP אחד** שמשרת גם REST וגם WebSocket:
 
@@ -156,7 +157,7 @@ HTTP Request
 | `settings_c.js` | העדפות תצוגה (theme, fontSize, density) |
 | `ai_c.js` | סיכום טיול ב-AI (REST) |
 
-### 3.5 שכבת ORM — `Server/ORM/`
+### 3.5 שכבת גישה ל-DB — `backend/src/repositories/`
 
 כל ה-ORM classes משתמשים ב-**mysql2 connection pool** מ-`db.js` עם SQL גולמי. אין שימוש ב-Prisma בשאילתות runtime.
 
@@ -203,7 +204,7 @@ module.exports.prisma = new PrismaClient();
 
 ## 4. ארכיטקטורת הלקוח (Frontend)
 
-### 4.1 נקודת כניסה — `client/src/App.js`
+### 4.1 נקודת כניסה — `frontend/src/App.js`
 
 ```
 index.js → App.js
@@ -230,7 +231,7 @@ index.js → App.js
 | `adminPortal.jsx` | `/adminPortal` | ניהול משתמשים (admin/manager) |
 | `adminPortaluser.jsx` | `/adminPortaluser` | עריכת משתמש בודד |
 
-### 4.3 שירותים (Services) — `client/src/services/`
+### 4.3 שירותים (Services) — `frontend/src/services/`
 
 כל קריאת API עוברת דרך `api.js`:
 
@@ -482,7 +483,7 @@ TripDetail → לחיצה על כוכב באטרקציה
 | `presence:update` | `{ room, count }` — כמה מחוברים |
 | `message:error` | שגיאה |
 
-**חדרים:** `country_1`, `city_3` וכו' — מוגדרים ב-`client/src/data/forumRooms.js`.
+**חדרים:** `country_1`, `city_3` וכו' — מוגדרים ב-`frontend/src/data/forumRooms.js`.
 
 **היסטוריה:** REST `GET /api/forum/:room/messages` (50 אחרונות) — נטען לפני הצ'אט.
 
@@ -563,7 +564,7 @@ Client: פותח TripForm עם הנתונים → tripsService.create()
 
 הניקוד **מחושב בזמן קריאה** — לא נשמר ב-DB.
 
-קובץ: `Server/utils/attractionScoring.js`
+קובץ: `backend/src/utils/attractionScoring.js`
 
 ```
 GET /api/attractions?travelStyle=...&interests=...&startMonth=...
@@ -590,7 +591,7 @@ attractions_c.getAll()
 
 ## 11. משתני סביבה והרצה
 
-### 11.1 Server — `Server/.env`
+### 11.1 Backend — `backend/.env`
 
 ```env
 PORT=3000
@@ -604,7 +605,7 @@ GROQ_API_KEY=...          # חובה ל-AI
 GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
-### 11.2 Client — `client/.env`
+### 11.2 Frontend — `frontend/.env`
 
 ```env
 PORT=5173
@@ -616,11 +617,11 @@ REACT_APP_SOCKET_URL=http://localhost:3000
 
 ```powershell
 # טרמינל 1 — שרת
-cd Server
+cd backend
 npm start          # → http://localhost:3000
 
 # טרמינל 2 — לקוח
-cd client
+cd frontend
 npm start          # → http://localhost:5173
 
 # ייבוא DB (פעם ראשונה או אחרי קורפציה)

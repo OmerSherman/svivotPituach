@@ -10,11 +10,11 @@
 ## איך זה עובד?
 
 ```
-MySQL (mydb)  ←  Prisma  ←  Express (Server)  ←  React (client)
+MySQL (mydb)  ←  Prisma  ←  Express (backend)  ←  React (frontend)
 ```
 
 - **בזמן ריצה** — כל הנתונים (ערים, טיולים, הודעות פורום…) נשמרים **ב-MySQL בלבד**.
-- **קבצי `Server/seed/`** — משמשים רק ל**בנייה ראשונית** של ה-DB (`npm run db:setup`). לא נקראים בזמן שימוש רגיל.
+- **קבצי `backend/src/seed/`** — משמשים רק ל**בנייה ראשונית** של ה-DB (`npm run db:setup`). לא נקראים בזמן שימוש רגיל.
 
 ---
 
@@ -45,15 +45,15 @@ CREATE DATABASE IF NOT EXISTS mydb
 ### 1. חבילות
 
 ```powershell
-cd Server
+cd backend
 npm install
-cd ../client
+cd ../frontend
 npm install
 ```
 
 ### 2. קובץ `.env`
 
-**Server** — העתיקי `Server/.env.example` ל-`Server/.env` ומלאי:
+**Backend** — העתיקי `backend/.env.example` ל-`backend/.env` ומלאי:
 
 ```env
 PORT=3000
@@ -67,7 +67,7 @@ GROQ_API_KEY=YOUR_GROQ_KEY
 GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
-**Client** — העתיקי `client/.env.example` ל-`client/.env`:
+**Frontend** — העתיקי `frontend/.env.example` ל-`frontend/.env`:
 
 ```env
 PORT=5173
@@ -78,7 +78,7 @@ REACT_APP_SOCKET_URL=http://localhost:3000
 ### 3. יצירת ה-DB והנתונים — פקודה אחת
 
 ```powershell
-cd Server
+cd backend
 npm run db:setup
 ```
 
@@ -86,8 +86,8 @@ npm run db:setup
 
 | שלב | מה קורה |
 |-----|---------|
-| **1** | Prisma יוצר את כל הטבלאות ב-MySQL לפי `prisma/schema.prisma` |
-| **2** | הסקריפט ממלא נתונים מ-`Server/seed/` |
+| **1** | Prisma יוצר את כל הטבלאות ב-MySQL לפי `backend/models/schema.prisma` |
+| **2** | הסקריפט ממלא נתונים מ-`backend/src/seed/` |
 
 **מה נכנס בפעם הראשונה:**
 
@@ -113,12 +113,12 @@ npm run db:studio
 
 ```powershell
 # טרמינל 1 — Backend
-cd Server
+cd backend
 npm start
 # → http://localhost:3000
 
 # טרמינל 2 — Frontend
-cd client
+cd frontend
 npm start
 # → http://localhost:5173
 ```
@@ -128,8 +128,8 @@ npm start
 ## שימוש יומיומי (אחרי ההתקנה)
 
 ```powershell
-cd Server && npm start    # טרמינל 1
-cd client && npm start    # טרמינל 2
+cd backend && npm start    # טרמינל 1
+cd frontend && npm start    # טרמינל 2
 ```
 
 **לא צריך** להריץ `db:setup` שוב.
@@ -163,16 +163,18 @@ cd client && npm start    # טרמינל 2
 ## בסיס הנתונים — קבצים ופקודות
 
 ```
-Server/
-├── prisma/schema.prisma       ← מבנה 8 הטבלאות
-├── seed/                      ← נתוני התחלה (עריכה + db:setup)
-│   ├── countries.json
-│   ├── cities.json
-│   ├── attractions.json
-│   ├── users.json
-│   └── settings.json
-├── scripts/setup-database.js  ← npm run db:setup
-└── repositories/              ← קריאה/כתיבה ל-MySQL בזמן ריצה
+backend/
+├── models/schema.prisma           ← מבנה 8 הטבלאות
+├── migrations/                     ← עותק SQL ישן (אינפורמטיבי בלבד)
+├── src/
+│   ├── seed/                       ← נתוני התחלה (עריכה + db:setup)
+│   │   ├── countries.json
+│   │   ├── cities.json
+│   │   ├── attractions.json
+│   │   ├── users.json
+│   │   └── settings.json
+│   ├── scripts/setup-database.js  ← npm run db:setup
+│   └── repositories/              ← קריאה/כתיבה ל-MySQL בזמן ריצה
 ```
 
 | פקודה | מתי להשתמש |
@@ -188,13 +190,13 @@ Server/
 
 **דרך 1 — JSON (מומלץ לשינוי גדול):**
 
-1. ערכי קובץ ב-`Server/seed/`
+1. ערכי קובץ ב-`backend/src/seed/`
 2. `npm run db:setup` (שוב — **מוחק** נתונים קיימים)
 
 **דרך 2 — Prisma Studio (בלי למחוק):**
 
 ```powershell
-cd Server
+cd backend
 npm run db:studio
 ```
 
@@ -207,13 +209,16 @@ npm run db:studio
 
 ```
 svivotPituach/
-├── client/              React — דפים, רכיבים, שירותי API
-├── Server/
-│   ├── app.js           Express + Socket.IO
-│   ├── repositories/    גישה ל-MySQL (Prisma)
-│   ├── controllers/     לוגיקה
-│   ├── routes/          REST endpoints
-│   └── seed/            נתוני התחלה ל-db:setup
+├── frontend/            React — דפים, רכיבים, שירותי API
+├── backend/
+│   ├── src/
+│   │   ├── app.js           Express + Socket.IO
+│   │   ├── repositories/    גישה ל-MySQL (Prisma)
+│   │   ├── controllers/     לוגיקה
+│   │   ├── routes/          REST endpoints
+│   │   └── seed/            נתוני התחלה ל-db:setup
+│   ├── models/schema.prisma ORM (Prisma) — מבנה הטבלאות
+│   └── migrations/          עותק SQL ישן (אינפורמטיבי בלבד)
 └── README.md
 ```
 
@@ -221,8 +226,8 @@ svivotPituach/
 
 ## API, WebSockets, AI
 
-תיעוד מלא: [`Server/docs/README.md`](./Server/docs/README.md)  
-Postman: [`Server/docs/postman_collection.json`](./Server/docs/postman_collection.json)  
+תיעוד מלא: [`backend/docs/README.md`](./backend/docs/README.md)  
+Postman: [`backend/docs/postman_collection.json`](./backend/docs/postman_collection.json)  
 ארכיטקטורה: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
 **WebSockets:** פורום + צ'אט AI  
