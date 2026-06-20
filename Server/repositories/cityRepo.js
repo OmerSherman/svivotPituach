@@ -9,7 +9,9 @@ function mapCity(row) {
         name_he: row.cityNameHe,
         country_id: row.countryId,
         summary_he: row.summaryHe || null,
-        banner_image_url: row.bannerImageUrl || null
+        banner_image_url: row.bannerImageUrl || null,
+        latitude: row.latitude,
+        longitude: row.longitude
     };
 }
 

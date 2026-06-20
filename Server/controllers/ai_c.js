@@ -34,7 +34,7 @@ async function buildTripContext(trip) {
 
     return {
         name: trip.name,
-        country: country ? country.countryNameHe : 'לא ידוע',
+        country: country ? country.name_he : 'לא ידוע',
         dates: MONTH_NAMES[trip.startMonth] + ' – ' + MONTH_NAMES[trip.endMonth],
         travelStyle: STYLE_NAMES[trip.travelerType] || trip.travelerType,
         budget: BUDGET_NAMES[trip.budgetLevel] || trip.budgetLevel,

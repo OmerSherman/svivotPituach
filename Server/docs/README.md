@@ -7,13 +7,21 @@ Course: Web Environments · Ben-Gurion University
 
 ## How to install and run
 
+**Prerequisites:** MySQL 8 running. Create database once if needed:
+
+```sql
+CREATE DATABASE IF NOT EXISTS mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
 ```bash
 cd Server
 npm install
 cp .env.example .env   # fill DB_PASSWORD and GROQ_API_KEY
-npm run db:setup       # ONE command — reset + seed Hebrew data
+npm run db:setup       # first time: creates tables + seeds from Server/seed/
 npm start
 ```
+
+**Daily use:** only `npm start` — no need to run `db:setup` again.
 
 Server: `http://localhost:3000`  
 API base: `/api`
@@ -24,22 +32,28 @@ API base: `/api`
 
 All data is stored in **MySQL** (`mydb`). Runtime access uses **Prisma** via `Server/repositories/`.
 
+**First-time setup:** `npm run db:setup` reads `Server/seed/*.json`, creates tables via Prisma, and inserts seed rows.
+
+**Runtime APIs:** `GET /api/countries` and `GET /api/cities` — trip form and forum map load from MySQL (not hardcoded client files).
+
 | Table | Purpose |
 |-------|---------|
 | `user` | Accounts (user / manager / admin) |
 | `country` | Countries with summary + banner image |
 | `city` | Cities with summary + banner image |
 | `attraction` | POIs with image URL, tags, scores, coordinates |
-| `trip` | User travel profiles |
+| `trip` | User travel profiles (created by users in the app) |
 | `trip_attraction` | Junction: trip ↔ attraction favorites (M:N) |
 | `settings` | UI preferences per user (1:1) |
-| `message` | Forum chat messages |
+| `message` | Forum chat messages (created by users in the app) |
 
-**Build / reset DB:**
-```bash
-npm run db:setup      # reset + fill from Server/seed/
-npm run db:studio     # manual edit in browser
-```
+**Commands:**
+
+| Command | When |
+|---------|------|
+| `npm run db:setup` | First install, or full reset (deletes all data in `mydb`) |
+| `npm run db:studio` | View/edit rows without reset |
+| `npm run db:generate` | After changing `schema.prisma` |
 
 ---
 
@@ -134,6 +148,15 @@ No authentication required.
 | GET | `/` | All cities (with `banner_image_url`, `summary_he`) |
 | GET | `/search?q=` | Search by English or Hebrew name |
 | GET | `/:id` | Single city |
+
+---
+
+### Countries — `/api/countries`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | All countries (with `latitude`, `longitude` for forum map) |
+| GET | `/:id` | Single country |
 
 ---
 

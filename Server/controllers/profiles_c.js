@@ -1,4 +1,5 @@
 const tripRepo = require('../repositories/tripRepo');
+const countryRepo = require('../repositories/countryRepo');
 
 function getUserId(req) {
     const id = parseInt(req.headers['x-user-id']);
@@ -62,10 +63,18 @@ async function create(req, res, next) {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
+        const countryId = Number(req.body.countryId);
+        if (!(await countryRepo.exists(countryId))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: 'VALIDATION_ERROR', message: 'invalid countryId', details: {} }
+            });
+        }
+
         const tripId = await tripRepo.create({
             userId,
             name: req.body.name,
-            countryId: Number(req.body.countryId),
+            countryId: countryId,
             startMonth: Number(req.body.startMonth),
             endMonth: Number(req.body.endMonth),
             travelerType: req.body.travelerType,
@@ -110,6 +119,13 @@ async function update(req, res, next) {
         if (req.body.travelerType !== undefined) fields.travelerType = req.body.travelerType;
         if (req.body.budgetLevel  !== undefined) fields.budgetLevel  = req.body.budgetLevel;
         if (req.body.interests    !== undefined) fields.interests    = req.body.interests;
+
+        if (fields.countryId !== undefined && !(await countryRepo.exists(fields.countryId))) {
+            return res.status(400).json({
+                success: false, data: null,
+                error: { code: 'VALIDATION_ERROR', message: 'invalid countryId', details: {} }
+            });
+        }
 
         await tripRepo.update(tripId, fields);
 

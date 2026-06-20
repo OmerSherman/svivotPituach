@@ -20,6 +20,7 @@ app.use(logger);
 
 // routers
 const cities_router = require('./routes/cities_r');
+const countries_router = require('./routes/countries_r');
 const favorites_router = require('./routes/favorites_r');
 const profiles_router = require('./routes/profiles_r');
 const attractions_router = require('./routes/attractions_r');
@@ -31,6 +32,7 @@ const ai_router = require('./routes/ai_r');
 
 app.use('/api/profile', profiles_router);
 app.use('/api/cities', cities_router);
+app.use('/api/countries', countries_router);
 app.use('/api/favorites', favorites_router);
 app.use('/api/attractions', attractions_router);
 app.use('/api/users', users_router);

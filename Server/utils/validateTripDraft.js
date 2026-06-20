@@ -1,5 +1,5 @@
-// keep these lists identical to TripForm.jsx's COUNTRIES/INTEREST_OPTIONS/travelStyle/budget values
-const VALID_COUNTRY_IDS = [1, 2, 3];
+const countryRepo = require('../repositories/countryRepo');
+
 const VALID_TRAVEL_STYLES = ['solo', 'couple', 'family', 'group'];
 const VALID_BUDGETS = ['low', 'medium', 'high'];
 const VALID_INTERESTS = [
@@ -12,14 +12,13 @@ function isValidMonth(month) {
     return Number.isInteger(month) && month >= 1 && month <= 12;
 }
 
-// returns {valid, missing, cleanInterests} - interests are filtered, not rejected
-function validateTripDraft(draft) {
+async function validateTripDraft(draft) {
     var missing = [];
 
     if (!draft || typeof draft.name !== 'string' || !draft.name.trim()) {
         missing.push('name');
     }
-    if (!draft || !VALID_COUNTRY_IDS.includes(draft.countryId)) {
+    if (!draft || !Number.isInteger(draft.countryId) || !(await countryRepo.exists(draft.countryId))) {
         missing.push('countryId');
     }
     if (!draft || !isValidMonth(draft.startMonth)) {
@@ -48,7 +47,6 @@ function validateTripDraft(draft) {
 
 module.exports = {
     validateTripDraft,
-    VALID_COUNTRY_IDS,
     VALID_TRAVEL_STYLES,
     VALID_BUDGETS,
     VALID_INTERESTS

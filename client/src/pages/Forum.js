@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import ForumChat from '../components/ForumChat';
 import ForumRoomList from '../components/ForumRoomList';
-import { FORUM_COUNTRIES, FORUM_CITIES } from '../data/forumRooms';
+import countriesService from '../services/countriesService';
+import citiesService from '../services/citiesService';
 import MapResize from '../components/MapResize';
+import TahiniLoader from '../components/TahiniLoader';
 import './Forum.css';
 
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -19,9 +21,51 @@ L.Icon.Default.mergeOptions({
     shadowUrl: markerShadow,
 });
 
+function toCountryRoom(c) {
+    return {
+        room: 'country_' + c.id,
+        name: c.name_he,
+        lat: c.latitude,
+        lng: c.longitude
+    };
+}
+
+function toCityRoom(c) {
+    return {
+        room: 'city_' + c.id,
+        name: c.name_he,
+        lat: c.latitude,
+        lng: c.longitude
+    };
+}
+
 function Forum() {
     var [selectedRoom, setSelectedRoom] = useState(null);
     var [selectedName, setSelectedName] = useState('');
+    var [forumCountries, setForumCountries] = useState([]);
+    var [forumCities, setForumCities] = useState([]);
+    var [loading, setLoading] = useState(true);
+    var [loadError, setLoadError] = useState('');
+
+    useEffect(function() {
+        async function loadForumData() {
+            try {
+                const countries = await countriesService.getAll();
+                const cities = await citiesService.getAll();
+                setForumCountries(countries.map(toCountryRoom).filter(function(c) {
+                    return c.lat != null && c.lng != null;
+                }));
+                setForumCities(cities.map(toCityRoom).filter(function(c) {
+                    return c.lat != null && c.lng != null;
+                }));
+            } catch (err) {
+                setLoadError('לא ניתן לטעון נתוני פורום: ' + err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadForumData();
+    }, []);
 
     function openRoom(room, name) {
         setSelectedRoom(room);
@@ -31,6 +75,14 @@ function Forum() {
     function closeRoom() {
         setSelectedRoom(null);
         setSelectedName('');
+    }
+
+    if (loading) {
+        return (
+            <div className="forum-page">
+                <TahiniLoader />
+            </div>
+        );
     }
 
     return (
@@ -44,18 +96,20 @@ function Forum() {
                 </div>
                 <div className="forum-header-stats">
                     <span className="forum-stat">
-                        <strong>{FORUM_COUNTRIES.length}</strong> מדינות
+                        <strong>{forumCountries.length}</strong> מדינות
                     </span>
                     <span className="forum-stat">
-                        <strong>{FORUM_CITIES.length}</strong> ערים
+                        <strong>{forumCities.length}</strong> ערים
                     </span>
                 </div>
             </header>
 
+            {loadError && <p className="forum-load-error">{loadError}</p>}
+
             <div className="forum-layout">
                 <ForumRoomList
-                    countries={FORUM_COUNTRIES}
-                    cities={FORUM_CITIES}
+                    countries={forumCountries}
+                    cities={forumCities}
                     selectedRoom={selectedRoom}
                     onSelect={openRoom}
                 />
@@ -72,7 +126,7 @@ function Forum() {
                             attribution="© OpenStreetMap contributors"
                         />
 
-                        {FORUM_COUNTRIES.map(function(c) {
+                        {forumCountries.map(function(c) {
                             return (
                                 <Marker key={c.room} position={[c.lat, c.lng]}>
                                     <Popup>
@@ -89,7 +143,7 @@ function Forum() {
                             );
                         })}
 
-                        {FORUM_CITIES.map(function(c) {
+                        {forumCities.map(function(c) {
                             return (
                                 <CircleMarker
                                     key={c.room}

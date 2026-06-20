@@ -39,7 +39,9 @@ async function seedCountries() {
                 countryNameEn: c.name_en,
                 countryNameHe: c.name_he,
                 summaryHe: c.summary_he,
-                bannerImageUrl: countryImage(c.id)
+                bannerImageUrl: countryImage(c.id),
+                latitude: c.latitude ?? null,
+                longitude: c.longitude ?? null
             }
         });
     }
@@ -56,7 +58,9 @@ async function seedCities() {
                 cityNameHe: c.name_he,
                 countryId: c.country_id,
                 summaryHe: c.summary_he,
-                bannerImageUrl: cityImage(c.id)
+                bannerImageUrl: cityImage(c.id),
+                latitude: c.latitude ?? null,
+                longitude: c.longitude ?? null
             }
         });
     }
@@ -129,6 +133,38 @@ async function verify() {
     console.log('  דוגמה — לימה:', sample.cityNameHe, '| תמונה:', sample.bannerImageUrl ? 'כן' : 'לא');
 }
 
+async function seedAll() {
+    await seedCountries();
+    await seedCities();
+    await seedUsers();
+    await seedSettings();
+    await seedAttractions();
+}
+
+async function runSeedOnly() {
+    if (!process.env.DATABASE_URL) {
+        console.error('חסר DATABASE_URL ב-Server/.env');
+        process.exit(1);
+    }
+
+    console.log('Syncing schema (no data wipe)...');
+    execSync('npx prisma db push', { cwd: SERVER, stdio: 'inherit' });
+
+    const existing = await prisma.city.count();
+    if (existing > 0) {
+        console.log('\nDB already has', existing, 'cities. Skipping seed.');
+        console.log('To wipe and rebuild: npm run db:setup');
+        await prisma.$disconnect();
+        return;
+    }
+
+    console.log('\nDB is empty — filling from Server/seed/...');
+    await seedAll();
+    await verify();
+    await prisma.$disconnect();
+    console.log('\nDone. Run: npm start');
+}
+
 async function run() {
     if (!process.env.DATABASE_URL) {
         console.error('חסר DATABASE_URL ב-Server/.env');
@@ -142,22 +178,20 @@ async function run() {
     });
 
     console.log('\n2/2 — ממלא נתונים מ-Server/seed/...');
-    await seedCountries();
-    await seedCities();
-    await seedUsers();
-    await seedSettings();
-    await seedAttractions();
+    await seedAll();
     await verify();
     await prisma.$disconnect();
     console.log('\nהסתיים. הריצי: npm start');
 }
 
+module.exports = { run, runSeedOnly, seedAll };
+
 if (require.main === module) {
-    run().catch(async function(err) {
+    const seedOnly = process.argv.includes('--seed-only');
+    const fn = seedOnly ? runSeedOnly : run;
+    fn().catch(async function(err) {
         console.error(err);
         await prisma.$disconnect();
         process.exit(1);
     });
 }
-
-module.exports = { run };

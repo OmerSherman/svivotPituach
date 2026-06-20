@@ -5,7 +5,7 @@ import TripForm from "../components/TripForm";
 import "./MyTrips.css";
 import userContext from "../contexts/userContext";
 
-var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
+var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל", 4: "קולומביה" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
 var BUDGET_NAMES = { low: "חסכוני", medium: "בינוני", high: "פרימיום" };
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",

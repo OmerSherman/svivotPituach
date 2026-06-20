@@ -7,7 +7,40 @@
 
 ---
 
-## התקנה — 4 שלבים
+## איך זה עובד?
+
+```
+MySQL (mydb)  ←  Prisma  ←  Express (Server)  ←  React (client)
+```
+
+- **בזמן ריצה** — כל הנתונים (ערים, טיולים, הודעות פורום…) נשמרים **ב-MySQL בלבד**.
+- **קבצי `Server/seed/`** — משמשים רק ל**בנייה ראשונית** של ה-DB (`npm run db:setup`). לא נקראים בזמן שימוש רגיל.
+
+---
+
+## דרישות מקדימות
+
+| כלי | הערות |
+|-----|--------|
+| Node.js 18+ | |
+| MySQL 8.0+ | מותקן ו**רץ** (MySQL Workbench / XAMPP / MySQL Server) |
+| npm | מגיע עם Node |
+
+---
+
+## התקנה — פעם ראשונה על מחשב חדש
+
+### 0. MySQL — יצירת בסיס הנתונים
+
+אם עדיין אין בסיס בשם `mydb`, פתחי MySQL Workbench (או CLI) והריצי:
+
+```sql
+CREATE DATABASE IF NOT EXISTS mydb
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+```
+
+> **שרת חיצוני (מטלה):** במקום `localhost` ב-`.env` — הכניסי את כתובת השרת, המשתמש והסיסמה שקיבלתם. שאר התהליך זהה.
 
 ### 1. חבילות
 
@@ -20,7 +53,7 @@ npm install
 
 ### 2. קובץ `.env`
 
-**Server** — העתיקי `Server/.env.example` ל-`Server/.env`:
+**Server** — העתיקי `Server/.env.example` ל-`Server/.env` ומלאי:
 
 ```env
 PORT=3000
@@ -42,34 +75,75 @@ REACT_APP_API_URL=http://localhost:3000/api
 REACT_APP_SOCKET_URL=http://localhost:3000
 ```
 
-### 3. בסיס נתונים — **פקודה אחת**
+### 3. יצירת ה-DB והנתונים — פקודה אחת
 
 ```powershell
 cd Server
 npm run db:setup
 ```
 
-זה עושה הכל:
-- יוצר מחדש את כל הטבלאות
-- ממלא **4 מדינות**, **6 ערים**, **20 אטרקציות** (בעברית + תמונות)
-- מוסיף **4 משתמשי בדיקה**
+הפקודה מבצעת שני שלבים:
 
-> **אזהרה:** הפקודה **מוחקת** את כל הנתונים הקיימים ב-`mydb`.
+| שלב | מה קורה |
+|-----|---------|
+| **1** | Prisma יוצר את כל הטבלאות ב-MySQL לפי `prisma/schema.prisma` |
+| **2** | הסקריפט ממלא נתונים מ-`Server/seed/` |
+
+**מה נכנס בפעם הראשונה:**
+
+| טבלה | כמות | מקור |
+|------|------|------|
+| מדינות | 4 | `seed/countries.json` |
+| ערים | 6 | `seed/cities.json` |
+| אטרקציות | 20 | `seed/attractions.json` |
+| משתמשים | 4 | `seed/users.json` |
+| העדפות | 2 | `seed/settings.json` |
+
+> **אחרי עדכון `schema.prisma`:** הריצי `npm run db:setup` (מוסיף עמודות חדשות + ממלא מיקומים למפה).
+
+**אימות:** אחרי ההרצה:
+
+```powershell
+npm run db:studio
+```
+
+נפתח דפדפן — בדקי שיש נתונים בטבלאות `city`, `attraction`, `user`.
 
 ### 4. הרצה
 
 ```powershell
-# טרמינל 1
+# טרמינל 1 — Backend
 cd Server
 npm start
+# → http://localhost:3000
 
-# טרמינל 2
+# טרמינל 2 — Frontend
 cd client
 npm start
+# → http://localhost:5173
 ```
 
-- Backend: http://localhost:3000  
-- Frontend: http://localhost:5173
+---
+
+## שימוש יומיומי (אחרי ההתקנה)
+
+```powershell
+cd Server && npm start    # טרמינל 1
+cd client && npm start    # טרמינל 2
+```
+
+**לא צריך** להריץ `db:setup` שוב.
+
+מכאן והלאה האפליקציה שומרת ישירות ל-MySQL:
+
+| פעולה | טבלה |
+|--------|------|
+| התחברות / הרשמה | `user` |
+| יצירת טיול | `trip` |
+| מועדפים | `trip_attraction` |
+| הודעה בפורום | `message` |
+| שינוי theme | `settings` |
+| admin מוסיף אטרקציה | `attraction` |
 
 ---
 
@@ -86,32 +160,36 @@ npm start
 
 ---
 
-## בסיס הנתונים — איפה הכל נמצא?
+## בסיס הנתונים — קבצים ופקודות
 
 ```
 Server/
-├── prisma/schema.prisma     ← מבנה הטבלאות (8 טבלאות)
-├── seed/                    ← הנתונים (עריכה כאן!)
-│   ├── countries.json       ← 4 מדינות
-│   ├── cities.json          ← 6 ערים
-│   ├── attractions.json     ← 20 אטרקציות
-│   ├── users.json           ← משתמשים
-│   └── settings.json        ← העדפות תצוגה
-└── scripts/setup-database.js  ← הסקריפט היחיד (npm run db:setup)
+├── prisma/schema.prisma       ← מבנה 8 הטבלאות
+├── seed/                      ← נתוני התחלה (עריכה + db:setup)
+│   ├── countries.json
+│   ├── cities.json
+│   ├── attractions.json
+│   ├── users.json
+│   └── settings.json
+├── scripts/setup-database.js  ← npm run db:setup
+└── repositories/              ← קריאה/כתיבה ל-MySQL בזמן ריצה
 ```
 
-| פקודה | מתי |
-|--------|-----|
-| `npm run db:setup` | בנייה מחדש — מוחק הכל וממלא מ-`seed/` |
-| `npm run db:studio` | צפייה/עריכה ידנית בדפדפן |
-| `npm run db:generate` | אחרי שינוי ב-`schema.prisma` |
+| פקודה | מתי להשתמש |
+|--------|------------|
+| `npm run db:setup` | פעם ראשונה, או **איפוס מלא** (מוחק הכל!) |
+| `npm run db:seed` | DB ריק אחרי `db push` — ממלא בלי למחוק |
+| `npm run db:studio` | צפייה / עריכה ידנית בלי לאפס |
+| `npm run db:generate` | אחרי שינוי ב-`schema.prisma`, ואז `db:setup` |
 
-### עריכה ידנית של הנתונים
+**API לנתונים:** `GET /api/countries` ו-`GET /api/cities` — טופס טיול ומפת הפורום טוענים מכאן (Prisma → MySQL).
 
-**דרך 1 — קבצי JSON (מומלץ):**
+### עריכת נתונים
 
-1. ערכי קובץ ב-`Server/seed/` (למשל הוספת עיר ב-`cities.json`)
-2. הריצי שוב: `npm run db:setup`
+**דרך 1 — JSON (מומלץ לשינוי גדול):**
+
+1. ערכי קובץ ב-`Server/seed/`
+2. `npm run db:setup` (שוב — **מוחק** נתונים קיימים)
 
 **דרך 2 — Prisma Studio (בלי למחוק):**
 
@@ -120,10 +198,8 @@ cd Server
 npm run db:studio
 ```
 
-נפתח דפדפן → בחרי טבלה (`city`, `attraction`...) → ערכי שורות ישירות.
-
 > שדות בעברית: `cityNameHe`, `nameHE`, `descriptionHe`, `summary_he`  
-> שדות באנגלית (פנימי בלבד): `name`, `cityNameEn` — לא מוצגים בממשק
+> שדות באנגלית (`name`, `cityNameEn`) — פנימיים בלבד, לא מוצגים בממשק
 
 ---
 
@@ -131,13 +207,13 @@ npm run db:studio
 
 ```
 svivotPituach/
-├── client/          React — דפים, רכיבים, שירותי API
+├── client/              React — דפים, רכיבים, שירותי API
 ├── Server/
-│   ├── app.js       שרת Express + Socket.IO
-│   ├── repositories/  גישה ל-DB (Prisma)
-│   ├── controllers/   לוגיקה
-│   ├── routes/        REST endpoints
-│   └── seed/          נתוני DB
+│   ├── app.js           Express + Socket.IO
+│   ├── repositories/    גישה ל-MySQL (Prisma)
+│   ├── controllers/     לוגיקה
+│   ├── routes/          REST endpoints
+│   └── seed/            נתוני התחלה ל-db:setup
 └── README.md
 ```
 
@@ -149,7 +225,7 @@ svivotPituach/
 Postman: [`Server/docs/postman_collection.json`](./Server/docs/postman_collection.json)  
 ארכיטקטורה: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
-**WebSockets:** פורום (`forum_socket.js`) + צ'אט AI (`aiTripSocket.js`)  
+**WebSockets:** פורום + צ'אט AI  
 **AI REST:** `POST /api/ai/trip-summary` (דורש `GROQ_API_KEY`)
 
 ---

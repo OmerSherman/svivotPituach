@@ -11,7 +11,7 @@ import attractionsService from "../services/attractionsService";
 import aiService from "../services/aiService";
 import "./TripDetail.css";
 
-var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
+var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל", 4: "קולומביה" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
                    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];

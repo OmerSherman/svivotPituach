@@ -1,11 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./TripForm.css";
-
-var COUNTRIES = [
-    { id: 1, name: "פרו" },
-    { id: 2, name: "ארגנטינה" },
-    { id: 3, name: "ברזיל" }
-];
+import countriesService from "../services/countriesService";
 
 var MONTHS = [
     { value: 1,  label: "ינואר" },   { value: 2,  label: "פברואר" },
@@ -16,7 +11,6 @@ var MONTHS = [
     { value: 11, label: "נובמבר" },  { value: 12, label: "דצמבר" }
 ];
 
-// available interests - these match real tags in the attractions data
 var INTEREST_OPTIONS = [
     "תרבות", "היסטוריה", "טבע", "נוף", "אוכל",
     "אמנות", "אדריכלות", "חוף", "הליכה", "צילום",
@@ -26,6 +20,8 @@ var INTEREST_OPTIONS = [
 function TripForm({ initialData, onSave, onCancel }) {
     var defaults = initialData || {};
 
+    var [countries, setCountries] = useState([]);
+    var [countriesLoading, setCountriesLoading] = useState(true);
     var [name, setName]             = useState(defaults.name || "");
     var [countryId, setCountryId]   = useState(defaults.countryId || 1);
     var [startMonth, setStartMonth] = useState(defaults.startMonth || 1);
@@ -34,6 +30,23 @@ function TripForm({ initialData, onSave, onCancel }) {
     var [budget, setBudget]         = useState(defaults.budget || "medium");
     var [interests, setInterests]   = useState(defaults.interests || []);
     var [error, setError]           = useState("");
+
+    useEffect(function() {
+        async function loadCountries() {
+            try {
+                const data = await countriesService.getAll();
+                setCountries(data);
+                if (data.length > 0 && !data.some(function(c) { return c.id === Number(countryId); })) {
+                    setCountryId(data[0].id);
+                }
+            } catch (err) {
+                setError("לא ניתן לטעון מדינות: " + err.message);
+            } finally {
+                setCountriesLoading(false);
+            }
+        }
+        loadCountries();
+    }, []);
 
     function toggleInterest(tag) {
         if (interests.includes(tag)) {
@@ -49,6 +62,11 @@ function TripForm({ initialData, onSave, onCancel }) {
 
         if (!name.trim()) {
             setError("חובה לתת שם לטיול");
+            return;
+        }
+
+        if (countries.length === 0) {
+            setError("רשימת המדינות לא נטענה");
             return;
         }
 
@@ -77,9 +95,13 @@ function TripForm({ initialData, onSave, onCancel }) {
 
                 <label className="trip-form-field">
                     <span>יעד (מדינה)</span>
-                    <select value={countryId} onChange={function(e) { setCountryId(e.target.value); }}>
-                        {COUNTRIES.map(function(c) {
-                            return <option key={c.id} value={c.id}>{c.name}</option>;
+                    <select
+                        value={countryId}
+                        disabled={countriesLoading || countries.length === 0}
+                        onChange={function(e) { setCountryId(e.target.value); }}
+                    >
+                        {countries.map(function(c) {
+                            return <option key={c.id} value={c.id}>{c.name_he}</option>;
                         })}
                     </select>
                 </label>
@@ -122,7 +144,6 @@ function TripForm({ initialData, onSave, onCancel }) {
                     </select>
                 </label>
 
-                {/* interests - checkboxes */}
                 <div className="trip-form-field">
                     <span>מה הכי מעניין אותך? (אפשר לבחור כמה)</span>
                     <div className="trip-form-interests">
@@ -145,7 +166,7 @@ function TripForm({ initialData, onSave, onCancel }) {
                 {error && <p className="trip-form-error">{error}</p>}
 
                 <div className="trip-form-buttons">
-                    <button type="submit" className="trip-form-save">
+                    <button type="submit" className="trip-form-save" disabled={countriesLoading}>
                         {initialData ? "שמור שינויים" : "צור טיול"}
                     </button>
                     <button type="button" className="trip-form-cancel" onClick={onCancel}>

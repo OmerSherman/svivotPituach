@@ -33,7 +33,7 @@ async function advanceConversation(session) {
 
     let readyDraft = null;
     if (aiResponse.status === 'ready') {
-        const validation = validateTripDraft(session.draft);
+        const validation = await validateTripDraft(session.draft);
         if (validation.valid) {
             readyDraft = Object.assign({}, session.draft, { interests: validation.cleanInterests });
             session.status = 'ready';

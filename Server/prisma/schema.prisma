@@ -28,6 +28,8 @@ model Country {
   countryNameHe    String
   summaryHe        String? @map("summary_he") @db.Text
   bannerImageUrl   String? @map("banner_image_url") @db.VarChar(2048)
+  latitude         Float?
+  longitude        Float?
   cities           City[]
   trips            Trip[]
 
@@ -41,6 +43,8 @@ model City {
   countryId        Int
   summaryHe        String?      @map("summary_he") @db.Text
   bannerImageUrl   String?      @map("banner_image_url") @db.VarChar(2048)
+  latitude         Float?
+  longitude        Float?
   country          Country      @relation(fields: [countryId], references: [countryId])
   attractions      Attraction[]
 
