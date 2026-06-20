@@ -1,39 +1,18 @@
-const attractions = require('../models/mock_data/attractions.json');
+const AttractionORM = require('../ORM/AttractionORM');
 
-// helper to find attraction by id
-function findById(id) {
-    return attractions.find(function(attraction) {
-        return attraction.id === parseInt(id);
-    });
-}
-
-// GET - all attractions, with optional filters by type or city
-function getAll(req, res, next) {
+async function getAll(req, res, next) {
     try {
-        const type = req.query.type;
-        const city_id = req.query.city_id;
-        let result = attractions;
-
-        if (type) {
-            result = result.filter(function(attraction) {
-                return attraction.type === type;
-            });
-        }
-
-        if (city_id) {
-            result = result.filter(function(attraction) {
-                return attraction.city_id === parseInt(city_id);
-            });
-        }
-
-        res.status(200).json({ success: true, data: result, error: null });
+        const results = await AttractionORM.findAll({
+            type: req.query.type,
+            cityId: req.query.city_id
+        });
+        res.status(200).json({ success: true, data: results, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// GET - one attraction by id
-function getById(req, res, next) {
+async function getById(req, res, next) {
     try {
         const id = req.params.id;
 
@@ -44,8 +23,7 @@ function getById(req, res, next) {
             });
         }
 
-        const attraction = findById(id);
-
+        const attraction = await AttractionORM.findById(id);
         if (!attraction) {
             return res.status(404).json({
                 success: false, data: null,
@@ -59,12 +37,10 @@ function getById(req, res, next) {
     }
 }
 
-// POST - create a new attraction
-function create(req, res, next) {
+async function create(req, res, next) {
     try {
         const { city_id, name, name_he, type, description_he } = req.body;
 
-        // type must be one of the valid options
         const validTypes = ["site", "tour", "route"];
         if (!validTypes.includes(type)) {
             return res.status(400).json({
@@ -73,29 +49,30 @@ function create(req, res, next) {
             });
         }
 
-        const newAttraction = {
-            id: attractions.length + 1,
-            city_id: city_id,
-            name: name,
-            name_he: name_he,
-            type: type,
-            description_he: description_he,
-            tags: req.body.tags || [],
-            image_url: req.body.image_url || null,
-            popularity_score: req.body.popularity_score || 0,
-            audience_scores: req.body.audience_scores || {},
-            best_months: req.body.best_months || []
-        };
+        const id = await AttractionORM.create({
+            cityId: city_id,
+            name,
+            nameHE: name_he,
+            type,
+            descriptionHe: description_he,
+            tags: req.body.tags,
+            img_url: req.body.image_url,
+            popularity_score: req.body.popularity_score,
+            audience_scores: req.body.audience_scores,
+            best_months: req.body.best_months,
+            avoid_months: req.body.avoid_months,
+            seasonal_note_he: req.body.seasonal_note_he,
+            latitude: req.body.latitude,
+            longitude: req.body.longitude
+        });
 
-        attractions.push(newAttraction);
-        res.status(201).json({ success: true, data: { id: newAttraction.id }, error: null });
+        res.status(201).json({ success: true, data: { id }, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// PUT - update an existing attraction (only the fields that were sent)
-function update(req, res, next) {
+async function update(req, res, next) {
     try {
         const id = req.params.id;
 
@@ -106,8 +83,7 @@ function update(req, res, next) {
             });
         }
 
-        const attraction = findById(id);
-
+        const attraction = await AttractionORM.findById(id);
         if (!attraction) {
             return res.status(404).json({
                 success: false, data: null,
@@ -115,14 +91,7 @@ function update(req, res, next) {
             });
         }
 
-        const allowedFields = ["name", "name_he", "type", "description_he", "tags", "image_url", "popularity_score", "audience_scores", "best_months"];
-
-        for (let i = 0; i < allowedFields.length; i++) {
-            const field = allowedFields[i];
-            if (req.body[field] !== undefined) {
-                attraction[field] = req.body[field];
-            }
-        }
+        await AttractionORM.update(id, req.body);
 
         res.status(200).json({ success: true, data: { id: parseInt(id) }, error: null });
     } catch (err) {
@@ -130,8 +99,7 @@ function update(req, res, next) {
     }
 }
 
-// DELETE - remove an attraction
-function remove(req, res, next) {
+async function remove(req, res, next) {
     try {
         const id = req.params.id;
 
@@ -142,26 +110,23 @@ function remove(req, res, next) {
             });
         }
 
-        const index = attractions.findIndex(function(attraction) {
-            return attraction.id === parseInt(id);
-        });
-
-        if (index === -1) {
+        const attraction = await AttractionORM.findById(id);
+        if (!attraction) {
             return res.status(404).json({
                 success: false, data: null,
                 error: { code: "NOT_FOUND", message: "attraction " + id + " not found", details: {} }
             });
         }
 
-        attractions.splice(index, 1);
+        await AttractionORM.delete(id);
+
         res.status(200).json({ success: true, data: { id: parseInt(id) }, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// GET - map pins for a city, returns only the fields needed for the map
-function getMapData(req, res, next) {
+async function getMapData(req, res, next) {
     try {
         const city_id = req.query.city_id;
 
@@ -172,12 +137,7 @@ function getMapData(req, res, next) {
             });
         }
 
-        const pins = attractions
-            .filter(function(a) { return a.city_id === parseInt(city_id); })
-            .map(function(a) {
-                return { id: a.id, name_he: a.name_he, type: a.type, latitude: a.latitude, longitude: a.longitude };
-            });
-
+        const pins = await AttractionORM.findMapPins(city_id);
         res.status(200).json({ success: true, data: pins, error: null });
     } catch (err) {
         next(err);

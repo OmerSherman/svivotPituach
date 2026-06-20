@@ -1,16 +1,15 @@
-const cities = require('../models/mock_data/cities.json');
+const CityORM = require('../ORM/CityORM');
 
-// GET - all cities
-function getAll(req, res, next) {
+async function getAll(req, res, next) {
     try {
+        const cities = await CityORM.findAll();
         return res.status(200).json({ success: true, data: cities, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// GET - search cities by name, used for the search bar on the homepage
-function search(req, res, next) {
+async function search(req, res, next) {
     try {
         const q = req.query.q;
 
@@ -21,20 +20,14 @@ function search(req, res, next) {
             });
         }
 
-        // search works in both english and hebrew
-        const results = cities.filter(function(city) {
-            return city.name.toLowerCase().includes(q.toLowerCase()) ||
-                   city.name_he.includes(q);
-        });
-
+        const results = await CityORM.search(q);
         return res.status(200).json({ success: true, data: results, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// GET - one city by id
-function getById(req, res, next) {
+async function getById(req, res, next) {
     try {
         const id = req.params.id;
 
@@ -45,10 +38,7 @@ function getById(req, res, next) {
             });
         }
 
-        const city = cities.find(function(c) {
-            return c.id === parseInt(id);
-        });
-
+        const city = await CityORM.findById(id);
         if (!city) {
             return res.status(404).json({
                 success: false, data: null,

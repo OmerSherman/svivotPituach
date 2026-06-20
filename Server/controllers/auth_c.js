@@ -1,63 +1,33 @@
-const users = require('../models/mock_data/users.json');
+const UserORM = require('../ORM/UserORM');
 
-// POST - create a new account
-// required fields validated by checkFields middleware in the route
-function register(req, res, next) {
+async function register(req, res, next) {
     try {
-        const email = req.body.email;
+        const { firstName, lastName, email, password } = req.body;
 
-        // check email not already taken
-        const emailTaken = users.find(function(u) {
-            return u.email === email;
-        });
-
-        if (emailTaken) {
+        const existing = await UserORM.findByEmail(email);
+        if (existing) {
             return res.status(400).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "VALIDATION_ERROR", message: "this email is already registered", details: {} }
             });
         }
 
-        const newUser = {
-            userId: users.length + 1,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: email,
-            password: req.body.password,
-            userRole: "user",
-            createDate: new Date().toISOString(),
-            updateDate: new Date().toISOString()
-        };
+        const userId = await UserORM.create({ firstName, lastName, email, password, userRole: 'user' });
 
-        users.push(newUser);
-
-        return res.status(201).json({
-            success: true,
-            data: { userId: newUser.userId },
-            error: null
-        });
+        return res.status(201).json({ success: true, data: { userId }, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// POST - login with existing account
-// required fields validated by checkFields middleware in the route
-function login(req, res, next) {
+async function login(req, res, next) {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
+        const { email, password } = req.body;
 
-        // find user by email and password
-        const user = users.find(function(u) {
-            return u.email === email && u.password === password;
-        });
-
+        const user = await UserORM.findByEmailAndPassword(email, password);
         if (!user) {
             return res.status(401).json({
-                success: false,
-                data: null,
+                success: false, data: null,
                 error: { code: "UNAUTHORIZED", message: "wrong email or password", details: {} }
             });
         }
@@ -72,12 +42,8 @@ function login(req, res, next) {
     }
 }
 
-function logout(req ,res, next){
-     return res.status(200).json({
-        success: true,
-        data: { message: "logged out" },
-        error: null
-    });
+function logout(req, res, next) {
+    return res.status(200).json({ success: true, data: { message: "logged out" }, error: null });
 }
 
-module.exports = { register, login , logout};
+module.exports = { register, login, logout };

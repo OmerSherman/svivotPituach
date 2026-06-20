@@ -34,8 +34,6 @@ function Form({ configForm }) {
             const formData = new FormData(e.target);
             const dataToSubmit = Object.fromEntries(formData.entries());
 
-            //to test loading add this line of code 
-            await new Promise(resolve => setTimeout(resolve, 3000));
 
             await configForm.onSubmit(dataToSubmit);
             // navigate only if config requested it
