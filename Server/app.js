@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
 const app = express();
 
 app.use(cors({
@@ -34,6 +36,14 @@ app.use('/api/settings', settings_router);
 
 app.use(errorHandler);
 
-app.listen(port, () => {
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: 'http://localhost:5173' }
+});
+
+const { registerAiTripSocket } = require('./socket/aiTripSocket');
+registerAiTripSocket(io);
+
+server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

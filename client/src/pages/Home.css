@@ -91,6 +91,19 @@
     background: var(--accent-primary-hover);
 }
 
+.home-trips-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.home-add-trip-btn-ai {
+    background: var(--accent-secondary);
+}
+
+.home-add-trip-btn-ai:hover {
+    filter: brightness(0.92);
+}
+
 .home-trips-empty {
     text-align: center;
     padding: 50px 20px;

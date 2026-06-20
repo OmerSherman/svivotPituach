@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ItemCard from "../components/ItemCard";
 import TripForm from "../components/TripForm";
+import AiTripChatModal from "../components/AiTripChatModal";
 import SearchBar from "../components/SearchBar";
 import TahiniLoader from "../components/TahiniLoader";
 import citiesService from "../services/citiesService";
@@ -39,6 +40,7 @@ function Home() {
     const [tripsError, setTripsError] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
+    const [showAiChat, setShowAiChat] = useState(false);
 
     // fetch cities on mount
     useEffect(function() {
@@ -235,9 +237,14 @@ function Home() {
             <section className="home-section" id="my-trips">
                 <div className="home-trips-header">
                     <h2>הטיולים שלי</h2>
-                    <button className="home-add-trip-btn" onClick={function() { setShowForm(true); }}>
-                        + טיול חדש
-                    </button>
+                    <div className="home-trips-header-actions">
+                        <button className="home-add-trip-btn" onClick={function() { setShowForm(true); }}>
+                            + טיול חדש
+                        </button>
+                        <button className="home-add-trip-btn home-add-trip-btn-ai" onClick={function() { setShowAiChat(true); }}>
+                            תכנן לי טיול ✨
+                        </button>
+                    </div>
                 </div>
 
                 {tripsLoading && <TahiniLoader />}
@@ -298,6 +305,13 @@ function Home() {
                     initialData={editingTrip}
                     onSave={handleUpdate}
                     onCancel={function() { setEditingTrip(null); }}
+                />
+            )}
+
+            {showAiChat && (
+                <AiTripChatModal
+                    onConfirm={handleCreate}
+                    onCancel={function() { setShowAiChat(false); }}
                 />
             )}
         </div>
