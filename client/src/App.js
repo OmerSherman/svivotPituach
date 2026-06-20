@@ -9,6 +9,7 @@ import Settings from "./pages/Settings";
 import CityAttractions from "./pages/CityAttractions";
 import AdminPortal from "./pages/adminPortal";
 import AdminPortaluser from "./pages/adminPortaluser";
+import Forum from "./pages/Forum";
 import userContext from "./contexts/userContext";
 import preferencesContext from "./contexts/preferencesContext";
 import settingsService from "./services/settingsService";
@@ -92,6 +93,9 @@ function App() {
                             } />
                             <Route path="/adminPortaluser" element={
                                 <ProtectedRoute><AdminPortaluser /></ProtectedRoute>
+                            } />
+                            <Route path="/forum" element={
+                                <ProtectedRoute><Forum /></ProtectedRoute>
                             } />
                         </Routes>
                     </Layout>

@@ -60,6 +60,7 @@ function Navbar() {
                         <Link to="/">דף הבית</Link>
                         <Link to="/#my-trips" onClick={handleMyTripsClick}>הטיולים שלי</Link>
                         <Link to="/settings">הגדרות</Link>
+                        <Link to="/forum">פורום</Link>
                         {/* fixed - was "maneger" before, server uses "manager" */}
                         {(user.userRole === "admin" || user.userRole === "manager") && (
                             <Link to="/adminPortal">ניהול</Link>

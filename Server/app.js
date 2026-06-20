@@ -25,6 +25,7 @@ const attractions_router = require('./routes/attractions_r');
 const users_router = require('./routes/users_r');
 const auth_router = require('./routes/auth_r');
 const settings_router = require('./routes/settings_r');
+const forum_router = require('./routes/forum_r');
 
 app.use('/api/profile', profiles_router);
 app.use('/api/cities', cities_router);
@@ -33,6 +34,7 @@ app.use('/api/attractions', attractions_router);
 app.use('/api/users', users_router);
 app.use('/api/auth', auth_router);
 app.use('/api/settings', settings_router);
+app.use('/api/forum', forum_router);
 
 app.use(errorHandler);
 
@@ -43,6 +45,9 @@ const io = new Server(server, {
 
 const { registerAiTripSocket } = require('./socket/aiTripSocket');
 registerAiTripSocket(io);
+
+const registerForumSocket = require('./socket/forum_socket');
+registerForumSocket(io);
 
 server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

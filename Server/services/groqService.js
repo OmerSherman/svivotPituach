@@ -4,8 +4,16 @@ if (!process.env.GROQ_API_KEY) {
     console.warn('[groqService] GROQ_API_KEY is not set - AI trip chat will fail.');
 }
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+
+// create the client lazily so a missing key doesn't crash the server on startup
+var _groq = null;
+function getGroq() {
+    if (!_groq) {
+        _groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    }
+    return _groq;
+}
 
 const EMPTY_DRAFT = {
     name: null,
@@ -18,7 +26,7 @@ const EMPTY_DRAFT = {
 };
 
 async function callGroq(messages) {
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroq().chat.completions.create({
         model: MODEL,
         messages: messages,
         response_format: { type: 'json_object' }
