@@ -171,17 +171,14 @@ async function run() {
         process.exit(1);
     }
 
-    console.log('1/2 — יוצר מחדש את מבנה הטבלאות (Prisma)...');
     execSync('npx prisma db push --force-reset --accept-data-loss', {
         cwd: SERVER,
         stdio: 'inherit'
     });
 
-    console.log('\n2/2 — ממלא נתונים מ-Server/seed/...');
     await seedAll();
     await verify();
     await prisma.$disconnect();
-    console.log('\nהסתיים. הריצי: npm start');
 }
 
 module.exports = { run, runSeedOnly, seedAll };
