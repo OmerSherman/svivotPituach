@@ -75,12 +75,36 @@ proc.on('close', function(code) {
             process.exit(code2);
         }
 
+        const migrationPath = path.join(__dirname, 'Server', 'migrations', '002_city_media.sql');
+        if (fs.existsSync(migrationPath)) {
+            console.log('Applying city media migration...');
+            let migrationSql = fs.readFileSync(migrationPath, 'utf8');
+            migrationSql = 'USE mydb;\n' + migrationSql;
+
+            const proc3 = spawn(mysqlBin, args, { stdio: ['pipe', 'inherit', 'inherit'] });
+            proc3.stdin.write(migrationSql);
+            proc3.stdin.end();
+
+            proc3.on('close', function(code3) {
+                if (code3 !== 0) {
+                    console.warn('Migration 002 warning (columns may already exist). Continuing...');
+                }
+                runVerify();
+            });
+        } else {
+            runVerify();
+        }
+    });
+});
+
+function runVerify() {
         const verify = spawn(mysqlBin, args, { stdio: ['pipe', 'inherit', 'inherit'] });
-        verify.stdin.write('USE mydb; SELECT cityId, cityNameHe FROM city LIMIT 4;\n');
+        verify.stdin.write(
+            'USE mydb; SELECT cityId, cityNameHe, banner_image_url FROM city LIMIT 4;\n'
+        );
         verify.stdin.end();
 
         verify.on('close', function() {
-            console.log('\nDone! Restart Server (npm start) and refresh browser.');
+            console.log('\nDone! Run: cd Server && npm run db:generate && npm start');
         });
-    });
-});
+}

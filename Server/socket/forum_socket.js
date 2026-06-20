@@ -1,5 +1,5 @@
-// Omer owns MessageORM - adjust the require path if needed
-const MessageORM = require('../ORM/MessageORM');
+// Omer owns messageRepo - adjust the require path if needed
+const messageRepo = require('../repositories/messageRepo');
 
 function registerForumSocket(io) {
     io.on('connection', function(socket) {
@@ -49,7 +49,7 @@ function registerForumSocket(io) {
             if (!text || text.trim() === '') return;
 
             try {
-                var saved = await MessageORM.create({
+                var saved = await messageRepo.create({
                     room: room,
                     userId: parseInt(userId) || 0,
                     userName: userName,

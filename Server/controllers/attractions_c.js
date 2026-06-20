@@ -1,4 +1,4 @@
-const AttractionORM = require('../ORM/AttractionORM');
+const attractionRepo = require('../repositories/attractionRepo');
 const {
     parsePersonalizationContext,
     enrichAttraction
@@ -33,7 +33,7 @@ function enrichOne(attraction, context) {
 
 async function getAll(req, res, next) {
     try {
-        const results = await AttractionORM.findAll({
+        const results = await attractionRepo.findAll({
             type: req.query.type,
             cityId: req.query.city_id
         });
@@ -62,7 +62,7 @@ async function getById(req, res, next) {
             });
         }
 
-        const attraction = await AttractionORM.findById(id);
+        const attraction = await attractionRepo.findById(id);
         if (!attraction) {
             return res.status(404).json({
                 success: false, data: null,
@@ -89,7 +89,7 @@ async function create(req, res, next) {
             });
         }
 
-        const id = await AttractionORM.create({
+        const id = await attractionRepo.create({
             cityId: city_id,
             name: name,
             nameHE: name_he,
@@ -104,7 +104,7 @@ async function create(req, res, next) {
             longitude: req.body.longitude
         });
 
-        const created = await AttractionORM.findById(id);
+        const created = await attractionRepo.findById(id);
         res.status(201).json({
             success: true,
             data: enrichOne(created, null),
@@ -126,7 +126,7 @@ async function update(req, res, next) {
             });
         }
 
-        const attraction = await AttractionORM.findById(id);
+        const attraction = await attractionRepo.findById(id);
         if (!attraction) {
             return res.status(404).json({
                 success: false, data: null,
@@ -134,8 +134,8 @@ async function update(req, res, next) {
             });
         }
 
-        await AttractionORM.update(id, req.body);
-        const updated = await AttractionORM.findById(id);
+        await attractionRepo.update(id, req.body);
+        const updated = await attractionRepo.findById(id);
 
         res.status(200).json({
             success: true,
@@ -158,7 +158,7 @@ async function remove(req, res, next) {
             });
         }
 
-        const attraction = await AttractionORM.findById(id);
+        const attraction = await attractionRepo.findById(id);
         if (!attraction) {
             return res.status(404).json({
                 success: false, data: null,
@@ -166,7 +166,7 @@ async function remove(req, res, next) {
             });
         }
 
-        await AttractionORM.delete(id);
+        await attractionRepo.delete(id);
 
         res.status(200).json({ success: true, data: { id: parseInt(id) }, error: null });
     } catch (err) {
@@ -185,7 +185,7 @@ async function getMapData(req, res, next) {
             });
         }
 
-        const pins = await AttractionORM.findMapPins(city_id);
+        const pins = await attractionRepo.findMapPins(city_id);
         res.status(200).json({ success: true, data: pins, error: null });
     } catch (err) {
         next(err);

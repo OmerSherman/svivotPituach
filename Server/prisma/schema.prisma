@@ -27,17 +27,20 @@ model Country {
   countryNameEn String
   countryNameHe String
   cities        City[]
+  trips         Trip[]
 
   @@map("country")
 }
 
 model City {
-  cityId      Int          @id @default(autoincrement())
-  cityNameEn  String
-  cityNameHe  String
-  countryId   Int
-  country     Country      @relation(fields: [countryId], references: [countryId])
-  attractions Attraction[]
+  cityId           Int          @id @default(autoincrement())
+  cityNameEn       String
+  cityNameHe       String
+  countryId        Int
+  summaryHe        String?      @map("summary_he") @db.Text
+  bannerImageUrl   String?      @map("banner_image_url") @db.VarChar(2048)
+  country          Country      @relation(fields: [countryId], references: [countryId])
+  attractions      Attraction[]
 
   @@map("city")
 }
@@ -46,11 +49,11 @@ model Attraction {
   attractionId     Int              @id @default(autoincrement())
   cityId           Int
   name             String
-  nameHE           String?
+  nameHE           String?          @db.VarChar(255)
   type             String
   descriptionHe    String?          @db.Text
   tags             Json?
-  img_url          String?
+  img_url          String?          @db.VarChar(2048)
   popularity_score Int              @default(0)
   audience_scores  Json?
   best_months      Json?
@@ -74,8 +77,9 @@ model Trip {
   travelStyle String
   budget      String
   interests   Json?
-  createdAt   String
+  createdAt   DateTime         @db.Date
   user        User             @relation(fields: [userId], references: [userId])
+  country     Country          @relation(fields: [countryId], references: [countryId])
   attractions TripAttraction[]
 
   @@map("trip")

@@ -1,10 +1,10 @@
-const UserORM = require('../ORM/UserORM');
+const userRepo = require('../repositories/userRepo');
 
 async function register(req, res, next) {
     try {
         const { firstName, lastName, email, password } = req.body;
 
-        const existing = await UserORM.findByEmail(email);
+        const existing = await userRepo.findByEmail(email);
         if (existing) {
             return res.status(400).json({
                 success: false, data: null,
@@ -12,7 +12,7 @@ async function register(req, res, next) {
             });
         }
 
-        const userId = await UserORM.create({ firstName, lastName, email, password, userRole: 'user' });
+        const userId = await userRepo.create({ firstName, lastName, email, password, userRole: 'user' });
 
         return res.status(201).json({ success: true, data: { userId }, error: null });
     } catch (err) {
@@ -24,7 +24,7 @@ async function login(req, res, next) {
     try {
         const { email, password } = req.body;
 
-        const user = await UserORM.findByEmailAndPassword(email, password);
+        const user = await userRepo.findByEmailAndPassword(email, password);
         if (!user) {
             return res.status(401).json({
                 success: false, data: null,

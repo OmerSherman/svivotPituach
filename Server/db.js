@@ -1,4 +1,6 @@
+require('dotenv').config();
 const mysql = require('mysql2/promise');
+const { PrismaClient } = require('@prisma/client');
 
 const pool = mysql.createPool({
     host:     process.env.DB_HOST     || 'localhost',
@@ -12,14 +14,9 @@ const pool = mysql.createPool({
     queueLimit:         0
 });
 
-// Prisma client — used for schema/migrations; ORM layer still uses mysql2 pool
-let prisma = null;
-try {
-    const { PrismaClient } = require('@prisma/client');
-    prisma = new PrismaClient();
-} catch (err) {
-    console.warn('[db] Prisma client not generated yet. Run: npm run db:generate');
-}
+const prisma = new PrismaClient();
 
+// Default export: mysql2 pool (scraper scripts)
 module.exports = pool;
+module.exports.pool = pool;
 module.exports.prisma = prisma;

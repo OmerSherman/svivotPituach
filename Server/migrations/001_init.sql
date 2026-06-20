@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS city (
     cityNameEn VARCHAR(100) NOT NULL,
     cityNameHe VARCHAR(100) NOT NULL,
     countryId INT NOT NULL,
+    summary_he TEXT,
+    banner_image_url VARCHAR(2048),
     FOREIGN KEY (countryId) REFERENCES country(countryId)
 );
 

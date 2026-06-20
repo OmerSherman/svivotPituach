@@ -1,8 +1,8 @@
-const CityORM = require('../ORM/CityORM');
+const cityRepo = require('../repositories/cityRepo');
 
 async function getAll(req, res, next) {
     try {
-        const cities = await CityORM.findAll();
+        const cities = await cityRepo.findAll();
         return res.status(200).json({ success: true, data: cities, error: null });
     } catch (err) {
         next(err);
@@ -20,7 +20,7 @@ async function search(req, res, next) {
             });
         }
 
-        const results = await CityORM.search(q);
+        const results = await cityRepo.search(q);
         return res.status(200).json({ success: true, data: results, error: null });
     } catch (err) {
         next(err);
@@ -38,7 +38,7 @@ async function getById(req, res, next) {
             });
         }
 
-        const city = await CityORM.findById(id);
+        const city = await cityRepo.findById(id);
         if (!city) {
             return res.status(404).json({
                 success: false, data: null,

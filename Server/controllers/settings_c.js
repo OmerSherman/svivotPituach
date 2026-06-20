@@ -1,5 +1,5 @@
-const UserORM    = require('../ORM/UserORM');
-const SettingsORM = require('../ORM/SettingsORM');
+const userRepo    = require('../repositories/userRepo');
+const settingsRepo = require('../repositories/settingsRepo');
 
 const VALID_THEMES  = ["light", "dark"];
 const VALID_SIZES   = ["small", "medium", "large"];
@@ -15,7 +15,7 @@ async function getSettings(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(id);
+        const user = await userRepo.findById(id);
         if (!user) {
             return res.status(401).json({
                 success: false, data: null,
@@ -23,7 +23,7 @@ async function getSettings(req, res, next) {
             });
         }
 
-        const prefs = await SettingsORM.findByUser(id);
+        const prefs = await settingsRepo.findByUser(id);
 
         return res.status(200).json({
             success: true,
@@ -52,7 +52,7 @@ async function updateSettings(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(id);
+        const user = await userRepo.findById(id);
         if (!user) {
             return res.status(401).json({
                 success: false, data: null,
@@ -85,18 +85,18 @@ async function updateSettings(req, res, next) {
         if (req.body.email     !== undefined) userFields.email     = req.body.email;
 
         if (Object.keys(userFields).length > 0) {
-            await UserORM.update(id, userFields);
+            await userRepo.update(id, userFields);
         }
 
-        const prefs = await SettingsORM.findByUser(id);
-        await SettingsORM.upsert(id, {
+        const prefs = await settingsRepo.findByUser(id);
+        await settingsRepo.upsert(id, {
             theme:    req.body.theme    !== undefined ? req.body.theme    : prefs.theme,
             fontSize: req.body.fontSize !== undefined ? req.body.fontSize : prefs.fontSize,
             density:  req.body.density  !== undefined ? req.body.density  : prefs.density
         });
 
-        const updated      = await UserORM.findById(id);
-        const updatedPrefs = await SettingsORM.findByUser(id);
+        const updated      = await userRepo.findById(id);
+        const updatedPrefs = await settingsRepo.findByUser(id);
 
         return res.status(200).json({
             success: true,

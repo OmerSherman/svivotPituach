@@ -1,8 +1,8 @@
-const UserORM = require('../ORM/UserORM');
+const userRepo = require('../repositories/userRepo');
 
 async function getAll(req, res, next) {
     try {
-        const users = await UserORM.findAll();
+        const users = await userRepo.findAll();
         return res.status(200).json({ success: true, data: users, error: null });
     } catch (err) {
         next(err);
@@ -20,7 +20,7 @@ async function getById(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(id);
+        const user = await userRepo.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -36,7 +36,7 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
     try {
-        const userId = await UserORM.create({
+        const userId = await userRepo.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
@@ -62,7 +62,7 @@ async function update(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(id);
+        const user = await userRepo.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -72,9 +72,9 @@ async function update(req, res, next) {
 
         // manager can only change userRole
         if (requestingRole === 'manager') {
-            await UserORM.update(id, { userRole: req.body.userRole });
+            await userRepo.update(id, { userRole: req.body.userRole });
         } else {
-            await UserORM.update(id, {
+            await userRepo.update(id, {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 userRole: req.body.userRole
@@ -107,7 +107,7 @@ async function remove(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(targetId);
+        const user = await userRepo.findById(targetId);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -115,7 +115,7 @@ async function remove(req, res, next) {
             });
         }
 
-        await UserORM.delete(targetId);
+        await userRepo.delete(targetId);
 
         return res.status(200).json({ success: true, data: { userId: parseInt(targetId) }, error: null });
     } catch (err) {
@@ -133,7 +133,7 @@ async function getMe(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(id);
+        const user = await userRepo.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -167,7 +167,7 @@ async function updateMe(req, res, next) {
             });
         }
 
-        const user = await UserORM.findById(id);
+        const user = await userRepo.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -180,9 +180,9 @@ async function updateMe(req, res, next) {
         if (req.body.lastName  !== undefined) fields.lastName  = req.body.lastName;
         if (req.body.email     !== undefined) fields.email     = req.body.email;
 
-        await UserORM.update(id, fields);
+        await userRepo.update(id, fields);
 
-        const updated = await UserORM.findById(id);
+        const updated = await userRepo.findById(id);
 
         return res.status(200).json({
             success: true,

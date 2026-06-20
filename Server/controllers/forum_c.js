@@ -1,5 +1,5 @@
-// Omer owns MessageORM - adjust the require path if needed
-const MessageORM = require('../ORM/MessageORM');
+// Omer owns messageRepo - adjust the require path if needed
+const messageRepo = require('../repositories/messageRepo');
 
 // GET /api/forum/:room/messages
 // returns the last 50 messages for a room (e.g. "country_1" or "city_2")
@@ -15,7 +15,7 @@ async function getMessages(req, res, next) {
             });
         }
 
-        var messages = await MessageORM.findByRoom(room, 50);
+        var messages = await messageRepo.findByRoom(room, 50);
 
         return res.status(200).json({ success: true, data: messages, error: null });
     } catch (err) {

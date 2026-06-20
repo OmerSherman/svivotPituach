@@ -1,4 +1,4 @@
-const TripORM = require('../ORM/TripORM');
+const tripRepo = require('../repositories/tripRepo');
 
 function getUserId(req) {
     const id = parseInt(req.headers['x-user-id']);
@@ -22,7 +22,7 @@ async function getAll(req, res, next) {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
-        const trips = await TripORM.findByUser(userId);
+        const trips = await tripRepo.findByUser(userId);
         return res.status(200).json({ success: true, data: trips, error: null });
     } catch (err) {
         next(err);
@@ -35,7 +35,7 @@ async function getById(req, res, next) {
         if (!userId) return;
 
         const tripId = parseInt(req.params.id);
-        const trip = await TripORM.findById(tripId);
+        const trip = await tripRepo.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -62,7 +62,7 @@ async function create(req, res, next) {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
-        const tripId = await TripORM.create({
+        const tripId = await tripRepo.create({
             userId,
             name: req.body.name,
             countryId: Number(req.body.countryId),
@@ -73,7 +73,7 @@ async function create(req, res, next) {
             interests: req.body.interests || []
         });
 
-        const newTrip = await TripORM.findById(tripId);
+        const newTrip = await tripRepo.findById(tripId);
         return res.status(201).json({ success: true, data: newTrip, error: null });
     } catch (err) {
         next(err);
@@ -86,7 +86,7 @@ async function update(req, res, next) {
         if (!userId) return;
 
         const tripId = parseInt(req.params.id);
-        const trip = await TripORM.findById(tripId);
+        const trip = await tripRepo.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -111,9 +111,9 @@ async function update(req, res, next) {
         if (req.body.budgetLevel  !== undefined) fields.budgetLevel  = req.body.budgetLevel;
         if (req.body.interests    !== undefined) fields.interests    = req.body.interests;
 
-        await TripORM.update(tripId, fields);
+        await tripRepo.update(tripId, fields);
 
-        const updated = await TripORM.findById(tripId);
+        const updated = await tripRepo.findById(tripId);
         return res.status(200).json({ success: true, data: updated, error: null });
     } catch (err) {
         next(err);
@@ -126,7 +126,7 @@ async function remove(req, res, next) {
         if (!userId) return;
 
         const tripId = parseInt(req.params.id);
-        const trip = await TripORM.findById(tripId);
+        const trip = await tripRepo.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -142,7 +142,7 @@ async function remove(req, res, next) {
             });
         }
 
-        await TripORM.delete(tripId);
+        await tripRepo.delete(tripId);
         return res.status(200).json({ success: true, data: { id: tripId }, error: null });
     } catch (err) {
         next(err);
@@ -164,7 +164,7 @@ async function toggleFavorite(req, res, next) {
             });
         }
 
-        const trip = await TripORM.findById(tripId);
+        const trip = await tripRepo.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -180,9 +180,9 @@ async function toggleFavorite(req, res, next) {
             });
         }
 
-        await TripORM.toggleFavorite(tripId, attractionId);
+        await tripRepo.toggleFavorite(tripId, attractionId);
 
-        const updated = await TripORM.findById(tripId);
+        const updated = await tripRepo.findById(tripId);
         return res.status(200).json({ success: true, data: updated, error: null });
     } catch (err) {
         next(err);
