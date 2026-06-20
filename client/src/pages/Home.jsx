@@ -12,7 +12,7 @@ import userContext from "../contexts/userContext";
 import "./Home.css";
 
 // constants used in the trip cards
-var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל" };
+var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל", 4: "קולומביה" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
 var BUDGET_NAMES = { low: "חסכוני", medium: "בינוני", high: "פרימיום" };
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
@@ -47,8 +47,9 @@ function Home() {
         async function fetchCities() {
             try {
                 const data = await citiesService.getAll();
-                setAllCities(data);
-                setDisplayCities(data);
+                const featured = data.filter(function(c) { return c.id <= 6; });
+                setAllCities(featured);
+                setDisplayCities(featured);
             } catch (err) {
                 setCitiesError("לא ניתן לטעון את הערים: " + err.message);
             } finally {
@@ -83,6 +84,7 @@ function Home() {
             try {
                 const data = await attractionsService.getAll();
                 const sorted = data
+                    .filter(function(a) { return a.id <= 20 && a.popularity_score >= 80; })
                     .slice()
                     .sort(function(a, b) { return b.popularity_score - a.popularity_score; })
                     .slice(0, 6);
@@ -187,7 +189,6 @@ function Home() {
                                 <ItemCard
                                     key={city.id}
                                     title={city.name_he}
-                                    subtitle={city.name}
                                     description={city.summary_he}
                                     imageUrl={city.banner_image_url}
                                     badge="עיר"
@@ -220,7 +221,6 @@ function Home() {
                                 <ItemCard
                                     key={attr.id}
                                     title={attr.name_he}
-                                    subtitle={attr.name}
                                     description={attr.description_he}
                                     imageUrl={attr.image_url}
                                     badge={translateType(attr.type)}

@@ -175,7 +175,6 @@ function CityAttractions() {
             <header className="city-header">
                 <Link to="/" className="city-back-link">← חזרה לדף הבית</Link>
                 <h1>{city.name_he}</h1>
-                <p className="city-subtitle">{city.name}</p>
                 {city.summary_he && <p className="city-summary">{city.summary_he}</p>}
             </header>
 
@@ -233,7 +232,6 @@ function CityAttractions() {
                                 <div key={attr.id} className="city-card-wrapper">
                                     <ItemCard
                                         title={attr.name_he}
-                                        subtitle={attr.name}
                                         description={attr.description_he}
                                         imageUrl={attr.image_url}
                                         badge={typeLabel(attr.type)}

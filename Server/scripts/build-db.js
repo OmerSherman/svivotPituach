@@ -103,6 +103,8 @@ async function main() {
 
     console.log('\nRunning Prisma enrichment...');
     await require('./enrich-database').run();
+    console.log('\nApplying image + Hebrew fixes...');
+    await require('./fix-db-data').run();
     console.log('\n=== Build complete ===');
     console.log('Next: cd Server && npm run db:generate && npm start');
 }

@@ -19,61 +19,65 @@ const EXTRA_CITIES = {
         name: 'Cali',
         name_he: 'קאלי',
         country_id: 4,
-        summary_he: 'עיר הסלסa והקפה בדרום קולומביה. לילות תוססים, מוזיקה חיה ושוקי אמנות.',
-        banner_image_url: 'https://loremflickr.com/800/600/cali,colombia/all'
+        summary_he: 'עיר הסלסa והקפה בדרום קולומביה. לילות תוססים, מוזיקה חיה ושוקי אמנות.'
     },
     6: {
         name: 'Bogotá',
         name_he: 'בוגוטה',
         country_id: 4,
-        summary_he: 'בירת קולומביה בגובה 2,640 מטר — מוזיאונים, Ciclovía וקולינריה מגוונת.',
-        banner_image_url: 'https://loremflickr.com/800/600/bogota,colombia/all'
+        summary_he: 'בירת קולומביה בגובה 2,640 מטר — מוזיאונים, Ciclovía וקולינריה מגוונת.'
     },
     7: {
         name: 'Buenos Aires',
         name_he: 'בואנוס איירס (מרכז)',
         country_id: 2,
-        summary_he: 'אטרקציות מרכז העיר: אובליסק, Casa Rosada, שכונות היסטוריות ואדריכלות קלאסית.',
-        banner_image_url: 'https://loremflickr.com/800/600/obelisco,buenosaires/all'
+        summary_he: 'אטרקציות מרכז העיר: אובליסק, Casa Rosada, שכונות היסטוריות ואדריכלות קלאסית.'
     },
     8: {
         name: 'Córdoba',
         name_he: 'קורדובה (ארגנטינה)',
         country_id: 2,
-        summary_he: 'עיר אוניברסיטאית עם מוזיאונים, מרכז היסטורי ומלונות לתרמילאים.',
-        banner_image_url: 'https://loremflickr.com/800/600/cordoba,argentina/all'
+        summary_he: 'עיר אוניברסיטאית עם מוזיאונים, מרכז היסטורי ומלונות לתרמילאים.'
     }
 };
 
 const COUNTRIES = [
     {
         id: 1,
-        summary_he: 'מדינה של האנדים, יערות גשם, חופים ומורשת אינקאית. בית למאצ\'ו פיצ\'ו, קוסקו ולימה.',
-        banner_image_url: 'https://loremflickr.com/800/600/machupicchu,peru/all'
+        summary_he: 'מדינה של האנדים, יערות גשם, חופים ומורשת אינקאית. בית למאצ\'ו פיצ\'ו, קוסקו ולימה.'
     },
     {
         id: 2,
-        summary_he: 'טנגו, סטייקים, יין מנדoza ואדריכלות אירופאית. בואנוס איירס — "פריז של דרום אמריקה".',
-        banner_image_url: 'https://loremflickr.com/800/600/buenosaires,argentina/all'
+        summary_he: 'טנגו, סטייקים, יין מנדoza ואדריכלות אירופאית. בואנוס איירס — "פריז של דרום אמריקה".'
     },
     {
         id: 3,
-        summary_he: 'קרנבל, חופים, פסל הישו ויער האמזונס. ברזיל — היעד הגדול ביותר בדרום אמריקה.',
-        banner_image_url: 'https://loremflickr.com/800/600/riodejaneiro,brazil/all'
+        summary_he: 'קרנבל, חופים, פסל הישו ויער האמזונס. ברזיל — היעד הגדול ביותר בדרום אמריקה.'
     },
     {
         id: 4,
-        summary_he: 'קפה, סלסה, הקריביים ורכסי האנדים. קולומביה — מגוון נופים ותרבות עשירה.',
-        banner_image_url: 'https://loremflickr.com/800/600/bogota,colombia/all'
+        summary_he: 'קפה, סלסה, הקריביים ורכסי האנדים. קולומביה — מגוון נופים ותרבות עשירה.'
     }
 ];
 const DEFAULT_AUDIENCE = { solo: 80, couple: 82, family: 75, group: 78 };
+
+function cityImage(id) {
+    return 'https://picsum.photos/seed/shvil-city-' + id + '/800/600';
+}
+
+function countryImage(id) {
+    return 'https://picsum.photos/seed/shvil-country-' + id + '/800/600';
+}
+
+function attractionImage(id) {
+    return 'https://picsum.photos/seed/shvil-attr-' + id + '/800/600';
+}
 
 async function syncCountries() {
     for (const c of COUNTRIES) {
         await prisma.country.update({
             where: { countryId: c.id },
-            data: { summaryHe: c.summary_he, bannerImageUrl: c.banner_image_url }
+            data: { summaryHe: c.summary_he, bannerImageUrl: countryImage(c.id) }
         });
     }
     console.log('Countries updated:', COUNTRIES.length);
@@ -89,8 +93,8 @@ function slugify(text) {
 }
 
 function imageUrlFor(name, cityNameEn) {
-    const slug = slugify(name) + ',' + slugify(cityNameEn || 'city');
-    return 'https://loremflickr.com/800/600/' + slug + '/all';
+    const seed = slugify(name) + '-' + slugify(cityNameEn || 'city');
+    return 'https://picsum.photos/seed/' + seed + '/800/600';
 }
 
 function inferTags(type, existing) {
@@ -114,7 +118,7 @@ async function syncCities() {
                 cityNameEn: c.name,
                 cityNameHe: c.name_he,
                 summaryHe: c.summary_he,
-                bannerImageUrl: c.banner_image_url
+                bannerImageUrl: cityImage(c.id)
             }
         });
     }
@@ -132,7 +136,7 @@ async function syncAttractionsFromMock() {
                 type: a.type,
                 descriptionHe: a.description_he,
                 tags: a.tags,
-                img_url: a.image_url,
+                img_url: attractionImage(a.id),
                 popularity_score: a.popularity_score,
                 audience_scores: a.audience_scores,
                 best_months: a.best_months,
@@ -156,8 +160,8 @@ async function enrichRemainingAttractions() {
         const data = {};
         const cityName = a.city ? a.city.cityNameEn : 'city';
 
-        if (!a.img_url || a.img_url.trim() === '') {
-            data.img_url = imageUrlFor(a.name, cityName);
+        if (!a.img_url || a.img_url.trim() === '' || a.img_url.includes('loremflickr')) {
+            data.img_url = attractionImage(a.attractionId);
         }
 
         if (!a.descriptionHe || a.descriptionHe.trim().length < 8) {
