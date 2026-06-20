@@ -33,7 +33,8 @@ app.use('/api/auth', auth_router);
 app.use('/api/settings', settings_router);
 
 app.use(errorHandler);
-
+const port_DB = process.env.DB_PORT
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  console.log(`Db running on ${port_DB}`)
 });

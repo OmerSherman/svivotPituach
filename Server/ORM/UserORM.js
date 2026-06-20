@@ -3,6 +3,7 @@ const pool = require('../db');
 class UserORM {
     async findAll() {
         const [rows] = await pool.query('SELECT * FROM user');
+        console.log("users from ORM")
         return rows;
     }
 
