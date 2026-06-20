@@ -47,9 +47,8 @@ function Home() {
         async function fetchCities() {
             try {
                 const data = await citiesService.getAll();
-                const featured = data.filter(function(c) { return c.id <= 6; });
-                setAllCities(featured);
-                setDisplayCities(featured);
+                setAllCities(data);
+                setDisplayCities(data);
             } catch (err) {
                 setCitiesError("לא ניתן לטעון את הערים: " + err.message);
             } finally {

@@ -1,67 +1,26 @@
 # שביל הטחינה (Shvil HaTahina)
 
-אפליקציית תכנון טיולים לדרום אמריקה — ערים, אטרקציות, פרופילי טיול, פורום צ'אט בזמן אמת, ועוזר AI לתכנון.
+אפליקציית תכנון טיולים לדרום אמריקה — ערים, אטרקציות, פרופילי טיול, פורום צ'אט, ועוזר AI.
 
-**קורס:** סביבות פיתוח באינטרנט · אוניברסיטת בן-גוריון בנגב  
+**קורס:** סביבות פיתוח באינטרנט · אוניברסיטת בן-גוריון  
 **צוות:** Omer Sherman · Hillel Zilberman · Michal Adam
 
 ---
 
-## תוכן עניינים
+## התקנה — 4 שלבים
 
-1. [יכולות האפליקציה](#יכולות-האפליקציה)
-2. [דרישות מקדימות](#דרישות-מקדימות)
-3. [התקנה והרצה](#התקנה-והרצה)
-4. [משתמשי בדיקה](#משתמשי-בדיקה)
-5. [מבנה הפרויקט](#מבנה-הפרויקט)
-6. [בסיס נתונים: Prisma + Repositories](#בסיס-נתונים-prisma--repositories)
-7. [API — REST](#api--rest)
-8. [WebSockets](#websockets)
-9. [AI](#ai)
-10. [Tech Stack](#tech-stack)
-
----
-
-## יכולות האפליקציה
-
-- התחברות והרשמה (user / manager / admin)
-- עיון בערים ואטרקציות בדרום אמריקה
-- יצירת פרופיל טיול: יעד, חודשים, סגנון, תקציב, תחומי עניין
-- ניקוד אטרקציות מותאם אישית + הסבר "למה הציון הזה?"
-- מועדפים לכל טיול (טבלת junction `trip_attraction`)
-- העדפות תצוגה לכל משתמש: theme, fontSize, density
-- פורום צ'אט לפי מדינה/עיר (Socket.IO + MySQL)
-- תכנון טיול בשיחה עם AI (WebSocket) + סיכום טיול (REST)
-- ניהול משתמשים ואטרקציות (admin/manager)
-- מפות Leaflet בפורום ובאטרקציות
-
----
-
-## דרישות מקדימות
-
-| כלי | גרסה |
-|-----|------|
-| Node.js | 18+ |
-| MySQL | 8.0+ |
-| npm | מגיע עם Node |
-
----
-
-## התקנה והרצה
-
-### 1. Clone והתקנת חבילות
+### 1. חבילות
 
 ```powershell
 cd Server
 npm install
-
 cd ../client
 npm install
 ```
 
-### 2. הגדרת משתני סביבה
+### 2. קובץ `.env`
 
-**Server** — העתיקי `Server/.env.example` ל-`Server/.env` ומלאי:
+**Server** — העתיקי `Server/.env.example` ל-`Server/.env`:
 
 ```env
 PORT=3000
@@ -83,51 +42,38 @@ REACT_APP_API_URL=http://localhost:3000/api
 REACT_APP_SOCKET_URL=http://localhost:3000
 ```
 
-### 3. ייבוא בסיס הנתונים
-
-> **חשוב:** ייבוא דרך PowerShell (`Get-Content | mysql`) עלול לשבור עברית. השתמשי בסקריפט Node:
-
-```powershell
-# מהשורש של הפרויקט
-node fix-db-encoding.js
-```
-
-הסקריפט:
-- מייבא את `mydb_dump.sql` עם קידוד UTF-8
-- יוצר את טבלת `message` לפורום
-- מציג דוגמת ערים בעברית לאימות
-
-**אלטרנטיבה — DB ריק (ללא נתוני seed):**
+### 3. בסיס נתונים — **פקודה אחת**
 
 ```powershell
 cd Server
-npm run db:push
+npm run db:setup
 ```
 
-### 4. הרצה (שני טרמינלים)
+זה עושה הכל:
+- יוצר מחדש את כל הטבלאות
+- ממלא **4 מדינות**, **6 ערים**, **20 אטרקציות** (בעברית + תמונות)
+- מוסיף **4 משתמשי בדיקה**
+
+> **אזהרה:** הפקודה **מוחקת** את כל הנתונים הקיימים ב-`mydb`.
+
+### 4. הרצה
 
 ```powershell
-# טרמינל 1 — Backend
+# טרמינל 1
 cd Server
 npm start
-# → http://localhost:3000
 
-# טרמינל 2 — Frontend
+# טרמינל 2
 cd client
 npm start
-# → http://localhost:5173
 ```
 
-### 5. Prisma Studio (אופציונלי — צפייה ב-DB)
-
-```powershell
-cd Server
-npm run db:studio
-```
+- Backend: http://localhost:3000  
+- Frontend: http://localhost:5173
 
 ---
 
-## משתמשי בדיקה
+## התחברות לבדיקה
 
 סיסמה לכולם: `123456`
 
@@ -140,205 +86,74 @@ npm run db:studio
 
 ---
 
-## מבנה הפרויקט
+## בסיס הנתונים — איפה הכל נמצא?
+
+```
+Server/
+├── prisma/schema.prisma     ← מבנה הטבלאות (8 טבלאות)
+├── seed/                    ← הנתונים (עריכה כאן!)
+│   ├── countries.json       ← 4 מדינות
+│   ├── cities.json          ← 6 ערים
+│   ├── attractions.json     ← 20 אטרקציות
+│   ├── users.json           ← משתמשים
+│   └── settings.json        ← העדפות תצוגה
+└── scripts/setup-database.js  ← הסקריפט היחיד (npm run db:setup)
+```
+
+| פקודה | מתי |
+|--------|-----|
+| `npm run db:setup` | בנייה מחדש — מוחק הכל וממלא מ-`seed/` |
+| `npm run db:studio` | צפייה/עריכה ידנית בדפדפן |
+| `npm run db:generate` | אחרי שינוי ב-`schema.prisma` |
+
+### עריכה ידנית של הנתונים
+
+**דרך 1 — קבצי JSON (מומלץ):**
+
+1. ערכי קובץ ב-`Server/seed/` (למשל הוספת עיר ב-`cities.json`)
+2. הריצי שוב: `npm run db:setup`
+
+**דרך 2 — Prisma Studio (בלי למחוק):**
+
+```powershell
+cd Server
+npm run db:studio
+```
+
+נפתח דפדפן → בחרי טבלה (`city`, `attraction`...) → ערכי שורות ישירות.
+
+> שדות בעברית: `cityNameHe`, `nameHE`, `descriptionHe`, `summary_he`  
+> שדות באנגלית (פנימי בלבד): `name`, `cityNameEn` — לא מוצגים בממשק
+
+---
+
+## מבנה הפרויקט (קצר)
 
 ```
 svivotPituach/
-├── client/                     # React SPA (פורט 5173)
-│   └── src/
-│       ├── App.js              # routing + context
-│       ├── pages/              # Home, TripDetail, Forum, Settings...
-│       ├── components/         # Navbar, ItemCard, ForumChat, AiTripChatModal...
-│       ├── services/           # api.js, tripsService, socket.js...
-│       └── contexts/           # userContext, preferencesContext
-│
-├── Server/                     # Express + Socket.IO (פורט 3000)
-│   ├── app.js                  # entry point
-│   ├── db.js                   # mysql2 pool + Prisma client export
-│   ├── routes/                 # REST routers
-│   ├── controllers/            # business logic
-│   ├── repositories/           # Prisma data access (runtime)
-│   ├── socket/                 # forum_socket.js, aiTripSocket.js
-│   ├── services/               # groqService.js
-│   ├── prisma/schema.prisma    # DB schema definition
-│   └── migrations/001_init.sql
-│
-├── mydb_dump.sql               # seed data (Omer)
-├── fix-db-encoding.js          # import script (UTF-8 safe)
-├── ARCHITECTURE.md             # מסמך ארכיטקטורה מפורט
+├── client/          React — דפים, רכיבים, שירותי API
+├── Server/
+│   ├── app.js       שרת Express + Socket.IO
+│   ├── repositories/  גישה ל-DB (Prisma)
+│   ├── controllers/   לוגיקה
+│   ├── routes/        REST endpoints
+│   └── seed/          נתוני DB
 └── README.md
 ```
 
 ---
 
-## בסיס נתונים: Prisma + Repositories
+## API, WebSockets, AI
 
-כל הנתונים ב-**MySQL (`mydb`)**. Prisma משמש לסכמה ולשאילתות runtime דרך `Server/repositories/`.
+תיעוד מלא: [`Server/docs/README.md`](./Server/docs/README.md)  
+Postman: [`Server/docs/postman_collection.json`](./Server/docs/postman_collection.json)  
+ארכיטקטורה: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
-| כלי | תפקיד |
-|-----|--------|
-| `schema.prisma` | הגדרת 8 טבלאות |
-| `repositories/*.js` | כל שאילתות ה-API בזמן ריצה |
-| `npm run db:build` | ייבוא dump + enrichment (תמונות, תיאורים) |
-| `npm run db:studio` | UI לצפייה ב-DB |
-
-```
-Controller → Repository (Prisma) → MySQL
-```
-
----
-
-## API — REST
-
-כל התשובות בפורmat:
-
-```json
-{ "success": true, "data": {}, "error": null }
-```
-
-**אימות:** headers `x-user-id` ו-`x-user-role` (לאחר login, הלקוח שולח אותם אוטומטית).
-
-### Auth
-
-| Method | Path | תיאור |
-|--------|------|--------|
-| POST | `/api/auth/register` | הרשמה |
-| POST | `/api/auth/login` | התחברות |
-| POST | `/api/auth/logout` | התנתקות |
-
-### Users
-
-| Method | Path | הרשאה |
-|--------|------|--------|
-| GET | `/api/users/me` | logged in |
-| PUT | `/api/users/me` | logged in |
-| GET | `/api/users` | admin |
-| GET | `/api/users/:id` | open |
-| POST | `/api/users` | admin |
-| PUT | `/api/users/:id` | admin/manager |
-| DELETE | `/api/users/:id` | admin or self |
-
-### Cities
-
-| Method | Path | תיאור |
-|--------|------|--------|
-| GET | `/api/cities` | כל הערים |
-| GET | `/api/cities/search?q=` | חיפוש |
-| GET | `/api/cities/:id` | עיר בודדת |
-
-### Attractions
-
-| Method | Path | הרשאה |
-|--------|------|--------|
-| GET | `/api/attractions` | logged in |
-| GET | `/api/attractions/map?city_id=` | logged in |
-| GET | `/api/attractions/:id` | logged in |
-| POST | `/api/attractions` | admin |
-| PUT | `/api/attractions/:id` | admin/manager |
-| DELETE | `/api/attractions/:id` | admin |
-
-Query params ל-GET `/api/attractions`:
-- `type`, `city_id`
-- `travelStyle`, `startMonth`, `endMonth`, `interests` — לניקוד מותאם אישית
-
-### Trips (Profile)
-
-| Method | Path | תיאור |
-|--------|------|--------|
-| GET | `/api/profile` | הטיולים שלי |
-| POST | `/api/profile` | יצירת טיול |
-| GET | `/api/profile/:id` | טיול בודד |
-| PUT | `/api/profile/:id` | עדכון |
-| DELETE | `/api/profile/:id` | מחיקה |
-| POST | `/api/profile/:id/favorites` | toggle מועדף `{ attractionId }` |
-
-### Settings
-
-| Method | Path | תיאור |
-|--------|------|--------|
-| GET | `/api/settings` | פרופיל + העדפות תצוגה |
-| PUT | `/api/settings` | עדכון |
-
-### Forum
-
-| Method | Path | תיאור |
-|--------|------|--------|
-| GET | `/api/forum/:room/messages` | 50 הודעות אחרונות (למשל `country_1`, `city_3`) |
-
-### AI (REST)
-
-| Method | Path | Body | תיאור |
-|--------|------|------|--------|
-| POST | `/api/ai/trip-summary` | `{ tripId }` | סיכום AI לטיול קיים |
-
-> דורש `GROQ_API_KEY` ב-`.env`
-
----
-
-## WebSockets
-
-חיבור: `REACT_APP_SOCKET_URL` (ברירת מחדל `http://localhost:3000`)
-
-### פורום — `forum_socket.js`
-
-| Client → Server | תיאור |
-|-----------------|--------|
-| `room:join` | `{ room }` |
-| `room:leave` | `{ room }` |
-| `message:send` | `{ room, userId, userName, text }` |
-
-| Server → Client | תיאור |
-|-----------------|--------|
-| `message:new` | הודעה חדשה (נשמרת ב-MySQL) |
-| `presence:update` | `{ room, count }` |
-| `message:error` | שגיאה |
-
-### AI Trip Chat — `aiTripSocket.js`
-
-חיבור עם `auth: { userId }`.
-
-| Client → Server | תיאור |
-|-----------------|--------|
-| `ai-trip:start` | התחלת שיחה |
-| `ai-trip:user-message` | `{ text }` |
-| `ai-trip:reset` | איפוס |
-
-| Server → Client | תיאור |
-|-----------------|--------|
-| `ai-trip:bot-message` | `{ text, draft }` |
-| `ai-trip:bot-typing` | `{ typing }` |
-| `ai-trip:draft-ready` | `{ draft }` — טיוטה מוכנה לשמירה |
-| `ai-trip:error` | שגיאה |
-
----
-
-## AI
-
-| ערוץ | פרוטוקול | שימוש |
-|------|----------|-------|
-| צ'אט תכנון טיול | WebSocket | שיחה → טיוטת טיול → שמירה ב-DB |
-| סיכום טיול | REST `POST /api/ai/trip-summary` | טקסט סיכום לטיול קיים |
-
-מודל ברירת מחדל: `llama-3.3-70b-versatile` (Groq).
+**WebSockets:** פורום (`forum_socket.js`) + צ'אט AI (`aiTripSocket.js`)  
+**AI REST:** `POST /api/ai/trip-summary` (דורש `GROQ_API_KEY`)
 
 ---
 
 ## Tech Stack
 
-| שכבה | טכנולוגיה |
-|------|-----------|
-| Frontend | React 19, React Router 7, Leaflet, Socket.IO Client |
-| Backend | Node.js, Express 5, Socket.IO 4 |
-| Database | MySQL 8, Prisma (schema + runtime) |
-| AI | Groq SDK |
-| Auth | Header-based (`x-user-id`, `x-user-role`) + localStorage |
-
----
-
-## הערות
-
-- המשתמש והעדפות נשמרים ב-`localStorage` — רענון לא מנתק.
-- ייבוא DB: **תמיד** `node fix-db-encoding.js` (לא PowerShell pipe) לשמירת עברית.
-- מסמך ארכיטקטורה מפורט: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
-- תיעוד API מורחב (Assignment 4): [`Server/docs/README.md`](./Server/docs/README.md)
-- Postman collection: [`Server/docs/postman_collection.json`](./Server/docs/postman_collection.json)
+React 19 · Express 5 · MySQL 8 · Prisma · Socket.IO · Groq

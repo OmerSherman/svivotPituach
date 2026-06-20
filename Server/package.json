@@ -3,16 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-  "scripts": {
-    "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:studio": "prisma studio",
-    "db:build": "node scripts/build-db.js",
-    "db:enrich": "node scripts/enrich-database.js",
-    "db:fix": "node scripts/fix-db-data.js"
-  },
+    "scripts": {
+        "start": "node app.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "db:setup": "node scripts/setup-database.js",
+        "db:generate": "prisma generate",
+        "db:studio": "prisma studio"
+    },
   "keywords": [],
   "author": "",
   "license": "ISC",

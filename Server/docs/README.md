@@ -11,8 +11,7 @@ Course: Web Environments · Ben-Gurion University
 cd Server
 npm install
 cp .env.example .env   # fill DB_PASSWORD and GROQ_API_KEY
-npm run db:generate
-npm run db:build       # from project root: node Server/scripts/build-db.js
+npm run db:setup       # ONE command — reset + seed Hebrew data
 npm start
 ```
 
@@ -38,9 +37,8 @@ All data is stored in **MySQL** (`mydb`). Runtime access uses **Prisma** via `Se
 
 **Build / reset DB:**
 ```bash
-npm run db:build      # full import + enrichment
-npm run db:enrich     # fill missing images/descriptions only
-npm run db:studio     # Prisma UI
+npm run db:setup      # reset + fill from Server/seed/
+npm run db:studio     # manual edit in browser
 ```
 
 ---
