@@ -7,6 +7,7 @@ function mapTrip(row, favorites) {
         userId: row.userId,
         name: row.tripName,
         countryId: row.countryId,
+        country_name_he: row.country ? row.country.countryNameHe : null,
         startMonth: row.startMonth,
         endMonth: row.endMonth,
         travelerType: row.travelStyle,
@@ -45,13 +46,17 @@ const tripRepo = {
     async findByUser(userId) {
         const rows = await prisma.trip.findMany({
             where: { userId: parseInt(userId, 10) },
+            include: { country: true },
             orderBy: { tripId: 'desc' }
         });
         return attachFavorites(rows);
     },
 
     async findById(tripId) {
-        const row = await prisma.trip.findUnique({ where: { tripId: parseInt(tripId, 10) } });
+        const row = await prisma.trip.findUnique({
+            where: { tripId: parseInt(tripId, 10) },
+            include: { country: true }
+        });
         if (!row) return null;
         const [withFav] = await attachFavorites([row]);
         return withFav;

@@ -11,7 +11,6 @@ import attractionsService from "../services/attractionsService";
 import aiService from "../services/aiService";
 import "./TripDetail.css";
 
-var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל", 4: "קולומביה" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
                    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
@@ -186,7 +185,7 @@ function TripDetail() {
             <header className="trip-detail-header">
                 <h1>{trip.name}</h1>
                 <div className="trip-detail-meta">
-                    <span>📍 {COUNTRY_NAMES[trip.countryId]}</span>
+                    <span>📍 {trip.country_name_he || "לא ידוע"}</span>
                     <span>📅 {formatDateRange(trip.startMonth, trip.endMonth)}</span>
                     <span>🎒 {STYLE_NAMES[trip.travelStyle]}</span>
                 </div>

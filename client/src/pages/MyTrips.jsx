@@ -5,7 +5,6 @@ import TripForm from "../components/TripForm";
 import "./MyTrips.css";
 import userContext from "../contexts/userContext";
 
-var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל", 4: "קולומביה" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
 var BUDGET_NAMES = { low: "חסכוני", medium: "בינוני", high: "פרימיום" };
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
@@ -115,7 +114,7 @@ function MyTrips() {
                                      onClick={function() { navigate("/trips/" + trip.id); }}>
                                     <h3>{trip.name}</h3>
                                     <p className="trip-card-dest">
-                                        📍 {COUNTRY_NAMES[trip.countryId] || "לא ידוע"}
+                                        📍 {trip.country_name_he || "לא ידוע"}
                                     </p>
                                     <p className="trip-card-dates">
                                         📅 {MONTH_NAMES[trip.startMonth]} – {MONTH_NAMES[trip.endMonth]}

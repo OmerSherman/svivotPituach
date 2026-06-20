@@ -31,6 +31,24 @@ function enrichOne(attraction, context) {
     return enrichAttraction(normalizeAttraction(attraction), context);
 }
 
+async function getTop(req, res, next) {
+    try {
+        const minScore = parseInt(req.query.min_score, 10) || 80;
+        const limit = parseInt(req.query.limit, 10) || 6;
+        const results = await attractionRepo.findTop({ minScore: minScore, limit: limit });
+
+        res.status(200).json({
+            success: true,
+            data: results.map(function(attraction) {
+                return enrichOne(attraction, null);
+            }),
+            error: null
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function getAll(req, res, next) {
     try {
         const results = await attractionRepo.findAll({
@@ -192,4 +210,4 @@ async function getMapData(req, res, next) {
     }
 }
 
-module.exports = { getAll, getById, create, update, remove, getMapData };
+module.exports = { getAll, getTop, getById, create, update, remove, getMapData };

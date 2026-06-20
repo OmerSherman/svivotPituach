@@ -8,6 +8,7 @@ function fromServer(p) {
         id: p.id,
         name: p.name,
         countryId: p.countryId,
+        country_name_he: p.country_name_he || null,
         startMonth: p.startMonth,
         endMonth: p.endMonth,
         travelStyle: p.travelerType,

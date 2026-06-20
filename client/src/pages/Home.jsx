@@ -12,7 +12,6 @@ import userContext from "../contexts/userContext";
 import "./Home.css";
 
 // constants used in the trip cards
-var COUNTRY_NAMES = { 1: "פרו", 2: "ארגנטינה", 3: "ברזיל", 4: "קולומביה" };
 var STYLE_NAMES = { solo: "מוצ'ילר", couple: "רומנטי", family: "משפחתי", group: "קבוצתי" };
 var BUDGET_NAMES = { low: "חסכוני", medium: "בינוני", high: "פרימיום" };
 var MONTH_NAMES = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
@@ -81,13 +80,8 @@ function Home() {
     useEffect(function() {
         async function fetchAttractions() {
             try {
-                const data = await attractionsService.getAll();
-                const sorted = data
-                    .filter(function(a) { return a.id <= 20 && a.popularity_score >= 80; })
-                    .slice()
-                    .sort(function(a, b) { return b.popularity_score - a.popularity_score; })
-                    .slice(0, 6);
-                setTopAttractions(sorted);
+                const data = await attractionsService.getTop({ minScore: 80, limit: 6 });
+                setTopAttractions(data);
             } catch (err) {
                 setAttractionsError("לא ניתן לטעון את האטרקציות: " + err.message);
             } finally {
@@ -268,7 +262,7 @@ function Home() {
                                          onClick={function() { navigate("/trips/" + trip.id); }}>
                                         <h3>{trip.name}</h3>
                                         <p className="home-trip-dest">
-                                            📍 {COUNTRY_NAMES[trip.countryId] || "לא ידוע"}
+                                            📍 {trip.country_name_he || "לא ידוע"}
                                         </p>
                                         <p className="home-trip-dates">
                                             📅 {MONTH_NAMES[trip.startMonth]} – {MONTH_NAMES[trip.endMonth]}

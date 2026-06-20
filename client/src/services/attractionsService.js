@@ -17,6 +17,15 @@ async function getAll(filters = {}) {
     return res.data;
 }
 
+async function getTop(options = {}) {
+    const params = [];
+    if (options.minScore) params.push("min_score=" + options.minScore);
+    if (options.limit) params.push("limit=" + options.limit);
+    const query = params.length > 0 ? "?" + params.join("&") : "";
+    const res = await api.get("/attractions/top" + query);
+    return res.data;
+}
+
 async function getById(id) {
     const res = await api.get("/attractions/" + id);
     return res.data;
@@ -45,5 +54,5 @@ async function remove(id) {
     return res.data;
 }
 
-const attractionsService = { getAll, getById, getMapPins, create, update, remove };
+const attractionsService = { getAll, getTop, getById, getMapPins, create, update, remove };
 export default attractionsService;

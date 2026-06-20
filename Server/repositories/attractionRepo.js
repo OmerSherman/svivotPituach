@@ -45,6 +45,15 @@ const attractionRepo = {
         return rows.map(mapAttraction);
     },
 
+    async findTop({ minScore = 80, limit = 6 } = {}) {
+        const rows = await prisma.attraction.findMany({
+            where: { popularity_score: { gte: minScore } },
+            orderBy: { popularity_score: 'desc' },
+            take: limit
+        });
+        return rows.map(mapAttraction);
+    },
+
     async findMapPins(cityId) {
         const rows = await prisma.attraction.findMany({
             where: { cityId: parseInt(cityId, 10) },

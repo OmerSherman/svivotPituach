@@ -7,7 +7,7 @@ const attractionsController = require('../controllers/attractions_c');
 const ATTRACTION_FIELDS = ["city_id", "name", "name_he", "type", "description_he"];
 
 router.get('/', attractionsController.getAll);
-// map pins for a city - used by the map component in the frontend
+router.get('/top', attractionsController.getTop);
 router.get('/map', attractionsController.getMapData);
 router.get('/:id', attractionsController.getById);
 
