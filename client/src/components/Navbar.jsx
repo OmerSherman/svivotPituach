@@ -48,28 +48,36 @@ function Navbar() {
         }
     }
 
+    function navClass(path) {
+        if (path === "/") {
+            return location.pathname === "/" ? "navbar-link navbar-link--active" : "navbar-link";
+        }
+        return location.pathname.startsWith(path)
+            ? "navbar-link navbar-link--active"
+            : "navbar-link";
+    }
+
     return (
         <nav className="navbar">
-            <div className="navbar-logo">
+            <Link to="/" className="navbar-logo">
                 <img src={logo} alt="שביל הטחינה" />
                 <span>שביל הטחינה</span>
-            </div>
+            </Link>
             <div className="navbar-links">
                 {user ? (
                     <>
-                        <Link to="/">דף הבית</Link>
-                        <Link to="/#my-trips" onClick={handleMyTripsClick}>הטיולים שלי</Link>
-                        <Link to="/settings">הגדרות</Link>
-                        <Link to="/forum">פורום</Link>
-                        {/* fixed - was "maneger" before, server uses "manager" */}
+                        <Link to="/" className={navClass("/")}>דף הבית</Link>
+                        <Link to="/#my-trips" className="navbar-link" onClick={handleMyTripsClick}>הטיולים שלי</Link>
+                        <Link to="/settings" className={navClass("/settings")}>הגדרות</Link>
+                        <Link to="/forum" className={navClass("/forum")}>פורום</Link>
                         {(user.userRole === "admin" || user.userRole === "manager") && (
-                            <Link to="/adminPortal">ניהול</Link>
+                            <Link to="/adminPortal" className={navClass("/adminPortal")}>ניהול</Link>
                         )}
                         <span className="navbar-user">שלום, {user.firstName}</span>
                         <button className="navbar-logout" onClick={handleLogout}>התנתק</button>
                     </>
                 ) : (
-                    <Link to="/login">התחברות</Link>
+                    <Link to="/login" className={navClass("/login")}>התחברות</Link>
                 )}
             </div>
         </nav>

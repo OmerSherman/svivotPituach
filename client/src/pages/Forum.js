@@ -3,9 +3,10 @@ import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from 'react-leaf
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import ForumChat from '../components/ForumChat';
+import ForumRoomList from '../components/ForumRoomList';
+import { FORUM_COUNTRIES, FORUM_CITIES } from '../data/forumRooms';
 import './Forum.css';
 
-// fix broken default marker icons under webpack / CRA
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -17,21 +18,6 @@ L.Icon.Default.mergeOptions({
     shadowUrl: markerShadow,
 });
 
-// one public room per country
-var COUNTRIES = [
-    { room: 'country_1', name: 'פרו',       lat: -9.19,   lng: -75.015 },
-    { room: 'country_2', name: 'ארגנטינה',  lat: -38.416, lng: -63.616 },
-    { room: 'country_3', name: 'ברזיל',     lat: -14.235, lng: -51.925 },
-];
-
-// one public room per city (matches mock_data/cities.json)
-var CITIES = [
-    { room: 'city_1', name: 'לימה',              lat: -12.046, lng: -77.043 },
-    { room: 'city_2', name: 'בואנוס איירס',       lat: -34.604, lng: -58.382 },
-    { room: 'city_3', name: "ריו דה ז'ניירו",    lat: -22.907, lng: -43.173 },
-    { room: 'city_4', name: 'קוסקו',              lat: -13.532, lng: -71.967 },
-];
-
 function Forum() {
     var [selectedRoom, setSelectedRoom] = useState(null);
     var [selectedName, setSelectedName] = useState('');
@@ -41,14 +27,38 @@ function Forum() {
         setSelectedName(name);
     }
 
+    function closeRoom() {
+        setSelectedRoom(null);
+        setSelectedName('');
+    }
+
     return (
         <div className="forum-page">
-            <h2 className="forum-heading">פורום מטיילים — דרום אמריקה</h2>
-            <p className="forum-sub">לחץ על מדינה או עיר במפה כדי להצטרף לצ׳אט הציבורי שלה</p>
+            <header className="forum-header">
+                <div className="forum-header-text">
+                    <h2 className="forum-heading">פורום מטיילים — דרום אמריקה</h2>
+                    <p className="forum-sub">
+                        שתף טיפים, שאל שאלות והתחבר עם מטיילים בזמן אמת
+                    </p>
+                </div>
+                <div className="forum-header-stats">
+                    <span className="forum-stat">
+                        <strong>{FORUM_COUNTRIES.length}</strong> מדינות
+                    </span>
+                    <span className="forum-stat">
+                        <strong>{FORUM_CITIES.length}</strong> ערים
+                    </span>
+                </div>
+            </header>
 
             <div className="forum-layout">
+                <ForumRoomList
+                    countries={FORUM_COUNTRIES}
+                    cities={FORUM_CITIES}
+                    selectedRoom={selectedRoom}
+                    onSelect={openRoom}
+                />
 
-                {/* ---- LEFT: Leaflet map ---- */}
                 <div className="forum-map-wrap">
                     <MapContainer
                         center={[-18, -60]}
@@ -60,8 +70,7 @@ function Forum() {
                             attribution="© OpenStreetMap contributors"
                         />
 
-                        {/* country markers — default blue pin */}
-                        {COUNTRIES.map(function(c) {
+                        {FORUM_COUNTRIES.map(function(c) {
                             return (
                                 <Marker key={c.room} position={[c.lat, c.lng]}>
                                     <Popup>
@@ -78,8 +87,7 @@ function Forum() {
                             );
                         })}
 
-                        {/* city markers — orange circle */}
-                        {CITIES.map(function(c) {
+                        {FORUM_CITIES.map(function(c) {
                             return (
                                 <CircleMarker
                                     key={c.room}
@@ -101,20 +109,39 @@ function Forum() {
                             );
                         })}
                     </MapContainer>
+
+                    <div className="forum-map-legend">
+                        <span className="forum-legend-item">
+                            <span className="forum-legend-pin" />
+                            מדינה
+                        </span>
+                        <span className="forum-legend-item">
+                            <span className="forum-legend-dot" />
+                            עיר
+                        </span>
+                    </div>
                 </div>
 
-                {/* ---- RIGHT: chat panel ---- */}
                 <div className="forum-chat-wrap">
                     {selectedRoom ? (
-                        <ForumChat room={selectedRoom} roomName={selectedName} />
+                        <ForumChat
+                            room={selectedRoom}
+                            roomName={selectedName}
+                            onClose={closeRoom}
+                        />
                     ) : (
                         <div className="forum-placeholder">
-                            <span>📍</span>
-                            <p>בחר מדינה או עיר במפה</p>
+                            <div className="forum-placeholder-icon">💬</div>
+                            <h3>ברוכים הבאים לפורום</h3>
+                            <p>בחר מדינה או עיר מהרשימה או מהמפה כדי להצטרף לצ׳אט הציבורי</p>
+                            <ul className="forum-placeholder-tips">
+                                <li>שתף המלצות על מקומות שביקרת</li>
+                                <li>שאל מטיילים אחרים על מסלולים ותקציב</li>
+                                <li>ראה כמה משתמשים מחוברים בזמן אמת</li>
+                            </ul>
                         </div>
                     )}
                 </div>
-
             </div>
         </div>
     );

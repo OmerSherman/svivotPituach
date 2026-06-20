@@ -2,60 +2,98 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 24px;
+    padding: 10px 24px;
     background: var(--bg-navbar);
     color: var(--text-on-dark);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
 }
 
 .navbar-logo {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 700;
+    text-decoration: none;
+    color: var(--text-on-dark);
+    transition: opacity 0.15s;
+}
+
+.navbar-logo:hover {
+    opacity: 0.9;
 }
 
 .navbar-logo img {
-    height: 36px;
+    height: 34px;
     width: auto;
 }
 
 .navbar-links {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 6px;
 }
 
-.navbar-links a {
+.navbar-link {
     color: var(--text-on-dark-soft);
     text-decoration: none;
-    font-size: 0.95rem;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: background 0.15s;
+    font-size: 0.9rem;
+    padding: 7px 12px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
 }
 
-.navbar-links a:hover {
-    background: rgba(255, 255, 255, 0.12);
+.navbar-link:hover {
+    background: rgba(255, 255, 255, 0.1);
     color: var(--text-on-dark);
 }
 
+.navbar-link--active {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-on-dark);
+    font-weight: 600;
+}
+
 .navbar-user {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.85rem;
+    padding: 0 6px;
 }
 
 .navbar-logout {
-    padding: 6px 14px;
-    background: rgba(255, 255, 255, 0.1);
+    padding: 7px 14px;
+    background: rgba(255, 255, 255, 0.08);
     color: var(--text-on-dark-soft);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    transition: background 0.15s;
 }
 
 .navbar-logout:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--text-on-dark);
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 14px;
+    }
+
+    .navbar-links {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .navbar-user {
+        display: none;
+    }
 }
