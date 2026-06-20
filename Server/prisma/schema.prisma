@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId     Int        @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  email      String     @unique
+  password   String
+  userRole   String
+  createDate String
+  updateDate String
+  trips      Trip[]
+  settings   Settings?
+
+  @@map("user")
+}
+
+model Country {
+  countryId     Int    @id @default(autoincrement())
+  countryNameEn String
+  countryNameHe String
+  cities        City[]
+
+  @@map("country")
+}
+
+model City {
+  cityId      Int          @id @default(autoincrement())
+  cityNameEn  String
+  cityNameHe  String
+  countryId   Int
+  country     Country      @relation(fields: [countryId], references: [countryId])
+  attractions Attraction[]
+
+  @@map("city")
+}
+
+model Attraction {
+  attractionId     Int              @id @default(autoincrement())
+  cityId           Int
+  name             String
+  nameHE           String?
+  type             String
+  descriptionHe    String?          @db.Text
+  tags             Json?
+  img_url          String?
+  popularity_score Int              @default(0)
+  audience_scores  Json?
+  best_months      Json?
+  avoid_months     Json?
+  seasonal_note_he String?          @db.Text
+  latitude         Float?
+  longitude        Float?
+  city             City             @relation(fields: [cityId], references: [cityId])
+  tripLinks        TripAttraction[]
+
+  @@map("attraction")
+}
+
+model Trip {
+  tripId      Int              @id @default(autoincrement())
+  userId      Int
+  tripName    String
+  countryId   Int
+  startMonth  Int
+  endMonth    Int
+  travelStyle String
+  budget      String
+  interests   Json?
+  createdAt   String
+  user        User             @relation(fields: [userId], references: [userId])
+  attractions TripAttraction[]
+
+  @@map("trip")
+}
+
+// junction table — many-to-many: Trip <-> Attraction
+model TripAttraction {
+  tripId       Int
+  attractionId Int
+  trip         Trip       @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
+  attraction   Attraction @relation(fields: [attractionId], references: [attractionId], onDelete: Cascade)
+
+  @@id([tripId, attractionId])
+  @@map("trip_attraction")
+}
+
+model Settings {
+  userId   Int    @id
+  theme    String @default("light")
+  fontSize String @default("medium")
+  density  String @default("normal")
+  user     User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("settings")
+}
+
+model Message {
+  messageId Int      @id @default(autoincrement())
+  room      String
+  userId    Int
+  userName  String
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([room])
+  @@map("message")
+}

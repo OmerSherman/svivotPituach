@@ -1,32 +1,15 @@
-const users = require("../models/mock_data/users.json");
+const UserORM = require('../ORM/UserORM');
 
-function getCurrentUser(req) {
-    const id = parseInt(req.headers['x-user-id']);
-    if (isNaN(id)) return null;
-    return users.find(function(u) { return u.userId === id; }) || null;
-}
-// helper to find user by id
-function findById(id) {
-    return users.find(function(u) {
-        return u.userId === parseInt(id);
-    });
-}
-
-function updateInDB(id, fields ) { 
-    return null
-}
-
-// GET - all users
-function getAll(req, res, next) {
+async function getAll(req, res, next) {
     try {
+        const users = await UserORM.findAll();
         return res.status(200).json({ success: true, data: users, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// GET - one user by id
-function getById(req, res, next) {
+async function getById(req, res, next) {
     try {
         const id = req.params.id;
 
@@ -37,8 +20,7 @@ function getById(req, res, next) {
             });
         }
 
-        const user = findById(id);
-
+        const user = await UserORM.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -52,29 +34,23 @@ function getById(req, res, next) {
     }
 }
 
-// POST - create a new user
-// required fields validated by checkFields middleware in the route
-function create(req, res, next) {
+async function create(req, res, next) {
     try {
-        const newUser = {
-            userId: users.length + 1, // next stage: auto-incremented by MySQL
+        const userId = await UserORM.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
-            userRole: req.body.userRole,
-            createDate: new Date().toISOString(),
-            updateDate: new Date().toISOString()
-        };
+            email: req.body.email,
+            password: req.body.password,
+            userRole: req.body.userRole || 'user'
+        });
 
-        users.push(newUser);
-
-        return res.status(201).json({ success: true, data: { userId: newUser.userId }, error: null });
+        return res.status(201).json({ success: true, data: { userId }, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// PUT - update a user (only the fields that were sent)
-function update(req, res, next) {
+async function update(req, res, next) {
     try {
         const id = req.params.id;
         const requestingRole = req.headers['x-user-role'];
@@ -86,8 +62,7 @@ function update(req, res, next) {
             });
         }
 
-        const user = findById(id);
-
+        const user = await UserORM.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -97,16 +72,14 @@ function update(req, res, next) {
 
         // manager can only change userRole
         if (requestingRole === 'manager') {
-            if (req.body.userRole) user.userRole = req.body.userRole;
-            user.updateDate = new Date().toISOString();
-            return res.status(200).json({ success: true, data: { userId: parseInt(id) }, error: null });
+            await UserORM.update(id, { userRole: req.body.userRole });
+        } else {
+            await UserORM.update(id, {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                userRole: req.body.userRole
+            });
         }
-
-        // admin can update everything
-        if (req.body.firstName) user.firstName = req.body.firstName;
-        if (req.body.lastName) user.lastName = req.body.lastName;
-        if (req.body.userRole) user.userRole = req.body.userRole;
-        user.updateDate = new Date().toISOString();
 
         return res.status(200).json({ success: true, data: { userId: parseInt(id) }, error: null });
     } catch (err) {
@@ -114,9 +87,7 @@ function update(req, res, next) {
     }
 }
 
-// DELETE - remove a user
-// admin can delete anyone, user can only delete themselves
-function remove(req, res, next) {
+async function remove(req, res, next) {
     try {
         const requestingRole = req.headers['x-user-role'];
         const requestingId = req.headers['x-user-id'];
@@ -136,19 +107,15 @@ function remove(req, res, next) {
             });
         }
 
-        const index = users.findIndex(function(u) {
-            return u.userId === parseInt(targetId);
-        });
-
-        if (index === -1) {
+        const user = await UserORM.findById(targetId);
+        if (!user) {
             return res.status(404).json({
                 success: false, data: null,
                 error: { code: "NOT_FOUND", message: "user " + targetId + " not found", details: {} }
             });
         }
 
-        users.splice(index, 1);
-        // next stage: delete from MySQL
+        await UserORM.delete(targetId);
 
         return res.status(200).json({ success: true, data: { userId: parseInt(targetId) }, error: null });
     } catch (err) {
@@ -156,8 +123,7 @@ function remove(req, res, next) {
     }
 }
 
-// returns the current user from the x-user-id header
-function getMe(req, res, next) {
+async function getMe(req, res, next) {
     try {
         const id = parseInt(req.headers['x-user-id']);
         if (isNaN(id)) {
@@ -167,7 +133,7 @@ function getMe(req, res, next) {
             });
         }
 
-        const user = findById(id);
+        const user = await UserORM.findById(id);
         if (!user) {
             return res.status(404).json({
                 success: false, data: null,
@@ -175,7 +141,6 @@ function getMe(req, res, next) {
             });
         }
 
-        // strip password
         const safeUser = {
             userId: user.userId,
             firstName: user.firstName,
@@ -185,53 +150,53 @@ function getMe(req, res, next) {
             createDate: user.createDate,
             updateDate: user.updateDate
         };
-        // update data base
+
         return res.status(200).json({ success: true, data: safeUser, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-function updateMe(req, res, next) {
+async function updateMe(req, res, next) {
     try {
-        const user = getCurrentUser(req);
-        if (!user) {
+        const id = parseInt(req.headers['x-user-id']);
+        if (isNaN(id)) {
             return res.status(401).json({
                 success: false, data: null,
                 error: { code: "UNAUTHORIZED", message: "not logged in", details: {} }
             });
         }
 
-        // simple email check
-        if (req.body.email !== undefined) {
-            const emailLooksOk = typeof req.body.email === "string" &&
-                                 req.body.email.indexOf("@") > 0 &&
-                                 req.body.email.indexOf(".") > 0;
-            if (!emailLooksOk) {
-                return res.status(400).json({
-                    success: false, data: null,
-                    error: { code: "VALIDATION_ERROR", message: "email format is invalid", details: { field: "email" } }
-                });
-            }
+        const user = await UserORM.findById(id);
+        if (!user) {
+            return res.status(404).json({
+                success: false, data: null,
+                error: { code: "NOT_FOUND", message: "not logged in", details: {} }
+            });
         }
 
-        // only update fields that were sent
-        if (req.body.firstName !== undefined) user.firstName = req.body.firstName;
-        if (req.body.lastName  !== undefined) user.lastName  = req.body.lastName;
-        if (req.body.email     !== undefined) user.email     = req.body.email;
+        const fields = {};
+        if (req.body.firstName !== undefined) fields.firstName = req.body.firstName;
+        if (req.body.lastName  !== undefined) fields.lastName  = req.body.lastName;
+        if (req.body.email     !== undefined) fields.email     = req.body.email;
 
-        const updated = {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            updateDate:new Date().toISOString()
-        };
-        updateInDB(user.userId , updated)
+        await UserORM.update(id, fields);
 
-        return res.status(200).json({ success: true, data: updated, error: null });
+        const updated = await UserORM.findById(id);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                firstName: updated.firstName,
+                lastName: updated.lastName,
+                email: updated.email,
+                updateDate: updated.updateDate
+            },
+            error: null
+        });
     } catch (err) {
         next(err);
     }
 }
 
-module.exports = { getAll, getById, create, update, remove, getMe , updateMe};
+module.exports = { getAll, getById, create, update, remove, getMe, updateMe };

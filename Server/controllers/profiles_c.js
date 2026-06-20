@@ -1,12 +1,10 @@
-const profiles = require('../models/mock_data/profiles.json');
+const TripORM = require('../ORM/TripORM');
 
-// helper - get the current user id from the header
 function getUserId(req) {
     const id = parseInt(req.headers['x-user-id']);
     return isNaN(id) ? null : id;
 }
 
-// helper - send 401 if not logged in
 function requireAuth(req, res) {
     const userId = getUserId(req);
     if (!userId) {
@@ -19,30 +17,25 @@ function requireAuth(req, res) {
     return userId;
 }
 
-// GET /api/profile - list all trips of the current user
-function getAll(req, res, next) {
+async function getAll(req, res, next) {
     try {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
-        const userTrips = profiles.filter(function(p) {
-            return p.userId === userId;
-        });
-
-        return res.status(200).json({ success: true, data: userTrips, error: null });
+        const trips = await TripORM.findByUser(userId);
+        return res.status(200).json({ success: true, data: trips, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// GET /api/profile/:id - get a single trip (must be owned by current user)
-function getById(req, res, next) {
+async function getById(req, res, next) {
     try {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
         const tripId = parseInt(req.params.id);
-        const trip = profiles.find(function(p) { return p.id === tripId; });
+        const trip = await TripORM.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -51,7 +44,6 @@ function getById(req, res, next) {
             });
         }
 
-        // ownership check - users can only see their own trips
         if (trip.userId !== userId) {
             return res.status(403).json({
                 success: false, data: null,
@@ -65,48 +57,36 @@ function getById(req, res, next) {
     }
 }
 
-// POST /api/profile - create a new trip for the current user
-function create(req, res, next) {
+async function create(req, res, next) {
     try {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
-        // generate next id (max + 1, or 1 if empty)
-        const nextId = profiles.length === 0
-            ? 1
-            : Math.max(...profiles.map(function(p) { return p.id; })) + 1;
-
-        const newTrip = {
-            id: nextId,
-            userId: userId,
+        const tripId = await TripORM.create({
+            userId,
             name: req.body.name,
             countryId: Number(req.body.countryId),
             startMonth: Number(req.body.startMonth),
             endMonth: Number(req.body.endMonth),
             travelerType: req.body.travelerType,
             budgetLevel: req.body.budgetLevel,
-            interests: req.body.interests || [],
-            favorites: [],
-            createdAt: new Date().toISOString()
-        };
+            interests: req.body.interests || []
+        });
 
-        profiles.push(newTrip);
-        // next stage: save to MySQL
-
+        const newTrip = await TripORM.findById(tripId);
         return res.status(201).json({ success: true, data: newTrip, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// PUT /api/profile/:id - update a trip (ownership check)
-function update(req, res, next) {
+async function update(req, res, next) {
     try {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
         const tripId = parseInt(req.params.id);
-        const trip = profiles.find(function(p) { return p.id === tripId; });
+        const trip = await TripORM.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -122,55 +102,54 @@ function update(req, res, next) {
             });
         }
 
-        // update only the fields that were sent - don't allow changing id/userId
-        if (req.body.name         !== undefined) trip.name         = req.body.name;
-        if (req.body.countryId    !== undefined) trip.countryId    = Number(req.body.countryId);
-        if (req.body.startMonth   !== undefined) trip.startMonth   = Number(req.body.startMonth);
-        if (req.body.endMonth     !== undefined) trip.endMonth     = Number(req.body.endMonth);
-        if (req.body.travelerType !== undefined) trip.travelerType = req.body.travelerType;
-        if (req.body.budgetLevel  !== undefined) trip.budgetLevel  = req.body.budgetLevel;
-        if (req.body.interests    !== undefined) trip.interests    = req.body.interests;
+        const fields = {};
+        if (req.body.name         !== undefined) fields.name         = req.body.name;
+        if (req.body.countryId    !== undefined) fields.countryId    = Number(req.body.countryId);
+        if (req.body.startMonth   !== undefined) fields.startMonth   = Number(req.body.startMonth);
+        if (req.body.endMonth     !== undefined) fields.endMonth     = Number(req.body.endMonth);
+        if (req.body.travelerType !== undefined) fields.travelerType = req.body.travelerType;
+        if (req.body.budgetLevel  !== undefined) fields.budgetLevel  = req.body.budgetLevel;
+        if (req.body.interests    !== undefined) fields.interests    = req.body.interests;
 
-        return res.status(200).json({ success: true, data: trip, error: null });
+        await TripORM.update(tripId, fields);
+
+        const updated = await TripORM.findById(tripId);
+        return res.status(200).json({ success: true, data: updated, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// DELETE /api/profile/:id - remove a trip (ownership check)
-function remove(req, res, next) {
+async function remove(req, res, next) {
     try {
         const userId = requireAuth(req, res);
         if (!userId) return;
 
         const tripId = parseInt(req.params.id);
-        const index = profiles.findIndex(function(p) { return p.id === tripId; });
+        const trip = await TripORM.findById(tripId);
 
-        if (index === -1) {
+        if (!trip) {
             return res.status(404).json({
                 success: false, data: null,
                 error: { code: "NOT_FOUND", message: "trip not found", details: {} }
             });
         }
 
-        if (profiles[index].userId !== userId) {
+        if (trip.userId !== userId) {
             return res.status(403).json({
                 success: false, data: null,
                 error: { code: "FORBIDDEN", message: "this trip belongs to another user", details: {} }
             });
         }
 
-        profiles.splice(index, 1);
-
+        await TripORM.delete(tripId);
         return res.status(200).json({ success: true, data: { id: tripId }, error: null });
     } catch (err) {
         next(err);
     }
 }
 
-// POST /api/profile/:id/favorites - toggle an attraction in/out of favorites
-// expects body: { attractionId: number }
-function toggleFavorite(req, res, next) {
+async function toggleFavorite(req, res, next) {
     try {
         const userId = requireAuth(req, res);
         if (!userId) return;
@@ -185,7 +164,7 @@ function toggleFavorite(req, res, next) {
             });
         }
 
-        const trip = profiles.find(function(p) { return p.id === tripId; });
+        const trip = await TripORM.findById(tripId);
 
         if (!trip) {
             return res.status(404).json({
@@ -201,17 +180,10 @@ function toggleFavorite(req, res, next) {
             });
         }
 
-        // toggle - if already in favorites, remove. otherwise add
-        if (!trip.favorites) trip.favorites = [];
+        await TripORM.toggleFavorite(tripId, attractionId);
 
-        const favIndex = trip.favorites.indexOf(attractionId);
-        if (favIndex === -1) {
-            trip.favorites.push(attractionId);
-        } else {
-            trip.favorites.splice(favIndex, 1);
-        }
-
-        return res.status(200).json({ success: true, data: trip, error: null });
+        const updated = await TripORM.findById(tripId);
+        return res.status(200).json({ success: true, data: updated, error: null });
     } catch (err) {
         next(err);
     }

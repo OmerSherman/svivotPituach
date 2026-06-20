@@ -11,6 +11,7 @@ app.use(cors({
 
 app.use(express.json());
 const port = process.env.PORT || 3000;
+const port_DB = process.env.DB_PORT || 3306;
 
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
@@ -53,4 +54,5 @@ registerForumSocket(io);
 
 server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  console.log(`DB running on port ${port_DB}`);
 });
