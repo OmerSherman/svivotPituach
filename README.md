@@ -14,7 +14,7 @@
 3. [התקנה והרצה](#התקנה-והרצה)
 4. [משתמשי בדיקה](#משתמשי-בדיקה)
 5. [מבנה הפרויקט](#מבנה-הפרויקט)
-6. [בסיס נתונים: Prisma מול ORM ידני](#בסיס-נתונים-prisma-מול-orm-ידני)
+6. [בסיס נתונים: Prisma + Repositories](#בסיס-נתונים-prisma--repositories)
 7. [API — REST](#api--rest)
 8. [WebSockets](#websockets)
 9. [AI](#ai)
@@ -157,7 +157,7 @@ svivotPituach/
 │   ├── db.js                   # mysql2 pool + Prisma client export
 │   ├── routes/                 # REST routers
 │   ├── controllers/            # business logic
-│   ├── ORM/                    # mysql2 queries (runtime DB access)
+│   ├── repositories/           # Prisma data access (runtime)
 │   ├── socket/                 # forum_socket.js, aiTripSocket.js
 │   ├── services/               # groqService.js
 │   ├── prisma/schema.prisma    # DB schema definition
@@ -171,81 +171,19 @@ svivotPituach/
 
 ---
 
-## בסיס נתונים: Prisma מול ORM ידני
+## בסיס נתונים: Prisma + Repositories
 
-### התשובה הקצרה
+כל הנתונים ב-**MySQL (`mydb`)**. Prisma משמש לסכמה ולשאילתות runtime דרך `Server/repositories/`.
 
-**שניהם מדברים עם אותו MySQL (`mydb`), אבל לתפקידים שונים:**
-
-| | Prisma | ORM ידני (`Server/ORM/`) |
-|---|--------|--------------------------|
-| **מה זה** | כלי הגדרת סכמה + migrations | שכבת גישה ל-DB בזמן ריצה |
-| **איפה מוגדר** | `Server/prisma/schema.prisma` | `Server/ORM/*.js` |
-| **איך שואלים DB** | `prisma.user.findMany()` | `pool.query('SELECT ...')` |
-| **מתי בשימוש** | פיתוח, `db:push`, Studio | **כל בקשת API בזמן ריצה** |
-| **מי קורא** | מפתחים (`npm run db:*`) | controllers → ORM → mysql2 |
-
-**Prisma לא "מחובר" ל-ORM הידני בקוד** — אין שכבת גשר. שניהם פונים לאותה DB בנפרד.
-
-### דיאגרמה
+| כלי | תפקיד |
+|-----|--------|
+| `schema.prisma` | הגדרת 8 טבלאות |
+| `repositories/*.js` | כל שאילתות ה-API בזמן ריצה |
+| `npm run db:build` | ייבוא dump + enrichment (תמונות, תיאורים) |
+| `npm run db:studio` | UI לצפייה ב-DB |
 
 ```
-                    ┌─────────────────────────┐
-                    │   MySQL — mydb          │
-                    │   (8 tables)            │
-                    └───────────┬─────────────┘
-                                │
-              ┌─────────────────┴─────────────────┐
-              │                                   │
-              ▼                                   ▼
-   ┌──────────────────────┐          ┌──────────────────────┐
-   │  Prisma              │          │  mysql2 pool (db.js) │
-   │  schema.prisma       │          │                      │
-   │  npm run db:push     │          │  UserORM.js          │
-   │  npm run db:studio   │          │  TripORM.js          │
-   │                      │          │  AttractionORM.js    │
-   │  ❌ לא בשימוש ב-API  │          │  CityORM.js ...      │
-   └──────────────────────┘          └──────────┬───────────┘
-                                                │
-                                                ▼
-                                     ┌──────────────────────┐
-                                     │  controllers/        │
-                                     │  (auth, profiles,    │
-                                     │   attractions...)    │
-                                     └──────────────────────┘
-```
-
-### חיבור טכני — `Server/db.js`
-
-```javascript
-// זה מה שה-ORM משתמש בו בזמן ריצה:
-const pool = mysql.createPool({ database: 'mydb', charset: 'utf8mb4', ... });
-module.exports = pool;
-
-// Prisma client — נוצר אבל controllers לא קוראים לו:
-module.exports.prisma = new PrismaClient();
-```
-
-### טבלאות
-
-| טבלה | Prisma model | ORM |
-|------|--------------|-----|
-| `user` | User | UserORM |
-| `country` | Country | — (אין API, רק scraper) |
-| `city` | City | CityORM |
-| `attraction` | Attraction | AttractionORM |
-| `trip` | Trip | TripORM |
-| `trip_attraction` | TripAttraction | TripORM (favorites) |
-| `settings` | Settings | SettingsORM |
-| `message` | Message | MessageORM |
-
-### פקודות Prisma שימושיות
-
-```powershell
-cd Server
-npm run db:generate   # יוצר @prisma/client מ-schema
-npm run db:push       # מסנכרן schema → MySQL (DB ריק/חדש)
-npm run db:studio     # UI לצפייה ועריכה ב-DB
+Controller → Repository (Prisma) → MySQL
 ```
 
 ---
@@ -391,7 +329,7 @@ Query params ל-GET `/api/attractions`:
 |------|-----------|
 | Frontend | React 19, React Router 7, Leaflet, Socket.IO Client |
 | Backend | Node.js, Express 5, Socket.IO 4 |
-| Database | MySQL 8, mysql2 (runtime), Prisma (schema) |
+| Database | MySQL 8, Prisma (schema + runtime) |
 | AI | Groq SDK |
 | Auth | Header-based (`x-user-id`, `x-user-role`) + localStorage |
 
@@ -402,4 +340,5 @@ Query params ל-GET `/api/attractions`:
 - המשתמש והעדפות נשמרים ב-`localStorage` — רענון לא מנתק.
 - ייבוא DB: **תמיד** `node fix-db-encoding.js` (לא PowerShell pipe) לשמירת עברית.
 - מסמך ארכיטקטורה מפורט: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
-- תיעוד API מורחב (Assignment 2): [`Server/docs/README.md`](./Server/docs/README.md)
+- תיעוד API מורחב (Assignment 4): [`Server/docs/README.md`](./Server/docs/README.md)
+- Postman collection: [`Server/docs/postman_collection.json`](./Server/docs/postman_collection.json)

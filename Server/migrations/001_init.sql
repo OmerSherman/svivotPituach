@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS user (
 CREATE TABLE IF NOT EXISTS country (
     countryId INT AUTO_INCREMENT PRIMARY KEY,
     countryNameEn VARCHAR(100) NOT NULL,
-    countryNameHe VARCHAR(100) NOT NULL
+    countryNameHe VARCHAR(100) NOT NULL,
+    summary_he TEXT,
+    banner_image_url VARCHAR(2048)
 );
 
 CREATE TABLE IF NOT EXISTS city (

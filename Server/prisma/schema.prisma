@@ -23,11 +23,13 @@ model User {
 }
 
 model Country {
-  countryId     Int    @id @default(autoincrement())
-  countryNameEn String
-  countryNameHe String
-  cities        City[]
-  trips         Trip[]
+  countryId        Int    @id @default(autoincrement())
+  countryNameEn    String
+  countryNameHe    String
+  summaryHe        String? @map("summary_he") @db.Text
+  bannerImageUrl   String? @map("banner_image_url") @db.VarChar(2048)
+  cities           City[]
+  trips            Trip[]
 
   @@map("country")
 }

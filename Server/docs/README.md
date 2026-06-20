@@ -1,28 +1,65 @@
-# Shvil HaTahina - Backend API
+# Shvil HaTahina — Backend API
 
-Assignment 2 | Omer Sherman, Hillel Zilberman, Michal Adam
+**Assignment 4** | Omer Sherman, Hillel Zilberman, Michal Adam  
+Course: Web Environments · Ben-Gurion University
 
 ---
 
 ## How to install and run
 
 ```bash
+cd Server
 npm install
-node app.js
+cp .env.example .env   # fill DB_PASSWORD and GROQ_API_KEY
+npm run db:generate
+npm run db:build       # from project root: node Server/scripts/build-db.js
+npm start
 ```
 
-Server runs on port 3000.
-Base URL: `http://localhost:3000`
-API base path: `/api`
+Server: `http://localhost:3000`  
+API base: `/api`
+
+---
+
+## Database
+
+All data is stored in **MySQL** (`mydb`). Runtime access uses **Prisma** via `Server/repositories/`.
+
+| Table | Purpose |
+|-------|---------|
+| `user` | Accounts (user / manager / admin) |
+| `country` | Countries with summary + banner image |
+| `city` | Cities with summary + banner image |
+| `attraction` | POIs with image URL, tags, scores, coordinates |
+| `trip` | User travel profiles |
+| `trip_attraction` | Junction: trip ↔ attraction favorites (M:N) |
+| `settings` | UI preferences per user (1:1) |
+| `message` | Forum chat messages |
+
+**Build / reset DB:**
+```bash
+npm run db:build      # full import + enrichment
+npm run db:enrich     # fill missing images/descriptions only
+npm run db:studio     # Prisma UI
+```
 
 ---
 
 ## Assumptions
 
-- No database is used in this assignment. All data is loaded from JSON files into memory when the server starts. Any changes made via POST, PUT or DELETE will reset when the server restarts.
-- Authentication is simulated using a request header called `x-user-role`. To access protected routes, add this header with one of these values: `admin`, `manager`, `user`.
-- For delete operations, a second header `x-user-id` is used to identify the requesting user.
-- IDs are generated using `array.length + 1`.
+- Authentication uses headers `x-user-id` and `x-user-role` after login (no JWT).
+- Login: `POST /api/auth/login` → client stores `{ userId, firstName, userRole }` in localStorage.
+- Protected routes expect both headers where noted.
+- Passwords are stored in plaintext (course project only).
+- AI features require `GROQ_API_KEY` in `Server/.env`.
+
+**Test users** (password for all: `123456`):
+
+| Email | Role |
+|-------|------|
+| michal@example.com | admin |
+| user@example.com | user |
+| hillel@example.com | manager |
 
 ---
 
@@ -30,14 +67,18 @@ API base path: `/api`
 
 Every response follows this structure:
 
-Success:
+**Success:**
 ```json
 { "success": true, "data": {}, "error": null }
 ```
 
-Error:
+**Error:**
 ```json
-{ "success": false, "data": null, "error": { "code": "...", "message": "...", "details": {} } }
+{
+  "success": false,
+  "data": null,
+  "error": { "code": "VALIDATION_ERROR", "message": "...", "details": {} }
+}
 ```
 
 ---
@@ -46,276 +87,201 @@ Error:
 
 | Code | Status | When |
 |------|--------|------|
-| `VALIDATION_ERROR` | 400 | missing required fields or invalid id |
-| `UNAUTHORIZED` | 401 | wrong email or password |
-| `FORBIDDEN` | 403 | role not allowed for this action |
-| `NOT_FOUND` | 404 | id does not exist |
-| `INTERNAL_SERVER_ERROR` | 500 | unexpected server error |
+| `VALIDATION_ERROR` | 400 | Missing fields or invalid input |
+| `UNAUTHORIZED` | 401 | Not logged in / wrong credentials |
+| `FORBIDDEN` | 403 | Role not allowed |
+| `NOT_FOUND` | 404 | Resource does not exist |
+| `AI_UNAVAILABLE` | 503 | Groq API unavailable |
+| `INTERNAL_SERVER_ERROR` | 500 | Unexpected server error |
 
 ---
 
 ## API Reference
 
-### Users — Auth
+### Auth — `/api/auth`
 
 No authentication required.
 
 | Method | Path | Body |
 |--------|------|------|
-| POST | /api/users/register | `{ firstName, lastName, email, password }` |
-| POST | /api/users/login | `{ email, password }` |
+| POST | `/register` | `{ firstName, lastName, email, password }` |
+| POST | `/login` | `{ email, password }` |
+| POST | `/logout` | — |
 
-**POST /api/users/register**
-
-Request body:
-```json
-{ "firstName": "dana", "lastName": "levi", "email": "dana@example.com", "password": "1234" }
-```
-
-Success (201):
-```json
-{ "success": true, "data": { "userId": 5 }, "error": null }
-```
-
-Email already taken (400):
-```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "this email is already registered", "details": {} } }
-```
-
-**POST /api/users/login**
-
-Request body:
-```json
-{ "email": "michal@example.com", "password": "1234" }
-```
-
-Success (200):
+**POST /api/auth/login** — success (200):
 ```json
 { "success": true, "data": { "userId": 1, "firstName": "michal", "userRole": "admin" }, "error": null }
 ```
 
-Wrong password (401):
-```json
-{ "success": false, "data": null, "error": { "code": "UNAUTHORIZED", "message": "wrong email or password", "details": {} } }
-```
+---
+
+### Users — `/api/users`
+
+| Method | Path | Auth |
+|--------|------|------|
+| GET | `/me` | `x-user-id` |
+| PUT | `/me` | `x-user-id` |
+| GET | `/` | admin |
+| GET | `/:id` | open |
+| POST | `/` | admin |
+| PUT | `/:id` | admin, manager |
+| DELETE | `/:id` | admin or self |
 
 ---
 
-### Users — Management
+### Cities — `/api/cities`
 
-| Method | Path | Description | Auth |
-|--------|------|-------------|------|
-| GET | /api/users | get all users | admin |
-| GET | /api/users/:id | get one user | open |
-| POST | /api/users | create a new user | admin |
-| PUT | /api/users/:id | update user | admin, manager |
-| DELETE | /api/users/:id | delete user | admin deletes anyone, user deletes themselves |
-
-**POST /api/users**
-
-Request body:
-```json
-{ "firstName": "yael", "lastName": "cohen", "userRole": "user" }
-```
-
-Success (201):
-```json
-{ "success": true, "data": { "userId": 5 }, "error": null }
-```
-
-**PUT /api/users/:id**
-
-Request body (send only the fields you want to update):
-```json
-{ "firstName": "updated", "userRole": "manager" }
-```
-
-Success (200):
-```json
-{ "success": true, "data": { "userId": 4 }, "error": null }
-```
-
-**DELETE /api/users/:id**
-
-Headers for admin:
-```
-x-user-role: admin
-```
-
-Headers for user deleting themselves:
-```
-x-user-role: user
-x-user-id: 4
-```
-
-Success (200):
-```json
-{ "success": true, "data": { "userId": 4 }, "error": null }
-```
-
-Not found (404):
-```json
-{ "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "user 99 not found", "details": {} } }
-```
-
-Invalid id (400):
-```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "id must be a number", "details": {} } }
-```
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | All cities (with `banner_image_url`, `summary_he`) |
+| GET | `/search?q=` | Search by English or Hebrew name |
+| GET | `/:id` | Single city |
 
 ---
 
-### Attractions
+### Attractions — `/api/attractions`
 
-| Method | Path | Description | Auth |
-|--------|------|-------------|------|
-| GET | /api/attractions | get all attractions | open |
-| GET | /api/attractions/map | get map pins for a city | open |
-| GET | /api/attractions/:id | get one attraction | open |
-| POST | /api/attractions | create attraction | admin |
-| PUT | /api/attractions/:id | update attraction | admin, manager |
-| DELETE | /api/attractions/:id | delete attraction | admin |
+| Method | Path | Auth |
+|--------|------|------|
+| GET | `/` | open — filters: `type`, `city_id`, personalization params |
+| GET | `/map?city_id=` | open |
+| GET | `/:id` | open |
+| POST | `/` | admin |
+| PUT | `/:id` | admin, manager |
+| DELETE | `/:id` | admin |
 
-Query params for GET /api/attractions:
-- `?type=site` — filter by type (site / tour / route)
-- `?city_id=2` — filter by city
+Personalization query params for GET `/`:
+- `travelStyle`, `startMonth`, `endMonth`, `interests` (comma-separated)
 
-Query param for GET /api/attractions/map:
-- `?city_id=2` — required
+**POST /api/attractions** — required: `city_id`, `name`, `name_he`, `type`, `description_he`  
+Optional: `image_url`, `tags`, `latitude`, `longitude`, `best_months`, `avoid_months`
 
-**POST /api/attractions** — required fields: `city_id`, `name`, `name_he`, `type`, `description_he`
+---
 
-Request body:
+### Trips (Profile) — `/api/profile`
+
+Requires `x-user-id` header.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | My trips |
+| POST | `/` | Create trip |
+| GET | `/:id` | Single trip with favorites |
+| PUT | `/:id` | Update trip |
+| DELETE | `/:id` | Delete trip |
+| POST | `/:id/favorites` | Toggle favorite `{ attractionId }` |
+
+**POST /api/profile** — required: `name`, `countryId`, `startMonth`, `endMonth`, `travelerType`, `budgetLevel`  
+Optional: `interests` (array)
+
 ```json
 {
-  "city_id": 2,
-  "name": "Palermo Soho",
-  "name_he": "פאלרמו סוהו",
-  "type": "site",
-  "description_he": "שכונת הבוטיקים של בואנוס איירס"
+  "name": "טיול לפרו",
+  "countryId": 1,
+  "startMonth": 3,
+  "endMonth": 5,
+  "travelerType": "solo",
+  "budgetLevel": "medium",
+  "interests": ["תרבות", "טבע"]
 }
 ```
 
-Success (201):
-```json
-{ "success": true, "data": { "id": 13 }, "error": null }
-```
+---
 
-Missing fields (400):
-```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "please fill in all fields", "details": {} } }
-```
+### Settings — `/api/settings`
 
-Invalid type (400):
-```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "type must be one of: site, tour, route", "details": { "field": "type" } } }
-```
+Requires `x-user-id`.
 
-No permission (403):
-```json
-{ "success": false, "data": null, "error": { "code": "FORBIDDEN", "message": "You do not have permission to perform this action.", "details": {} } }
-```
+| Method | Path | Body |
+|--------|------|------|
+| GET | `/` | — |
+| PUT | `/` | `{ theme, fontSize, density }` |
 
 ---
 
-### Cities
+### Favorites — `/api/favorites`
+
+Stored in `trip_attraction` junction table.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/cities | get all cities |
-| GET | /api/cities/search | search by name |
-| GET | /api/cities/:id | get one city |
-
-Query param for search: `?q=buenos` — works in English and Hebrew.
-
-Search success (200):
-```json
-{ "success": true, "data": [{ "id": 2, "name": "Buenos Aires", "name_he": "בואנוס איירס" }], "error": null }
-```
-
-Missing query (400):
-```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "search query is required", "details": {} } }
-```
-
-Not found (404):
-```json
-{ "success": false, "data": null, "error": { "code": "NOT_FOUND", "message": "city 99 not found", "details": {} } }
-```
+| GET | `/?userId=` | All favorites across user's trips |
+| POST | `/` | Add — requires `userId`, `tripId`, `itemId`, `itemType: "attraction"` |
+| DELETE | `/:id` | Remove — id format: `tripId-attractionId` (e.g. `1-3`) |
 
 ---
 
-### Favorites
+### Forum — `/api/forum`
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/favorites | get favorites for a user |
-| POST | /api/favorites | add item to favorites |
-| DELETE | /api/favorites/:id | remove item from favorites |
+| GET | `/:room/messages` | Last 50 messages (e.g. `country_1`, `city_3`) |
 
-Query param for GET: `?userId=1` — required.
-
-**POST /api/favorites**
-
-Request body:
-```json
-{ "userId": 1, "itemId": 3, "itemType": "attraction" }
-```
-
-Success (201):
-```json
-{ "success": true, "data": { "id": 1 }, "error": null }
-```
-
-Already saved (400):
-```json
-{ "success": false, "data": null, "error": { "code": "VALIDATION_ERROR", "message": "this item is already in favorites", "details": {} } }
-```
+Real-time chat uses **Socket.IO** (see WebSockets below).
 
 ---
 
-### Profile
+### AI — `/api/ai`
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | /api/profile | save or update traveler preferences |
+Requires `x-user-id` and `GROQ_API_KEY`.
 
-If a profile already exists for the user it gets updated, otherwise a new one is created.
+| Method | Path | Body |
+|--------|------|------|
+| POST | `/trip-summary` | `{ tripId }` |
 
-Request body:
-```json
-{ "userId": 1, "travelerType": "couple", "interests": ["history", "food"], "budgetLevel": "medium" }
-```
+Returns Hebrew trip summary generated by Groq (Llama).
 
-Created (201):
-```json
-{ "success": true, "data": { "userId": 1 }, "error": null }
-```
+---
 
-Updated (200):
-```json
-{ "success": true, "data": { "userId": 1 }, "error": null }
-```
+## WebSockets
+
+Connection URL: `http://localhost:3000` (same as REST server)
+
+### Forum — `forum_socket.js`
+
+| Client → Server | Payload |
+|-----------------|---------|
+| `room:join` | `{ room }` |
+| `room:leave` | `{ room }` |
+| `message:send` | `{ room, userId, userName, text }` |
+
+| Server → Client | Payload |
+|-----------------|---------|
+| `message:new` | Saved message object |
+| `presence:update` | `{ room, count }` |
+| `message:error` | `{ message }` |
+
+### AI Trip Chat — `aiTripSocket.js`
+
+Connect with `auth: { userId }`.
+
+| Client → Server | Description |
+|-----------------|-------------|
+| `ai-trip:start` | Start conversation |
+| `ai-trip:user-message` | `{ text }` |
+| `ai-trip:reset` | Reset session |
+
+| Server → Client | Description |
+|-----------------|-------------|
+| `ai-trip:bot-message` | `{ text, draft }` |
+| `ai-trip:bot-typing` | `{ typing }` |
+| `ai-trip:draft-ready` | `{ draft }` |
+| `ai-trip:error` | `{ message }` |
 
 ---
 
 ## Middleware
 
-**logger** — runs on every request and logs method, path, status code and duration to the console.
+| Middleware | Purpose |
+|------------|---------|
+| `logger` | Logs method, path, status, duration |
+| `roleCheck(...roles)` | Validates `x-user-role` — 403 if not allowed |
+| `checkFields([...])` | Validates required body fields — 400 |
+| `errorHandler` | Catches unhandled errors — 500 with standard format |
 
-Example:
+**Postman headers for protected routes:**
 ```
-[2026-05-02T14:48:15.000Z] method:GET path:/api/attractions status:200 duration:5ms
-```
-
-**roleCheck** — checks the `x-user-role` header on protected routes. Returns 403 if the role is not allowed.
-
-**checkFields** — validates required fields in request body before reaching the controller. Returns 400 if any field is missing.
-
-**errorHandler** — catches any unexpected error from controllers and returns 500.
-
-To test protected routes in Postman, add this header:
-```
+x-user-id: 1
 x-user-role: admin
 ```
 
@@ -323,17 +289,17 @@ x-user-role: admin
 
 ## Map feature
 
-Based on feedback on the project spec, we added basic map support.
-
-Each attraction includes `latitude` and `longitude` fields. We added a dedicated endpoint that returns only the fields needed to display map pins:
-
 ```
 GET /api/attractions/map?city_id=2
 ```
 
-Success:
-```json
-{ "success": true, "data": [ { "id": 1, "name_he": "לה בוקה", "type": "site", "latitude": -34.6345, "longitude": -58.3631 } ], "error": null }
-```
+Returns pins: `{ id, name_he, type, latitude, longitude }`
 
-In the next stage this data will connect to the frontend map component (e.g. Leaflet.js or Google Maps).
+Used by Leaflet map in forum and city pages.
+
+---
+
+## Postman collection
+
+Import `Server/docs/postman_collection.json` into Postman.  
+All test passwords: `123456`.

@@ -45,7 +45,7 @@ function ForumChat({ room, roomName, onClose }) {
     useEffect(function() {
         setSendError('');
 
-        fetch('http://localhost:3000/api/forum/' + room + '/messages')
+        fetch((process.env.REACT_APP_API_URL || 'http://localhost:3000/api') + '/forum/' + room + '/messages')
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (data.success) setMessages(data.data);
