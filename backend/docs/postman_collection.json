@@ -1,13 +1,32 @@
 {
   "info": {
     "name": "Shvil HaTahina — Assignment 4",
-    "description": "REST API for Shvil HaTahina. Test password for all users: 123456",
+    "description": "Full REST coverage for Shvil HaTahina (Assignment 4).\n\nPrerequisites:\n1. cd backend && npm run db:setup && npm start\n2. Import this collection into Postman\n3. Run \"POST login — success (user)\" or \"POST login — success (admin)\" first — they save userId/userRole to collection variables\n4. Use Collection Runner on the whole collection — each request runs an automatic test on the { success, data, error } envelope\n\nSeed passwords: 123456 for all users (michal@example.com = admin, user@example.com = user id 4).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000/api" },
-    { "key": "userId", "value": "1" },
-    { "key": "userRole", "value": "admin" }
+    { "key": "userId", "value": "4" },
+    { "key": "userRole", "value": "user" }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const ct = pm.response.headers.get('Content-Type') || '';",
+          "if (ct.includes('application/json')) {",
+          "  const body = pm.response.json();",
+          "  pm.test('API envelope (success, data, error)', function () {",
+          "    pm.expect(body).to.have.property('success');",
+          "    pm.expect(body).to.have.property('data');",
+          "    pm.expect(body).to.have.property('error');",
+          "  });",
+          "}"
+        ]
+      }
+    }
   ],
   "item": [
     {
@@ -36,6 +55,21 @@
         },
         {
           "name": "POST login — success (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success && j.data && j.data.userId) {",
+                  "  pm.collectionVariables.set('userId', String(j.data.userId));",
+                  "  pm.collectionVariables.set('userRole', j.data.userRole);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/auth/login",
@@ -43,6 +77,33 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST login — success (user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success && j.data && j.data.userId) {",
+                  "  pm.collectionVariables.set('userId', String(j.data.userId));",
+                  "  pm.collectionVariables.set('userRole', j.data.userRole);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"123456\"\n}"
             }
           }
         },
@@ -80,6 +141,31 @@
               { "key": "x-user-id", "value": "{{userId}}" },
               { "key": "x-user-role", "value": "{{userRole}}" }
             ]
+          }
+        },
+        {
+          "name": "PUT me — update profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/me",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"test\",\n  \"lastName\": \"user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT me — not logged in",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/me",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"x\"\n}" }
           }
         },
         {
@@ -159,6 +245,27 @@
               { "key": "x-user-id", "value": "4" }
             ]
           }
+        }
+      ]
+    },
+    {
+      "name": "Countries",
+      "item": [
+        {
+          "name": "GET all countries",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries", "header": [] }
+        },
+        {
+          "name": "GET country by id — Peru",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries/1", "header": [] }
+        },
+        {
+          "name": "GET country by id — Colombia",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries/4", "header": [] }
+        },
+        {
+          "name": "GET country not found",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries/999", "header": [] }
         }
       ]
     },
@@ -261,6 +368,22 @@
           }
         },
         {
+          "name": "GET top attractions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/attractions/top?min_score=80&limit=6",
+              "host": ["{{baseUrl}}"],
+              "path": ["attractions", "top"],
+              "query": [
+                { "key": "min_score", "value": "80" },
+                { "key": "limit", "value": "6" }
+              ]
+            },
+            "header": []
+          }
+        },
+        {
           "name": "GET map pins by city",
           "request": {
             "method": "GET",
@@ -296,7 +419,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"city_id\": 2,\n  \"name\": \"Test Attraction\",\n  \"name_he\": \"אטרקציית בדיקה\",\n  \"type\": \"site\",\n  \"description_he\": \"תיאור לבדיקה\",\n  \"image_url\": \"https://loremflickr.com/800/600/test,buenosaires/all\"\n}"
+              "raw": "{\n  \"city_id\": 2,\n  \"name\": \"Test Attraction\",\n  \"name_he\": \"אטרקציית בדיקה\",\n  \"type\": \"site\",\n  \"description_he\": \"תיאור לבדיקה\",\n  \"image_url\": \"https://picsum.photos/seed/postman-test/800/600\"\n}"
             }
           }
         },
@@ -366,8 +489,8 @@
             "method": "GET",
             "url": "{{baseUrl}}/profile",
             "header": [
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ]
           }
         },
@@ -378,12 +501,44 @@
             "url": "{{baseUrl}}/profile",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"טיול לפרו\",\n  \"countryId\": 1,\n  \"startMonth\": 3,\n  \"endMonth\": 5,\n  \"travelerType\": \"solo\",\n  \"budgetLevel\": \"medium\",\n  \"interests\": [\"תרבות\", \"טבע\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create trip — Colombia",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"טיול לקולומביה\",\n  \"countryId\": 4,\n  \"startMonth\": 6,\n  \"endMonth\": 8,\n  \"travelerType\": \"couple\",\n  \"budgetLevel\": \"medium\",\n  \"interests\": [\"תרבות\", \"אוכל\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create trip — invalid countryId",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"טיול לא קיים\",\n  \"countryId\": 99,\n  \"startMonth\": 3,\n  \"endMonth\": 5,\n  \"travelerType\": \"solo\",\n  \"budgetLevel\": \"low\",\n  \"interests\": [\"טבע\"]\n}"
             }
           }
         },
@@ -394,8 +549,8 @@
             "url": "{{baseUrl}}/profile",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"name\": \"טיול\"\n}" }
           }
@@ -406,8 +561,30 @@
             "method": "GET",
             "url": "{{baseUrl}}/profile/1",
             "header": [
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET trip by id — forbidden (other user)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/1",
+            "header": [
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-user-role", "value": "admin" }
+            ]
+          }
+        },
+        {
+          "name": "GET trip not found",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/999",
+            "header": [
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ]
           }
         },
@@ -418,8 +595,8 @@
             "url": "{{baseUrl}}/profile/1",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"name\": \"טיול מעודכן\"\n}" }
           }
@@ -431,8 +608,8 @@
             "url": "{{baseUrl}}/profile/1/favorites",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"attractionId\": 9\n}" }
           }
@@ -443,8 +620,8 @@
             "method": "DELETE",
             "url": "{{baseUrl}}/profile/1",
             "header": [
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ]
           }
         }
@@ -512,6 +689,30 @@
           }
         },
         {
+          "name": "POST add favorite — duplicate",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/favorites",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 4,\n  \"tripId\": 1,\n  \"itemId\": 3,\n  \"itemType\": \"attraction\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST add favorite — forbidden (not your trip)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/favorites",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"tripId\": 1,\n  \"itemId\": 5,\n  \"itemType\": \"attraction\"\n}"
+            }
+          }
+        },
+        {
           "name": "DELETE favorite",
           "request": {
             "method": "DELETE",
@@ -547,6 +748,14 @@
             "url": "{{baseUrl}}/forum/country_1/messages",
             "header": []
           }
+        },
+        {
+          "name": "GET messages — invalid room",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forum/invalid_room/messages",
+            "header": []
+          }
         }
       ]
     },
@@ -560,10 +769,23 @@
             "url": "{{baseUrl}}/ai/trip-summary",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "4" },
-              { "key": "x-user-role", "value": "user" }
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"tripId\": 1\n}" }
+          }
+        },
+        {
+          "name": "POST trip summary — missing tripId",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/trip-summary",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{}" }
           }
         },
         {

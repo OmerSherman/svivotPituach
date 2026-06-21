@@ -2,6 +2,7 @@
 node_modules/
 
 # production build
+frontend/build/
 client/build/
 
 # logs
@@ -12,12 +13,17 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .vscode/
+backend/.idea/
 
-# Backend env (now untracked; copy backend/.env.example to get started)
+# Backend env (copy backend/.env.example to get started)
 backend/.env
 
+# Legacy Server folder — do not commit secrets
+Server/.env
+Server/
+
 # NOTE: frontend/.env IS still committed on purpose for this assignment.
-# It contains only a local API URL (mock data, no real secrets),
+# It contains only local API URLs (no secrets),
 # so the frontend runs with zero configuration. Do NOT add frontend/.env here.
 
 # personal planning docs, not part of the deliverable
