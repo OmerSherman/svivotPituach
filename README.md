@@ -7,6 +7,38 @@ Shvil HaTahina is a full-stack travel-planning app for backpackers heading to So
 The frontend is a React SPA; the backend is Express with MySQL (Prisma ORM), Socket.IO for
 real-time chat, and Groq for AI-assisted trip planning.
 
+This README is the setup guide for the submitted project folder. Extract the ZIP anywhere on your
+machine, then follow the steps below to install dependencies, configure the database, and run the app
+locally. No Git or remote repository is required.
+
+### What is in the package
+
+| Path | Contents |
+|------|----------|
+| `frontend/` | React source code |
+| `backend/` | Express source code, Prisma schema, seed data |
+| `backend/models/schema.prisma` | ORM models and relationships |
+| `backend/migrations/` | SQL schema reference |
+| `backend/docs/postman_collection.json` | Postman collection for the REST API |
+| `backend/docs/screenshots/` | Demo video and screenshot evidence |
+| `backend/.env.example` | Backend environment template |
+| `frontend/.env.example` | Frontend environment template |
+| `README.md` | This file |
+
+`node_modules/` is **not** included — run `npm install` in both `frontend/` and `backend/` (see below).
+
+### Project structure
+```
+frontend/          React app (pages, components, services)
+backend/
+  src/             Express server, controllers, repositories, sockets
+  models/          Prisma schema (schema.prisma)
+  migrations/      SQL schema reference
+  src/seed/        Initial data (JSON)
+  docs/            Postman collection, screenshots, demo video
+README.md
+```
+
 ---
 
 ## Project purpose
@@ -46,32 +78,59 @@ React SPA (localhost:5173)  ──REST + WebSocket──>  Express API (localhos
 
 ## Installation instructions
 
-**Prerequisites:** Node.js 18+, MySQL 8.0+ running (locally or reachable over the network), npm.
+**Prerequisites:** Node.js 18+, MySQL 8.0+ running on your machine, npm.
 
-```bash
-git clone <repo-url>
-cd svivotPituach
+### 1. Extract and open the project
 
-# 1. Backend
-cd backend
-npm install
-cp .env.example .env      # fill in DB_PASSWORD and GROQ_API_KEY — see "Environment variables" below
-npm run db:setup           # first time only: creates tables via Prisma + seeds from backend/src/seed/
-npm start                  # → http://localhost:3000
+Unzip the submission archive. You should see `frontend/`, `backend/`, and `README.md` in the same
+folder. Open a terminal in that folder — all paths below are relative to it.
 
-# 2. Frontend (separate terminal)
-cd frontend
-npm install
-npm start                  # → http://localhost:5173
+### 2. Create the MySQL database
+
+If `mydb` does not exist yet, create it once (see also [Database setup](#database-setup)):
+
+```sql
+CREATE DATABASE IF NOT EXISTS mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-**Start the backend first** — the frontend expects it on port 3000 immediately (REST calls and the
-Socket.IO connection both fail silently/log errors otherwise, they don't crash the page).
+### 3. Backend
 
-**Daily use after the first setup:** just `npm start` in both `backend/` and `frontend/`. You only
-need to re-run `npm run db:setup` if you want to wipe and reseed the database, or after editing
-`backend/models/schema.prisma`.
+```bash
+cd backend
+npm install
+copy .env.example .env      # Windows — on Mac/Linux: cp .env.example .env
+```
 
+Open `backend/.env` and set your local MySQL password in `DB_PASSWORD` and `DATABASE_URL`.
+For AI features, add a Groq API key as `GROQ_API_KEY` (see [Environment variables](#environment-variables)).
+
+Then:
+
+```bash
+npm run db:setup            # first run only — creates tables and loads seed data
+npm start                   # API at http://localhost:3000
+```
+
+### 4. Frontend
+
+In a **second terminal**, from the project root:
+
+```bash
+cd frontend
+npm install
+npm start                   # app at http://localhost:5173
+```
+
+The frontend `.env` file points to `http://localhost:3000` by default. If it is missing, copy
+`frontend/.env.example` to `frontend/.env`.
+
+### 5. Open the app
+
+Visit **http://localhost:5173** in your browser. Start the **backend before the frontend** — the UI
+needs the API on port 3000 for REST calls and Socket.IO.
+
+**On later runs**, only `npm start` is needed in `backend/` and `frontend/`. Run `npm run db:setup`
+again only to wipe and reseed the database, or after editing `backend/models/schema.prisma`.
 **Test users** (password for all: `123456`):
 
 | Email | Role |
@@ -80,13 +139,9 @@ need to re-run `npm run db:setup` if you want to wipe and reseed the database, o
 | user@example.com | user |
 | hillel@example.com | manager |
 
-**Postman collection:** import `backend/docs/postman_collection.json` into Postman to exercise the
-REST API directly (all test passwords: `123456`). Protected routes need these headers:
-```
-x-user-id: 1
-x-user-role: admin
-```
-
+**Postman:** import `backend/docs/postman_collection.json` into Postman to call the REST API
+directly. Run a login request first, then use the returned user id and role in the
+`x-user-id` and `x-user-role` headers on protected routes. All seed users use password `123456`.
 ---
 
 ## Database setup
@@ -126,8 +181,11 @@ SQL files under `backend/migrations/` document the table structure.
 
 ## Environment variables
 
-### Backend — `backend/.env` (copy from `backend/.env.example`)
+The package includes `.env.example` files with placeholders. Before running the app, create your
+own local `.env` files — they are not part of the submission and should contain your MySQL password
+and Groq key only on your machine.
 
+### Backend — create `backend/.env` from `backend/.env.example`
 ```env
 PORT=3000
 DB_HOST=localhost
@@ -149,20 +207,21 @@ GROQ_MODEL=llama-3.1-8b-instant
 | `GROQ_API_KEY` | only for AI features | Without it, the AI trip-chat and `/api/ai/trip-summary` return `AI_UNAVAILABLE` (503) — everything else still works. |
 | `GROQ_MODEL` | no | e.g. `llama-3.1-8b-instant` or `llama-3.3-70b-versatile`. |
 
-`backend/.env` is gitignored — never committed.
-
 ### Frontend — `frontend/.env`
 
+The submitted folder includes a ready-to-use `frontend/.env` for local development:
 ```env
 PORT=5173
 REACT_APP_API_URL=http://localhost:3000/api
 REACT_APP_SOCKET_URL=http://localhost:3000
 ```
 
-Copy from `frontend/.env.example` if the file is missing.
+If the file is missing, copy `frontend/.env.example` to `frontend/.env`. No changes are needed
+unless the backend runs on a different host or port.
+
+---
 
 ## ORM setup
-
 The backend uses **Prisma** as its ORM over MySQL.
 
 - Schema file: `backend/models/schema.prisma` — defines `User`, `Country`, `City`, `Attraction`,
@@ -478,16 +537,5 @@ keeps you logged in and keeps your theme without a server round-trip.
 - **AI chat sessions are in-memory only** — lost on server restart.
 - **No automated tests.** Backend `npm test` is a placeholder.
 - **CORS is hardcoded** to `http://localhost:5173` in `backend/src/app.js`.
-- **AI requires Groq.** Without a valid `GROQ_API_KEY`, trip-chat and trip-summary return
-  `AI_UNAVAILABLE`; all other features work normally.
-
----
-
-## Additional files
-
-| File | Description |
-|------|-------------|
-| `backend/docs/postman_collection.json` | Postman collection for the REST API |
-| `backend/docs/screenshots/` | Demo video and screenshot evidence |
-| `backend/.env.example` | Backend environment template |
-| `frontend/.env.example` | Frontend environment template |
+- **AI requires Groq.** Without a valid `GROQ_API_KEY` in your local `backend/.env`, trip-chat and
+  trip-summary return `AI_UNAVAILABLE`; all other features work normally.
