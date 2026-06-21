@@ -23,3 +23,6 @@ backend/.env
 # personal planning docs, not part of the deliverable
 PROJECT_OVERVIEW.md
 SPEC-AI-TRIP-PLANNER.md
+
+# standalone Wikivoyage scraper, not part of the app submission for now
+backend/src/scraper/

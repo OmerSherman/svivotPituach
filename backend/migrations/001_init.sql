@@ -1,45 +1,44 @@
--- Baseline schema for Assignment 4 (matches prisma/schema.prisma)
--- Run once on a fresh MySQL database, or use: npm run db:push
+-- Migration 001: baseline schema (Assignment 4)
+-- Reconstructed reference copy of the table structure produced by
+-- `prisma db push` against backend/models/schema.prisma at its initial state
+-- (before editorial media columns and map coordinates were added).
+-- NOT executed by any script — see backend/migrations/README.md.
 
 CREATE TABLE IF NOT EXISTS user (
     userId INT AUTO_INCREMENT PRIMARY KEY,
-    firstName VARCHAR(100) NOT NULL,
-    lastName VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    userRole VARCHAR(50) NOT NULL DEFAULT 'user',
-    createDate VARCHAR(20) NOT NULL,
-    updateDate VARCHAR(20) NOT NULL
+    firstName VARCHAR(191) NOT NULL,
+    lastName VARCHAR(191) NOT NULL,
+    email VARCHAR(191) NOT NULL UNIQUE,
+    password VARCHAR(191) NOT NULL,
+    userRole VARCHAR(191) NOT NULL,
+    createDate VARCHAR(191) NOT NULL,
+    updateDate VARCHAR(191) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS country (
     countryId INT AUTO_INCREMENT PRIMARY KEY,
-    countryNameEn VARCHAR(100) NOT NULL,
-    countryNameHe VARCHAR(100) NOT NULL,
-    summary_he TEXT,
-    banner_image_url VARCHAR(2048)
+    countryNameEn VARCHAR(191) NOT NULL,
+    countryNameHe VARCHAR(191) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS city (
     cityId INT AUTO_INCREMENT PRIMARY KEY,
-    cityNameEn VARCHAR(100) NOT NULL,
-    cityNameHe VARCHAR(100) NOT NULL,
+    cityNameEn VARCHAR(191) NOT NULL,
+    cityNameHe VARCHAR(191) NOT NULL,
     countryId INT NOT NULL,
-    summary_he TEXT,
-    banner_image_url VARCHAR(2048),
     FOREIGN KEY (countryId) REFERENCES country(countryId)
 );
 
 CREATE TABLE IF NOT EXISTS attraction (
     attractionId INT AUTO_INCREMENT PRIMARY KEY,
     cityId INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(191) NOT NULL,
     nameHE VARCHAR(255),
-    type VARCHAR(50) NOT NULL,
+    type VARCHAR(191) NOT NULL,
     descriptionHe TEXT,
     tags JSON,
-    img_url VARCHAR(500),
-    popularity_score INT DEFAULT 0,
+    img_url VARCHAR(2048),
+    popularity_score INT NOT NULL DEFAULT 0,
     audience_scores JSON,
     best_months JSON,
     avoid_months JSON,
@@ -52,15 +51,16 @@ CREATE TABLE IF NOT EXISTS attraction (
 CREATE TABLE IF NOT EXISTS trip (
     tripId INT AUTO_INCREMENT PRIMARY KEY,
     userId INT NOT NULL,
-    tripName VARCHAR(255) NOT NULL,
+    tripName VARCHAR(191) NOT NULL,
     countryId INT NOT NULL,
     startMonth INT NOT NULL,
     endMonth INT NOT NULL,
-    travelStyle VARCHAR(50) NOT NULL,
-    budget VARCHAR(50) NOT NULL,
+    travelStyle VARCHAR(191) NOT NULL,
+    budget VARCHAR(191) NOT NULL,
     interests JSON,
-    createdAt VARCHAR(20) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES user(userId)
+    createdAt DATE NOT NULL,
+    FOREIGN KEY (userId) REFERENCES user(userId),
+    FOREIGN KEY (countryId) REFERENCES country(countryId)
 );
 
 CREATE TABLE IF NOT EXISTS trip_attraction (
@@ -73,18 +73,18 @@ CREATE TABLE IF NOT EXISTS trip_attraction (
 
 CREATE TABLE IF NOT EXISTS settings (
     userId INT PRIMARY KEY,
-    theme VARCHAR(50) DEFAULT 'light',
-    fontSize VARCHAR(50) DEFAULT 'medium',
-    density VARCHAR(50) DEFAULT 'normal',
+    theme VARCHAR(191) NOT NULL DEFAULT 'light',
+    fontSize VARCHAR(191) NOT NULL DEFAULT 'medium',
+    density VARCHAR(191) NOT NULL DEFAULT 'normal',
     FOREIGN KEY (userId) REFERENCES user(userId) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS message (
     messageId INT AUTO_INCREMENT PRIMARY KEY,
-    room VARCHAR(100) NOT NULL,
+    room VARCHAR(191) NOT NULL,
     userId INT NOT NULL,
-    userName VARCHAR(100) NOT NULL,
+    userName VARCHAR(191) NOT NULL,
     text TEXT NOT NULL,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     INDEX idx_message_room (room)
 );

@@ -1,8 +1,8 @@
--- Add city summary + banner image URL
+-- Migration 002: add editorial content (Hebrew summary + banner image) to cities
 ALTER TABLE city ADD COLUMN summary_he TEXT NULL;
 ALTER TABLE city ADD COLUMN banner_image_url VARCHAR(2048) NULL;
 
--- Seed main cities (ids 1-4 from dump)
+-- Seed main cities (ids 1-6 from dump)
 UPDATE city SET
     summary_he = 'בירת פרו, עיר של קוויצ''ה מעולה, שכונות קולוניאליות וחופי האוקיינוס השקט. שער הכניסה לפרו ומרכז גסטרונומי עולמי.',
     banner_image_url = 'https://loremflickr.com/800/600/lima,peru001/all'

@@ -1,4 +1,4 @@
--- Country summary + banner image
+-- Migration 003: add editorial content (Hebrew summary + banner image) to countries
 ALTER TABLE country ADD COLUMN summary_he TEXT NULL;
 ALTER TABLE country ADD COLUMN banner_image_url VARCHAR(2048) NULL;
 
