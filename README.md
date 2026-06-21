@@ -1,7 +1,7 @@
 # Shvil HaTahina (שביל הטחינה)
 
-**Assignment 4** | Omer Sherman, Hillel Zilberman, Michal Adam  
-Course: Web Environments (סביבות פיתוח באינטרנט) · Ben-Gurion University
+Omer Sherman, Hillel Zilberman, Michal Adam  
+Course: Web Development Environments · Ben-Gurion University
 
 Shvil HaTahina is a full-stack travel-planning app for backpackers heading to South America.
 The frontend is a React SPA; the backend is Express with MySQL (Prisma ORM), Socket.IO for
