@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Shvil HaTahina — Assignment 4",
-    "description": "Full REST coverage for Shvil HaTahina (Assignment 4).\n\nPrerequisites:\n1. cd backend && npm run db:setup && npm start\n2. Import this collection into Postman\n3. Run \"POST login — success (user)\" or \"POST login — success (admin)\" first — they save userId/userRole to collection variables\n4. Use Collection Runner on the whole collection — each request runs an automatic test on the { success, data, error } envelope\n\nSeed passwords: 123456 for all users (michal@example.com = admin, user@example.com = user id 4).",
+    "name": "Shvil HaTahina API",
+    "description": "REST API for Shvil HaTahina.\n\nBase URL: {{baseUrl}} (default http://localhost:3000/api). Start the backend before sending requests — see README.md.\n\nTest users (password 123456):\n• michal@example.com — admin\n• user@example.com — user\n• hillel@example.com — manager\n\nProtected routes need headers x-user-id and x-user-role. Run a login request first to set the collection variables.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -18,7 +18,7 @@
           "const ct = pm.response.headers.get('Content-Type') || '';",
           "if (ct.includes('application/json')) {",
           "  const body = pm.response.json();",
-          "  pm.test('API envelope (success, data, error)', function () {",
+          "pm.test('Response format', function () {",
           "    pm.expect(body).to.have.property('success');",
           "    pm.expect(body).to.have.property('data');",
           "    pm.expect(body).to.have.property('error');",

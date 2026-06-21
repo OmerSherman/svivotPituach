@@ -1,17 +1,11 @@
 # Shvil HaTahina (שביל הטחינה)
 
-**Assignment 4** | Omer Sherman, Hillel Zilberman, Michal Adam
+**Assignment 4** | Omer Sherman, Hillel Zilberman, Michal Adam  
 Course: Web Environments (סביבות פיתוח באינטרנט) · Ben-Gurion University
 
-This is the **single README for the whole project** (frontend + backend). It follows the
-assignment's documentation checklist — purpose, installation, database setup, environment
-variables, ORM setup, API endpoints, WebSocket feature, AI feature, known limitations — and is
-written so a classmate can clone the repo and run the full app without asking anyone a question.
-
-> Note: [`ARCHITECTURE.md`](./ARCHITECTURE.md) in this repo describes an **earlier** version of the
-> backend (raw `mysql2` "ORM" classes, `/api/favorites` as an in-memory array) that predates the
-> current Prisma-based repository layer described below. Trust this README and the code over
-> `ARCHITECTURE.md`.
+Shvil HaTahina is a full-stack travel-planning app for backpackers heading to South America.
+The frontend is a React SPA; the backend is Express with MySQL (Prisma ORM), Socket.IO for
+real-time chat, and Groq for AI-assisted trip planning.
 
 ---
 
@@ -68,7 +62,7 @@ npm start                  # → http://localhost:3000
 # 2. Frontend (separate terminal)
 cd frontend
 npm install
-npm start                  # → http://localhost:5173 (frontend/.env already ships ready to use)
+npm start                  # → http://localhost:5173
 ```
 
 **Start the backend first** — the frontend expects it on port 3000 immediately (REST calls and the
@@ -124,10 +118,9 @@ CREATE DATABASE IF NOT EXISTS mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode
 | `npm run db:studio` | Opens Prisma Studio in the browser to view/edit rows without resetting. |
 | `npm run db:generate` | Regenerates the Prisma client after changing `models/schema.prisma`. |
 
-Seed data lives in `backend/src/seed/*.json` and is only read by the setup script above — never at
-request time. `backend/migrations/*.sql` is a legacy/reference copy of the schema kept for the
-assignment's required folder layout; it is **not** used by Prisma — the live schema is
-`backend/models/schema.prisma`, applied via `prisma db push`.
+Seed data lives in `backend/src/seed/*.json` and is loaded by the setup script above.
+The live schema is `backend/models/schema.prisma`, applied via `prisma db push`.
+SQL files under `backend/migrations/` document the table structure.
 
 ---
 
@@ -158,7 +151,7 @@ GROQ_MODEL=llama-3.1-8b-instant
 
 `backend/.env` is gitignored — never committed.
 
-### Frontend — `frontend/.env` (ships ready in the repo, no edits needed for local dev)
+### Frontend — `frontend/.env`
 
 ```env
 PORT=5173
@@ -166,7 +159,7 @@ REACT_APP_API_URL=http://localhost:3000/api
 REACT_APP_SOCKET_URL=http://localhost:3000
 ```
 
----
+Copy from `frontend/.env.example` if the file is missing.
 
 ## ORM setup
 
@@ -424,11 +417,9 @@ two things:
    `travelStyle` ∈ `solo`\|`couple`\|`family`\|`group`, `budget` ∈ `low`\|`medium`\|`high`,
    `interests`), and signals `draft-ready` once `utils/validateTripDraft.js` accepts it.
    `validateTripDraft.js` requires both months 1–12, a real `countryId`, and silently drops any
-   `interests` tag not in its fixed Hebrew whitelist (תרבות, היסטוריה, טבע, נוף, אוכל, אמנות,
-   אדריכלות, חוף, הליכה, צילום, חיי לילה, קניות) — keep this list in sync with
-   `frontend/src/components/TripForm.jsx`'s own options if either changes. The frontend
-   (`AiTripChatModal`) then lets the user confirm/edit the ready draft and save it as a real trip via
-   `POST /api/profile`.
+   `interests` tag not in the fixed Hebrew whitelist (תרבות, היסטוריה, טבע, נוף, אוכל, אמנות,
+   אדריכלות, חוף, הליכה, צילום, חיי לילה, קניות). The frontend (`AiTripChatModal`) lets the user
+   confirm or edit the draft and save it via `POST /api/profile`.
 2. **One-shot trip summary** (`POST /api/ai/trip-summary`) — given a `tripId` the caller owns, builds
    a context object (country name, date range, travel style, budget, interests, favorited attraction
    names) and asks Groq for a short Hebrew narrative summary, shown on `TripDetail.jsx`.
@@ -471,8 +462,7 @@ keeps you logged in and keeps your theme without a server round-trip.
 ## Known limitations
 
 - **No real authentication.** There is no session/JWT — the client sends `x-user-id`/`x-user-role`
-  as plain, unsigned headers, and the server trusts them as-is. Anyone who can set arbitrary headers
-  can impersonate any user or role. Explicit course-project simplification.
+  as plain headers, and the server trusts them as-is.
 - **Passwords are stored in plaintext** in the `user` table.
 - **The login flow exposes the plaintext password over the network.** `Login.jsx` calls
   `GET /api/users/:id` right after login to fetch the full profile — that endpoint returns the raw
@@ -482,24 +472,22 @@ keeps you logged in and keeps your theme without a server round-trip.
   assume any response other than `/me` ever hides the password.
 - **Password strength (6+ chars) is only enforced client-side** (`Login.jsx`); the backend's
   `checkFields` middleware only checks that `password` is present, not its length.
-- **Two overlapping favorites APIs.** `POST /api/profile/:id/favorites` and the whole
-  `/api/favorites` resource both read/write the *same* `trip_attraction` table through two
-  differently-shaped controllers (`tripRepo.toggleFavorite` vs. `favoriteRepo`'s
-  userId/tripId/itemId/itemType API) — check which one a given frontend feature actually calls.
-- **"Profile" means "trip".** `/api/profile` and `profiles_c.js` manage a user's saved trip, not
-  account-profile data (that's `/api/users/me`) — inherited naming, never renamed.
-- **`MyTrips.jsx` exists but isn't routed.** `App.js` has no `/mytrips`/`/trips` route for it — trip
-  listing/CRUD instead lives inline on `Home.jsx`. The file is effectively dead code.
-- **AI chat sessions are in-memory only** (`aiTripSocket.js`'s `Map` keyed by socket id) — lost on
-  server restart, not shared across multiple server instances.
-- **No automated tests.** Backend `npm test` is an unimplemented placeholder; the frontend only has
-  the unmodified CRA boilerplate `App.test.js`.
-- **`backend/migrations/*.sql` is informational only** — not wired into Prisma's migration engine;
-  the live schema is `backend/models/schema.prisma`.
-- **CORS is hardcoded** to `http://localhost:5173` in `backend/src/app.js` (both REST and Socket.IO)
-  — deploying the frontend elsewhere needs a code change, not just an env var.
-- **`ARCHITECTURE.md` is stale** (see the note at the top of this file) — don't rely on it for the
-  current data-access layer or for `/api/favorites`' behavior.
-- **AI features degrade gracefully but are a hard third-party dependency** — without a valid
-  `GROQ_API_KEY` the AI trip-chat and trip-summary are unavailable, but every other feature
-  (including manual trip CRUD) works normally.
+- **Two overlapping favorites APIs.** `POST /api/profile/:id/favorites` and `/api/favorites`
+  both read/write the same `trip_attraction` table through different controller shapes.
+- **"Profile" means "trip".** `/api/profile` manages saved trips; account data is under `/api/users/me`.
+- **AI chat sessions are in-memory only** — lost on server restart.
+- **No automated tests.** Backend `npm test` is a placeholder.
+- **CORS is hardcoded** to `http://localhost:5173` in `backend/src/app.js`.
+- **AI requires Groq.** Without a valid `GROQ_API_KEY`, trip-chat and trip-summary return
+  `AI_UNAVAILABLE`; all other features work normally.
+
+---
+
+## Additional files
+
+| File | Description |
+|------|-------------|
+| `backend/docs/postman_collection.json` | Postman collection for the REST API |
+| `backend/docs/screenshots/` | Demo video and screenshot evidence |
+| `backend/.env.example` | Backend environment template |
+| `frontend/.env.example` | Frontend environment template |
