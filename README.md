@@ -9,7 +9,7 @@ real-time chat, and Groq for AI-assisted trip planning.
 
 This README is the setup guide for the submitted project folder. Extract the ZIP anywhere on your
 machine, then follow the steps below to install dependencies, configure the database, and run the app
-locally. No Git or remote repository is required.
+locally. 
 
 ### What is in the package
 
