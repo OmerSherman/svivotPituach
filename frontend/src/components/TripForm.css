@@ -1,0 +1,164 @@
+/* the dark overlay that covers the page behind the modal */
+.trip-form-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg-overlay);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 200;
+    padding: 30px 20px;
+    overflow-y: auto;
+}
+
+/* the white card in the center */
+.trip-form {
+    background: var(--bg-surface);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 560px;
+    padding: 28px 32px;
+    position: relative;
+    box-shadow: var(--shadow-modal);
+    margin: auto;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.trip-form h2 {
+    margin: 0 0 6px;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    text-align: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color-soft);
+}
+
+/* single field (label + input) */
+.trip-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.trip-form-field input,
+.trip-form-field select {
+    padding: 9px 12px;
+    border: 1px solid var(--border-color-input);
+    border-radius: 9px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    font-weight: normal;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.trip-form-field input:focus,
+.trip-form-field select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 3px rgba(59, 76, 202, 0.12);
+}
+
+/* two columns side by side */
+.trip-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* interest chips container */
+.trip-form-interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 6px;
+}
+
+/* one interest chip */
+.interest-chip {
+    padding: 6px 14px;
+    border-radius: 18px;
+    border: 1px solid var(--border-color-input);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    font-weight: normal;
+    transition: all 0.15s;
+}
+
+.interest-chip:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.interest-chip-active {
+    background: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
+}
+
+.interest-chip-active:hover {
+    color: #ffffff;
+}
+
+/* error message */
+.trip-form-error {
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--status-error-bg);
+    color: var(--status-error-text);
+    border: 1px solid var(--status-error-border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* row of save / cancel buttons */
+.trip-form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color-soft);
+}
+
+.trip-form-save,
+.trip-form-cancel {
+    padding: 9px 20px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color-input);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background 0.15s;
+}
+
+.trip-form-cancel {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.trip-form-cancel:hover {
+    background: var(--bg-surface-3);
+}
+
+.trip-form-save {
+    background: var(--accent-primary);
+    color: #ffffff;
+    border-color: var(--accent-primary);
+}
+
+.trip-form-save:hover {
+    background: var(--accent-primary-hover);
+}

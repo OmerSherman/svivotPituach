@@ -1,0 +1,803 @@
+{
+  "info": {
+    "name": "Shvil HaTahina — Assignment 4",
+    "description": "Full REST coverage for Shvil HaTahina (Assignment 4).\n\nPrerequisites:\n1. cd backend && npm run db:setup && npm start\n2. Import this collection into Postman\n3. Run \"POST login — success (user)\" or \"POST login — success (admin)\" first — they save userId/userRole to collection variables\n4. Use Collection Runner on the whole collection — each request runs an automatic test on the { success, data, error } envelope\n\nSeed passwords: 123456 for all users (michal@example.com = admin, user@example.com = user id 4).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "userId", "value": "4" },
+    { "key": "userRole", "value": "user" }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const ct = pm.response.headers.get('Content-Type') || '';",
+          "if (ct.includes('application/json')) {",
+          "  const body = pm.response.json();",
+          "  pm.test('API envelope (success, data, error)', function () {",
+          "    pm.expect(body).to.have.property('success');",
+          "    pm.expect(body).to.have.property('data');",
+          "    pm.expect(body).to.have.property('error');",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST register — success",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"dana\",\n  \"lastName\": \"levi\",\n  \"email\": \"dana-test@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST register — missing fields",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"dana\"\n}" }
+          }
+        },
+        {
+          "name": "POST login — success (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success && j.data && j.data.userId) {",
+                  "  pm.collectionVariables.set('userId', String(j.data.userId));",
+                  "  pm.collectionVariables.set('userRole', j.data.userRole);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST login — success (user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.success && j.data && j.data.userId) {",
+                  "  pm.collectionVariables.set('userId', String(j.data.userId));",
+                  "  pm.collectionVariables.set('userRole', j.data.userRole);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST login — wrong password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"michal@example.com\",\n  \"password\": \"wrong\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET me",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/me",
+            "header": [
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ]
+          }
+        },
+        {
+          "name": "PUT me — update profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/me",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"test\",\n  \"lastName\": \"user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT me — not logged in",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/me",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"x\"\n}" }
+          }
+        },
+        {
+          "name": "GET all users — admin",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users",
+            "header": [{ "key": "x-user-role", "value": "admin" }]
+          }
+        },
+        {
+          "name": "GET all users — forbidden",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users",
+            "header": [{ "key": "x-user-role", "value": "user" }]
+          }
+        },
+        {
+          "name": "GET user by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/1",
+            "header": []
+          }
+        },
+        {
+          "name": "GET user not found",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/999",
+            "header": []
+          }
+        },
+        {
+          "name": "POST create user — admin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"yael\",\n  \"lastName\": \"cohen\",\n  \"userRole\": \"user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT update user — manager",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/4",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "manager" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"updated\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE user — admin",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/99",
+            "header": [{ "key": "x-user-role", "value": "admin" }]
+          }
+        },
+        {
+          "name": "DELETE user — self",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/4",
+            "header": [
+              { "key": "x-user-role", "value": "user" },
+              { "key": "x-user-id", "value": "4" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Countries",
+      "item": [
+        {
+          "name": "GET all countries",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries", "header": [] }
+        },
+        {
+          "name": "GET country by id — Peru",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries/1", "header": [] }
+        },
+        {
+          "name": "GET country by id — Colombia",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries/4", "header": [] }
+        },
+        {
+          "name": "GET country not found",
+          "request": { "method": "GET", "url": "{{baseUrl}}/countries/999", "header": [] }
+        }
+      ]
+    },
+    {
+      "name": "Cities",
+      "item": [
+        {
+          "name": "GET all cities",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cities", "header": [] }
+        },
+        {
+          "name": "GET search — English",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cities/search?q=buenos",
+              "host": ["{{baseUrl}}"],
+              "path": ["cities", "search"],
+              "query": [{ "key": "q", "value": "buenos" }]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET search — Hebrew",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cities/search?q=ריו",
+              "host": ["{{baseUrl}}"],
+              "path": ["cities", "search"],
+              "query": [{ "key": "q", "value": "ריו" }]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET search — no query",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cities/search", "header": [] }
+        },
+        {
+          "name": "GET city by id",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cities/1", "header": [] }
+        },
+        {
+          "name": "GET city not found",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cities/999", "header": [] }
+        }
+      ]
+    },
+    {
+      "name": "Attractions",
+      "item": [
+        {
+          "name": "GET all attractions",
+          "request": { "method": "GET", "url": "{{baseUrl}}/attractions", "header": [] }
+        },
+        {
+          "name": "GET personalized score",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/attractions?travelStyle=solo&startMonth=3&endMonth=5&interests=תרבות,טבע",
+              "host": ["{{baseUrl}}"],
+              "path": ["attractions"],
+              "query": [
+                { "key": "travelStyle", "value": "solo" },
+                { "key": "startMonth", "value": "3" },
+                { "key": "endMonth", "value": "5" },
+                { "key": "interests", "value": "תרבות,טבע" }
+              ]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET filter by type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/attractions?type=site",
+              "host": ["{{baseUrl}}"],
+              "path": ["attractions"],
+              "query": [{ "key": "type", "value": "site" }]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET filter by city",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/attractions?city_id=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["attractions"],
+              "query": [{ "key": "city_id", "value": "2" }]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET top attractions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/attractions/top?min_score=80&limit=6",
+              "host": ["{{baseUrl}}"],
+              "path": ["attractions", "top"],
+              "query": [
+                { "key": "min_score", "value": "80" },
+                { "key": "limit", "value": "6" }
+              ]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET map pins by city",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/attractions/map?city_id=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["attractions", "map"],
+              "query": [{ "key": "city_id", "value": "2" }]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET map pins — missing city_id",
+          "request": { "method": "GET", "url": "{{baseUrl}}/attractions/map", "header": [] }
+        },
+        {
+          "name": "GET attraction by id",
+          "request": { "method": "GET", "url": "{{baseUrl}}/attractions/1", "header": [] }
+        },
+        {
+          "name": "GET attraction not found",
+          "request": { "method": "GET", "url": "{{baseUrl}}/attractions/999", "header": [] }
+        },
+        {
+          "name": "POST create attraction — admin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/attractions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": 2,\n  \"name\": \"Test Attraction\",\n  \"name_he\": \"אטרקציית בדיקה\",\n  \"type\": \"site\",\n  \"description_he\": \"תיאור לבדיקה\",\n  \"image_url\": \"https://picsum.photos/seed/postman-test/800/600\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create — missing fields",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/attractions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"test\"\n}" }
+          }
+        },
+        {
+          "name": "POST create — invalid type",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/attractions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": 2,\n  \"name\": \"test\",\n  \"name_he\": \"טסט\",\n  \"type\": \"invalid\",\n  \"description_he\": \"תיאור\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT update attraction — manager",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/attractions/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "manager" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"description_he\": \"תיאור מעודכן\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE attraction — admin",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/attractions/99",
+            "header": [{ "key": "x-user-role", "value": "admin" }]
+          }
+        },
+        {
+          "name": "DELETE attraction — forbidden",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/attractions/1",
+            "header": [{ "key": "x-user-role", "value": "user" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trips (Profile)",
+      "item": [
+        {
+          "name": "GET my trips",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ]
+          }
+        },
+        {
+          "name": "POST create trip",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"טיול לפרו\",\n  \"countryId\": 1,\n  \"startMonth\": 3,\n  \"endMonth\": 5,\n  \"travelerType\": \"solo\",\n  \"budgetLevel\": \"medium\",\n  \"interests\": [\"תרבות\", \"טבע\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create trip — Colombia",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"טיול לקולומביה\",\n  \"countryId\": 4,\n  \"startMonth\": 6,\n  \"endMonth\": 8,\n  \"travelerType\": \"couple\",\n  \"budgetLevel\": \"medium\",\n  \"interests\": [\"תרבות\", \"אוכל\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create trip — invalid countryId",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"טיול לא קיים\",\n  \"countryId\": 99,\n  \"startMonth\": 3,\n  \"endMonth\": 5,\n  \"travelerType\": \"solo\",\n  \"budgetLevel\": \"low\",\n  \"interests\": [\"טבע\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "POST create trip — missing fields",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"טיול\"\n}" }
+          }
+        },
+        {
+          "name": "GET trip by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/1",
+            "header": [
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET trip by id — forbidden (other user)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/1",
+            "header": [
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-user-role", "value": "admin" }
+            ]
+          }
+        },
+        {
+          "name": "GET trip not found",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/999",
+            "header": [
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ]
+          }
+        },
+        {
+          "name": "PUT update trip",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/profile/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"טיול מעודכן\"\n}" }
+          }
+        },
+        {
+          "name": "POST toggle favorite",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/profile/1/favorites",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"attractionId\": 9\n}" }
+          }
+        },
+        {
+          "name": "DELETE trip",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/profile/1",
+            "header": [
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        {
+          "name": "GET settings",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/settings",
+            "header": [
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-user-role", "value": "admin" }
+            ]
+          }
+        },
+        {
+          "name": "PUT settings",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/settings",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "1" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"theme\": \"dark\",\n  \"fontSize\": \"medium\",\n  \"density\": \"normal\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "GET favorites by user",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/favorites?userId=4",
+              "host": ["{{baseUrl}}"],
+              "path": ["favorites"],
+              "query": [{ "key": "userId", "value": "4" }]
+            },
+            "header": []
+          }
+        },
+        {
+          "name": "GET favorites — missing userId",
+          "request": { "method": "GET", "url": "{{baseUrl}}/favorites", "header": [] }
+        },
+        {
+          "name": "POST add favorite",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/favorites",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 4,\n  \"tripId\": 1,\n  \"itemId\": 3,\n  \"itemType\": \"attraction\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST add favorite — duplicate",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/favorites",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 4,\n  \"tripId\": 1,\n  \"itemId\": 3,\n  \"itemType\": \"attraction\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST add favorite — forbidden (not your trip)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/favorites",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"tripId\": 1,\n  \"itemId\": 5,\n  \"itemType\": \"attraction\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE favorite",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/favorites/1-3",
+            "header": []
+          }
+        },
+        {
+          "name": "DELETE favorite — not found",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/favorites/999-999",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Forum",
+      "item": [
+        {
+          "name": "GET messages — city room",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forum/city_3/messages",
+            "header": []
+          }
+        },
+        {
+          "name": "GET messages — country room",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forum/country_1/messages",
+            "header": []
+          }
+        },
+        {
+          "name": "GET messages — invalid room",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forum/invalid_room/messages",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "POST trip summary",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/trip-summary",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"tripId\": 1\n}" }
+          }
+        },
+        {
+          "name": "POST trip summary — missing tripId",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/trip-summary",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{userId}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "POST trip summary — not logged in",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/trip-summary",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"tripId\": 1\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}

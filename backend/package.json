@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "db:setup": "node src/scripts/setup-database.js",
+        "db:seed": "node src/scripts/setup-database.js --seed-only",
+        "db:generate": "prisma generate --schema=models/schema.prisma",
+        "db:studio": "prisma studio --schema=models/schema.prisma"
+    },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "axios": "^1.18.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "groq-sdk": "^1.2.1",
+    "mysql2": "^3.22.3",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.8.2"
+  }
+}

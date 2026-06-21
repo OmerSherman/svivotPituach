@@ -1,0 +1,23 @@
+.layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.layout-main--forum {
+    overflow: hidden;
+    height: calc(100vh - 58px);
+    max-height: calc(100vh - 58px);
+}
+
+.layout-main--forum > .forum-page {
+    flex: 1;
+    min-height: 0;
+}

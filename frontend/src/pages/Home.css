@@ -1,0 +1,202 @@
+.home-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+}
+
+.home-hero {
+    text-align: center;
+    padding: 36px 20px 28px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-page) 100%);
+    border-radius: 0 0 20px 20px;
+}
+
+.home-hero h1 {
+    margin: 0 0 10px;
+    font-size: 2.1rem;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.home-subtitle {
+    margin: 0 auto;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.home-section {
+    margin-top: 36px;
+    scroll-margin-top: 90px;
+}
+
+.home-section h2 {
+    margin: 0 0 18px;
+    font-size: 1.45rem;
+    color: var(--text-primary);
+    border-right: 4px solid var(--accent-primary);
+    padding-right: 12px;
+}
+
+/* grid respects the density preference */
+.home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-card-width), 1fr));
+    gap: 18px;
+}
+
+.home-empty, .home-error {
+    padding: 18px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.home-empty {
+    background: var(--status-warning-bg);
+    color: var(--status-warning-text);
+    border: 1px dashed var(--status-warning-border);
+}
+
+.home-error {
+    background: var(--status-error-bg);
+    color: var(--status-error-text);
+    border: 1px solid var(--status-error-border);
+}
+
+/* my trips section */
+.home-trips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.home-trips-header h2 {
+    margin: 0;
+}
+
+.home-add-trip-btn {
+    padding: 10px 20px;
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.home-add-trip-btn:hover {
+    background: var(--accent-primary-hover);
+}
+
+.home-trips-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.home-add-trip-btn-ai {
+    background: var(--accent-secondary);
+}
+
+.home-add-trip-btn-ai:hover {
+    filter: brightness(0.92);
+}
+
+.home-trips-empty {
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--bg-surface-3);
+    border: 2px dashed var(--border-color);
+    border-radius: 14px;
+    color: var(--text-muted);
+}
+
+.home-trips-empty p {
+    margin: 4px 0;
+}
+
+.home-trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.home-trip-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.home-trip-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.home-trip-body {
+    padding: 18px;
+    cursor: pointer;
+}
+
+.home-trip-body h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    color: var(--text-primary);
+}
+
+.home-trip-dest, .home-trip-dates {
+    margin: 0 0 6px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.home-trip-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.home-trip-tag {
+    padding: 3px 10px;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.home-trip-tag-fav {
+    background: var(--tag-fav-bg);
+    color: var(--tag-fav-color);
+}
+
+.home-trip-actions {
+    display: flex;
+    border-top: 1px solid var(--border-color-soft);
+}
+
+.home-trip-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+}
+
+.home-trip-actions button:hover {
+    background: var(--bg-surface-3);
+}
+
+.home-trip-actions button:first-child {
+    border-left: 1px solid var(--border-color-soft);
+}

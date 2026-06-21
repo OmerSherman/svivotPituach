@@ -2,6 +2,7 @@
 node_modules/
 
 # production build
+frontend/build/
 client/build/
 
 # logs
@@ -12,7 +13,22 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .vscode/
+backend/.idea/
 
-# NOTE: the .env files ARE committed on purpose for this assignment.
-# They contain only ports and a local API URL (mock data, no real secrets),
-# so the project runs with zero configuration. Do NOT add .env here.
+# Backend env (copy backend/.env.example to get started)
+backend/.env
+
+# Legacy Server folder — do not commit secrets
+Server/.env
+Server/
+
+# NOTE: frontend/.env IS still committed on purpose for this assignment.
+# It contains only local API URLs (no secrets),
+# so the frontend runs with zero configuration. Do NOT add frontend/.env here.
+
+# personal planning docs, not part of the deliverable
+PROJECT_OVERVIEW.md
+SPEC-AI-TRIP-PLANNER.md
+
+# standalone Wikivoyage scraper, not part of the app submission for now
+backend/src/scraper/

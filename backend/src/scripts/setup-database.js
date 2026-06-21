@@ -1,0 +1,197 @@
+/**
+ * Reset DB and fill with clean Hebrew seed data.
+ *
+ * ONE command:  cd backend && npm run db:setup
+ *
+ * Data lives in backend/src/seed/*.json — edit those files to change content.
+ */
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const { prisma } = require('../db');
+
+const SEED = path.join(__dirname, '../seed');
+const SERVER = path.join(__dirname, '../..');
+
+function load(name) {
+    return JSON.parse(fs.readFileSync(path.join(SEED, name), 'utf8'));
+}
+
+function cityImage(id) {
+    return 'https://picsum.photos/seed/shvil-city-' + id + '/800/600';
+}
+
+function countryImage(id) {
+    return 'https://picsum.photos/seed/shvil-country-' + id + '/800/600';
+}
+
+function attractionImage(id) {
+    return 'https://picsum.photos/seed/shvil-attr-' + id + '/800/600';
+}
+
+async function seedCountries() {
+    const rows = load('countries.json');
+    for (const c of rows) {
+        await prisma.country.create({
+            data: {
+                countryId: c.id,
+                countryNameEn: c.name_en,
+                countryNameHe: c.name_he,
+                summaryHe: c.summary_he,
+                bannerImageUrl: countryImage(c.id),
+                latitude: c.latitude ?? null,
+                longitude: c.longitude ?? null
+            }
+        });
+    }
+    console.log('  countries:', rows.length);
+}
+
+async function seedCities() {
+    const rows = load('cities.json');
+    for (const c of rows) {
+        await prisma.city.create({
+            data: {
+                cityId: c.id,
+                cityNameEn: c.name_en,
+                cityNameHe: c.name_he,
+                countryId: c.country_id,
+                summaryHe: c.summary_he,
+                bannerImageUrl: cityImage(c.id),
+                latitude: c.latitude ?? null,
+                longitude: c.longitude ?? null
+            }
+        });
+    }
+    console.log('  cities:', rows.length);
+}
+
+async function seedUsers() {
+    const rows = load('users.json');
+    for (const u of rows) {
+        await prisma.user.create({
+            data: {
+                userId: u.userId,
+                firstName: u.firstName,
+                lastName: u.lastName,
+                email: u.email,
+                password: u.password,
+                userRole: u.userRole,
+                createDate: u.createDate,
+                updateDate: u.updateDate
+            }
+        });
+    }
+    console.log('  users:', rows.length);
+}
+
+async function seedSettings() {
+    const rows = load('settings.json');
+    for (const s of rows) {
+        await prisma.settings.create({ data: s });
+    }
+    console.log('  settings:', rows.length);
+}
+
+async function seedAttractions() {
+    const rows = load('attractions.json');
+    for (const a of rows) {
+        await prisma.attraction.create({
+            data: {
+                attractionId: a.id,
+                cityId: a.city_id,
+                name: a.name,
+                nameHE: a.name_he,
+                type: a.type,
+                descriptionHe: a.description_he,
+                tags: a.tags,
+                img_url: attractionImage(a.id),
+                popularity_score: a.popularity_score,
+                audience_scores: a.audience_scores,
+                best_months: a.best_months,
+                avoid_months: a.avoid_months || [],
+                seasonal_note_he: a.seasonal_note_he || null,
+                latitude: a.latitude,
+                longitude: a.longitude
+            }
+        });
+    }
+    console.log('  attractions:', rows.length);
+}
+
+async function verify() {
+    const counts = {
+        countries: await prisma.country.count(),
+        cities: await prisma.city.count(),
+        attractions: await prisma.attraction.count(),
+        users: await prisma.user.count()
+    };
+    const sample = await prisma.city.findFirst({ where: { cityId: 1 } });
+    console.log('\n=== סיכום ===');
+    console.log('  טבלאות:', counts);
+    console.log('  דוגמה — לימה:', sample.cityNameHe, '| תמונה:', sample.bannerImageUrl ? 'כן' : 'לא');
+}
+
+async function seedAll() {
+    await seedCountries();
+    await seedCities();
+    await seedUsers();
+    await seedSettings();
+    await seedAttractions();
+}
+
+async function runSeedOnly() {
+    if (!process.env.DATABASE_URL) {
+        console.error('חסר DATABASE_URL ב-backend/.env');
+        process.exit(1);
+    }
+
+    console.log('Syncing schema (no data wipe)...');
+    execSync('npx prisma db push --schema=models/schema.prisma', { cwd: SERVER, stdio: 'inherit' });
+
+    const existing = await prisma.city.count();
+    if (existing > 0) {
+        console.log('\nDB already has', existing, 'cities. Skipping seed.');
+        console.log('To wipe and rebuild: npm run db:setup');
+        await prisma.$disconnect();
+        return;
+    }
+
+    console.log('\nDB is empty — filling from backend/src/seed/...');
+    await seedAll();
+    await verify();
+    await prisma.$disconnect();
+    console.log('\nDone. Run: npm start');
+}
+
+async function run() {
+    if (!process.env.DATABASE_URL) {
+        console.error('חסר DATABASE_URL ב-backend/.env');
+        process.exit(1);
+    }
+
+    console.log('1/2 — יוצר מחדש את מבנה הטבלאות (Prisma)...');
+    execSync('npx prisma db push --force-reset --accept-data-loss --schema=models/schema.prisma', {
+        cwd: SERVER,
+        stdio: 'inherit'
+    });
+
+    console.log('\n2/2 — ממלא נתונים מ-backend/src/seed/...');
+    await seedAll();
+    await verify();
+    await prisma.$disconnect();
+    console.log('\nהסתיים. הריצי: npm start');
+}
+
+module.exports = { run, runSeedOnly, seedAll };
+
+if (require.main === module) {
+    const seedOnly = process.argv.includes('--seed-only');
+    const fn = seedOnly ? runSeedOnly : run;
+    fn().catch(async function(err) {
+        console.error(err);
+        await prisma.$disconnect();
+        process.exit(1);
+    });
+}
