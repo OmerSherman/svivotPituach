@@ -19,7 +19,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "parcel build src/index.js --dist-dir ../client/dist",
+    "build": "parcel build src/index.js --dist-dir ../client/dist --no-cache",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
