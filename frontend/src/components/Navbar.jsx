@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import usersService from "../services/usersService";
 import userContext from "../contexts/userContext";
-import logo from "../assets/logo-transparent.svg";
+const logo = "/logo-transparent.svg";
 import "./Navbar.css";
 
 function Navbar() {
@@ -60,7 +60,7 @@ function Navbar() {
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">
-                <img src={logo.default || logo} alt="שביל הטחינה" />
+                <img src={logo} alt="שביל הטחינה" />
                 <span>שביל הטחינה</span>
             </Link>
             <div className="navbar-links">
