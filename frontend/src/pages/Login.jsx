@@ -57,7 +57,7 @@ function Login() {
             <div className="login-container">
                 {/* logo + title at the top */}
                 <div className="login-brand">
-                    <img src={logo} alt="שביל הטחינה" className="login-logo"/>
+                    <img src={logo.default || logo} alt="שביל הטחינה" className="login-logo"/>
                     <h2 className="login-tagline">שביל הטחינה</h2>
                     <p className="login-subtitle">המדריך שלך לדרום אמריקה</p>
                 </div>
