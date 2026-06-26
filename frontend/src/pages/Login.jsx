@@ -3,7 +3,7 @@ import authService from "../services/authService";
 import Form from "../components/Form.jsx";
 import AboutModal from "../components/AboutModal";
 import userContext from "../contexts/userContext";
-const logo = "/logo-transparent.svg";
+import logo from "url:../assets/logo-transparent.svg";
 import "./Login.css";
 import usersService from "../services/usersService.js";
 

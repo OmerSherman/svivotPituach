@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import usersService from "../services/usersService";
 import userContext from "../contexts/userContext";
-const logo = "/logo-transparent.svg";
+import logo from "url:../assets/logo-transparent.svg";
 import "./Navbar.css";
 
 function Navbar() {
