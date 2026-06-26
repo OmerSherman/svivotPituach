@@ -60,7 +60,7 @@ function Navbar() {
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">
-                <img src={logo} alt="שביל הטחינה" />
+                <img src={logo.default || logo} alt="שביל הטחינה" />
                 <span>שביל הטחינה</span>
             </Link>
             <div className="navbar-links">

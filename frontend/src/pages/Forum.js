@@ -16,9 +16,9 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconUrl: markerIcon,
-    iconRetinaUrl: markerIcon2x,
-    shadowUrl: markerShadow,
+    iconUrl: markerIcon.default || markerIcon,
+    iconRetinaUrl: markerIcon2x.default || markerIcon2x,
+    shadowUrl: markerShadow.default || markerShadow,
 });
 
 function toCountryRoom(c) {
